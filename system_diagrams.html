@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proper Graphical Diagrams - Social Help</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 30px;
+            background-color: #f1f5f9;
+        }
+        h1 { text-align: center; color: #1e293b; margin-bottom: 5px; }
+        p.subtitle { text-align: center; color: #64748b; margin-bottom: 40px; }
+        .card { 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 30px;
+            margin-bottom: 40px;
+            overflow-x: auto;
+        }
+        .card h2 { margin-top: 0; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+        .mermaid { display: flex; justify-content: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1>Generated Visual System Diagrams</h1>
+    <p class="subtitle">Proper Graphical Flowcharts and UML (Not Text Structure)</p>
+
+    <!-- Use Case Diagram -->
+    <div class="card">
+        <h2>1. Use Case Diagram</h2>
+        <div class="mermaid">
+flowchart LR
+    Donor((Donor User))
+    Org((Organisation))
+    Admin((System Admin))
+
+    subgraph System ["Social Help and Donation System"]
+        UC1([Register & Login])
+        UC2([View Requirements])
+        UC3([Make Donation])
+        UC4([Manage Donations / History])
+        UC5([Post Requirements])
+        UC6([Approve Organisations])
+    end
+
+    Donor --> UC1
+    Donor --> UC2
+    Donor --> UC3
+    Donor --> UC4
+
+    Org --> UC1
+    Org --> UC4
+    Org --> UC5
+
+    Admin --> UC1
+    Admin --> UC6
+        </div>
+    </div>
+
+    <!-- ER Diagram -->
+    <div class="card">
+        <h2>2. Proper Database ER Diagram</h2>
+        <div class="mermaid">
+erDiagram
+    ADMIN { int Id PK string Name string Email }
+    DONOR { int Id PK string Name string Email }
+    ORGANISATION { int Id PK string Name string Type }
+    DONATION { int Id PK string Receipt int DonorId FK int OrgId FK string Status }
+    REQUIREMENT { int Id PK int OrgId FK string ItemType int Quantity }
+
+    DONOR ||--o{ DONATION : "makes"
+    ORGANISATION ||--o{ DONATION : "receives"
+    ORGANISATION ||--o{ REQUIREMENT : "posts"
+        </div>
+    </div>
+
+    <!-- Class Diagram -->
+    <div class="card">
+        <h2>3. System Component & Class Architecture Diagram</h2>
+        <div class="mermaid">
+classDiagram
+    class ApplicationDbContext {
+        +DbSet Admins
+        +DbSet Donors
+        +DbSet Organisations
+        +DbSet Donations
+        +DbSet Requirements
+    }
+
+    class AuthController {
+        +AdminLogin()
+        +OrgRegister()
+        +DonorRegister()
+    }
+
+    class AdminController {
+        +Dashboard()
+        +ApproveOrg(id)
+    }
+
+    class DonorModel {
+        +int Id
+        +string Name
+    }
+
+    class OrganisationModel {
+        +int Id
+        +string Name
+        +OrgStatus Status
+    }
+
+    ApplicationDbContext --> DonorModel
+    ApplicationDbContext --> OrganisationModel
+    AuthController --> ApplicationDbContext
+    AdminController --> ApplicationDbContext
+        </div>
+    </div>
+
+    <!-- Sequence Diagram -->
+    <div class="card">
+        <h2>4. Sequence Diagram (Making a Donation)</h2>
+        <div class="mermaid">
+sequenceDiagram
+    actor Donor
+    participant WebSystem
+    participant Database
+
+    Donor->>WebSystem: Submits Donation Select Form
+    WebSystem->>Database: Insert Donation (Status: Pending)
+    Database-->>WebSystem: Confirm Insert & Return ID
+    WebSystem-->>Donor: Show Receipt & Success
+    WebSystem->>Database: (Organisation later checks dashboard)
+        </div>
+    </div>
+
+    <!-- Activity Diagram -->
+    <div class="card">
+        <h2>5. Activity Flow Diagram</h2>
+        <div class="mermaid">
+stateDiagram-v2
+    [*] --> Login
+    Login --> Dashboard : Success
+    Dashboard --> SelectRequirement
+    SelectRequirement --> SubmitDonation
+    SubmitDonation --> PendingVerification
+    PendingVerification --> Accepted : Org Approves
+    PendingVerification --> Rejected : Org Rejects
+    Accepted --> [*]
+    Rejected --> [*]
+        </div>
+    </div>
+
+    <!-- Component Diagram -->
+    <div class="card">
+        <h2>6. Architecture Component Diagram</h2>
+        <div class="mermaid">
+flowchart TB
+    UI[Frontend HTML/CSS]
+    Logic[ASP.NET MVC Controllers]
+    Data[Entity Framework Core Context]
+    DB[(MySQL Database Server)]
+
+    UI -- "HTTP Requests" --> Logic
+    Logic -- "C# Objects" --> Data
+    Data -- "SQL Queries" --> DB
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@9.4.3/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</body>
+</html>

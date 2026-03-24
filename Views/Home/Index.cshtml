@@ -1,0 +1,137 @@
+@{
+    ViewData["Title"] = "Home";
+}
+
+<!-- ─── Hero Section ──────────────────────────────────────────────────────────── -->
+<section class="hero">
+    <div class="container hero-content">
+        <div class="hero-badges">
+            <span class="badge-pill"><i class="bi bi-house-heart me-1"></i> Orphanages</span>
+            <span class="badge-pill"><i class="bi bi-eye me-1"></i> Blind Schools</span>
+            <span class="badge-pill"><i class="bi bi-person-arms-up me-1"></i> Old Age Homes</span>
+        </div>
+        <h1>Community <span class="highlight">Help &amp; Donation</span><br />Management System</h1>
+        <p>Connecting generous donors with organisations that need support. Every donation makes a difference in someone's life.</p>
+        <div class="hero-btns">
+            <a href="/Auth/DonorRegister" class="btn btn-primary btn-lg"><i class="bi bi-heart me-2"></i>Become a Donor</a>
+            <a href="/Auth/OrgRegister" class="btn btn-light btn-lg"><i class="bi bi-building-add me-2"></i>Register Organisation</a>
+            <a href="/Donor/BrowseOrganisations" class="btn btn-outline-secondary btn-lg" style="border-color:rgba(255,255,255,.4);color:white"><i class="bi bi-search me-2"></i>Browse Orgs</a>
+        </div>
+    </div>
+</section>
+
+<!-- ─── Stats ─────────────────────────────────────────────────────────────────── -->
+<section class="py-5" style="background:white; border-bottom:1px solid #e2e8f0;">
+    <div class="container">
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4 col-6">
+                <div class="stat-card">
+                    <div class="stat-icon purple"><i class="bi bi-building"></i></div>
+                    <div>
+                        <div class="stat-value">@ViewBag.TotalOrgs</div>
+                        <div class="stat-label">Active Organisations</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-6">
+                <div class="stat-card">
+                    <div class="stat-icon cyan"><i class="bi bi-people"></i></div>
+                    <div>
+                        <div class="stat-value">@ViewBag.TotalDonors</div>
+                        <div class="stat-label">Registered Donors</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-6">
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="bi bi-gift"></i></div>
+                    <div>
+                        <div class="stat-value">@ViewBag.TotalDonations</div>
+                        <div class="stat-label">Donations Completed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── How It Works ──────────────────────────────────────────────────────────── -->
+<section class="section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">Simple steps to make an impact</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card text-center p-4">
+                    <div style="font-size:2.5rem;margin-bottom:1rem;color:var(--primary)"><i class="bi bi-building-add"></i></div>
+                    <h5 style="font-weight:700;margin-bottom:.5rem">1. Register</h5>
+                    <p style="font-size:.85rem;color:var(--gray)">Organisations register and submit for admin approval. Donors sign up freely.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center p-4">
+                    <div style="font-size:2.5rem;margin-bottom:1rem;color:var(--secondary)"><i class="bi bi-shield-check"></i></div>
+                    <h5 style="font-weight:700;margin-bottom:.5rem">2. Approve</h5>
+                    <p style="font-size:.85rem;color:var(--gray)">Admin reviews and approves organisations to ensure authenticity.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center p-4">
+                    <div style="font-size:2.5rem;margin-bottom:1rem;color:var(--warning)"><i class="bi bi-list-check"></i></div>
+                    <h5 style="font-weight:700;margin-bottom:.5rem">3. Post Needs</h5>
+                    <p style="font-size:.85rem;color:var(--gray)">Organisations post their requirements — food, books, clothes, etc.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center p-4">
+                    <div style="font-size:2.5rem;margin-bottom:1rem;color:var(--success)"><i class="bi bi-heart-fill"></i></div>
+                    <h5 style="font-weight:700;margin-bottom:.5rem">4. Donate</h5>
+                    <p style="font-size:.85rem;color:var(--gray)">Donors browse, select, and send donations. Receive receipts upon acceptance.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── Who Can Join ──────────────────────────────────────────────────────────── -->
+<section class="section" style="background:#f8fafc; border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Who Can Join?</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card p-4" style="border-top: 4px solid var(--primary);">
+                    <div style="font-size:2rem;margin-bottom:.75rem;color:var(--primary)"><i class="bi bi-shield-person"></i></div>
+                    <h5 style="font-weight:700">Admin</h5>
+                    <p style="font-size:.85rem;color:var(--gray);margin:0.5rem 0 1rem">Manages the entire platform — approves organisations, monitors activity, generates reports.</p>
+                    <a href="/Auth/AdminLogin" class="btn btn-outline-primary btn-sm">Admin Login</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-4" style="border-top: 4px solid var(--secondary);">
+                    <div style="font-size:2rem;margin-bottom:.75rem;color:var(--secondary)"><i class="bi bi-building"></i></div>
+                    <h5 style="font-weight:700">Organisations</h5>
+                    <p style="font-size:.85rem;color:var(--gray);margin:0.5rem 0 1rem">Orphanages, blind schools, old age homes post their requirements and receive donations.</p>
+                    <div class="d-flex gap-2">
+                        <a href="/Auth/OrgRegister" class="btn btn-outline-primary btn-sm">Register</a>
+                        <a href="/Auth/OrgLogin" class="btn btn-light btn-sm">Login</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-4" style="border-top: 4px solid var(--success);">
+                    <div style="font-size:2rem;margin-bottom:.75rem;color:var(--success)"><i class="bi bi-person-heart"></i></div>
+                    <h5 style="font-weight:700">Donors</h5>
+                    <p style="font-size:.85rem;color:var(--gray);margin:0.5rem 0 1rem">Generous individuals who want to donate items like food, clothes, books, and more.</p>
+                    <div class="d-flex gap-2">
+                        <a href="/Auth/DonorRegister" class="btn btn-outline-primary btn-sm">Register</a>
+                        <a href="/Auth/DonorLogin" class="btn btn-light btn-sm">Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

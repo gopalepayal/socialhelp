@@ -1,0 +1,125 @@
+@model List<SocialHelpDonation.Models.Donation>
+@{ ViewData["Title"] = "My Dashboard"; Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+<div class="page-header">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div><h1><i class="bi bi-speedometer2 me-2"></i>Donor Dashboard</h1><p>Welcome, @Context.Session.GetString("DonorName")!</p></div>
+        <a href="/Donor/BrowseOrganisations" class="btn btn-primary"><i class="bi bi-search me-1"></i>Browse Organisations</a>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="row g-4 mb-4">
+        <div class="col-md-4 col-6"><div class="stat-card"><div class="stat-icon purple"><i class="bi bi-gift"></i></div><div><div class="stat-value">@Model.Count</div><div class="stat-label">Total Donations</div></div></div></div>
+        <div class="col-md-4 col-6"><div class="stat-card"><div class="stat-icon green"><i class="bi bi-check-circle"></i></div><div><div class="stat-value">@Model.Count(d => d.Status == SocialHelpDonation.Models.DonationStatus.Accepted)</div><div class="stat-label">Accepted</div></div></div></div>
+        <div class="col-md-4 col-6"><div class="stat-card"><div class="stat-icon yellow"><i class="bi bi-hourglass"></i></div><div><div class="stat-value">@Model.Count(d => d.Status == SocialHelpDonation.Models.DonationStatus.Pending)</div><div class="stat-label">Pending</div></div></div></div>
+    </div>
+
+    <div class="row">
+        <!-- Main Column: Recent Donations -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-clock-history me-2"></i>Recent Donations</span>
+                    <a href="/Donor/MyDonations" class="btn btn-light btn-sm">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    @if (!Model.Any())
+                    {
+                        <div class="empty-state">
+                            <div class="empty-icon">🎁</div>
+                            <h5>No Donations Yet</h5>
+                            <p>Check the Urgent Needs on the right or start browsing organisations.</p>
+                            <a href="/Donor/BrowseOrganisations" class="btn btn-primary mt-2"><i class="bi bi-search me-1"></i>Browse Organisations</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-container" style="box-shadow:none;border:none">
+                            <table>
+                                <thead><tr><th>Receipt</th><th>Organisation</th><th>Item</th><th>Status</th><th>Date</th><th></th></tr></thead>
+                                <tbody>
+                                    @foreach (var d in Model)
+                                    {
+                                        <tr>
+                                            <td><code style="font-size:.78rem">@d.ReceiptNumber</code></td>
+                                            <td>@(d.Organisation?.Name ?? "-")</td>
+                                            <td>@d.ItemType (×@d.Quantity)</td>
+                                            <td><span class="badge badge-@d.Status.ToString().ToLower()">@d.Status</span></td>
+                                            <td>@d.CreatedAt.ToString("dd MMM yyyy")</td>
+                                            <td>
+                                                @if (d.Status == SocialHelpDonation.Models.DonationStatus.Accepted)
+                                                {
+                                                    <a href="/Donor/Receipt/@d.Id" class="btn btn-primary btn-sm"><i class="bi bi-receipt me-1"></i>Receipt</a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Sidebar Widgets -->
+        <div class="col-md-4">
+            
+            <!-- Urgent Needs -->
+            <div class="card mb-4" style="border-top: 3px solid var(--danger-color)">
+                <div class="card-header bg-white"><i class="bi bi-exclamation-circle text-danger me-2"></i>Urgent Needs</div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        @if (ViewBag.UrgentNeeds != null && ((IEnumerable<dynamic>)ViewBag.UrgentNeeds).Any())
+                        {
+                            foreach (var item in ViewBag.UrgentNeeds)
+                            {
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <strong>@item.ItemType</strong>
+                                        <span class="badge bg-light text-dark border">Qty: @item.QuantityNeeded</span>
+                                    </div>
+                                    <small class="text-muted d-block mb-2">@item.Description</small>
+                                    <div class="d-flex justify-content-between align-items-end">
+                                        <small class="text-muted"><i class="bi bi-building me-1"></i>@item.Organisation.Name</small>
+                                        <a href="/Donor/Donate?orgId=@item.OrganisationId&itemType=@Uri.EscapeDataString(item.ItemType)" class="btn btn-sm btn-outline-danger" style="font-weight:600; font-size: 0.8rem">Donate</a>
+                                    </div>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li class="list-group-item text-muted text-center py-4">No urgent needs right now.</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Featured Orgs -->
+            <div class="card mb-4" style="border-top: 3px solid var(--warning-color)">
+                <div class="card-header bg-white"><i class="bi bi-star-fill text-warning me-2"></i>Featured Orgs</div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        @if (ViewBag.FeaturedOrgs != null && ((IEnumerable<dynamic>)ViewBag.FeaturedOrgs).Any())
+                        {
+                            foreach (var org in ViewBag.FeaturedOrgs)
+                            {
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>@org.Name</strong><br/>
+                                            <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>@org.Address</small>
+                                        </div>
+                                        <a href="/Donor/Donate?orgId=@org.Id" class="btn btn-sm btn-link"><i class="bi bi-arrow-right-circle fs-5"></i></a>
+                                    </div>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,70 @@
+@model SocialHelpDonation.Models.Organisation
+@{ ViewData["Title"] = "Organisation Dashboard"; Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+<div class="page-header">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <h1><i class="bi bi-speedometer2 me-2"></i>@Model?.Name</h1>
+            <p>Organisation Dashboard &mdash; <span class="badge badge-@Model?.OrgType.ToString().ToLower()">@Model?.OrgType</span></p>
+        </div>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="row g-4 mb-4">
+        <div class="col-md-4 col-6">
+            <div class="stat-card">
+                <div class="stat-icon purple"><i class="bi bi-list-check"></i></div>
+                <div><div class="stat-value">@(Model?.Requirements?.Count ?? 0)</div><div class="stat-label">Requirements</div></div>
+            </div>
+        </div>
+        <div class="col-md-4 col-6">
+            <div class="stat-card">
+                <div class="stat-icon cyan"><i class="bi bi-inbox"></i></div>
+                <div><div class="stat-value">@(Model?.Donations?.Count ?? 0)</div><div class="stat-label">Donations Received</div></div>
+            </div>
+        </div>
+        <div class="col-md-4 col-6">
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="bi bi-check-circle"></i></div>
+                <div><div class="stat-value">@(Model?.Donations?.Count(d => d.Status == SocialHelpDonation.Models.DonationStatus.Accepted) ?? 0)</div><div class="stat-label">Accepted</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-list-check me-2"></i>Requirements</div>
+                <div class="card-body">
+                    <p style="font-size:.85rem;color:var(--gray)">Post items your organisation needs: food, clothes, books, medicines, etc.</p>
+                    <a href="/Organisation/Requirements" class="btn btn-primary me-2"><i class="bi bi-eye me-1"></i>View All</a>
+                    <a href="/Organisation/AddRequirement" class="btn btn-outline-primary"><i class="bi bi-plus me-1"></i>Add New</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-inbox me-2"></i>Donation Requests</div>
+                <div class="card-body">
+                    <p style="font-size:.85rem;color:var(--gray)">Review incoming donation requests from donors and accept or reject them.</p>
+                    <a href="/Organisation/DonationRequests" class="btn btn-primary"><i class="bi bi-arrow-right me-1"></i>View Requests</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-info-circle me-2"></i>Organisation Info</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6"><strong>Email:</strong> @Model?.Email</div>
+                        <div class="col-md-6"><strong>Phone:</strong> @(Model?.Phone ?? "Not provided")</div>
+                        <div class="col-md-6"><strong>Type:</strong> @Model?.OrgType</div>
+                        <div class="col-md-6"><strong>Address:</strong> @(Model?.Address ?? "Not provided")</div>
+                        <div class="col-12"><strong>About:</strong> @(Model?.Description ?? "No description.")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

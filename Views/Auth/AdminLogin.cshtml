@@ -1,0 +1,31 @@
+@model SocialHelpDonation.Models.ViewModels.AdminLoginViewModel
+@{ ViewData["Title"] = "Admin Login"; Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header" style="background: linear-gradient(135deg,#dc2626 0%,#7f1d1d 100%)">
+            <div class="auth-icon"><i class="bi bi-shield-fill"></i></div>
+            <h2>Admin Login</h2>
+            <p>System Administrator</p>
+        </div>
+        <div class="auth-body">
+            <form asp-action="AdminLogin" method="post">
+                <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label"><i class="bi bi-envelope me-1"></i>Email</label>
+                    <input asp-for="Email" class="form-control" placeholder="admin@donationsystem.com" />
+                    <span asp-validation-for="Email" class="field-validation-error"></span>
+                </div>
+                <div class="mb-4">
+                    <label asp-for="Password" class="form-label"><i class="bi bi-lock me-1"></i>Password</label>
+                    <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" />
+                    <span asp-validation-for="Password" class="field-validation-error"></span>
+                </div>
+                <button type="submit" class="btn btn-danger w-100 btn-lg"><i class="bi bi-shield-check me-2"></i>Login as Admin</button>
+            </form>
+            <div class="mt-3 p-3 rounded" style="background:#fef3c7;border:1px solid #fcd34d;font-size:.8rem;color:#92400e">
+                <i class="bi bi-info-circle me-1"></i><strong>Default credentials:</strong> admin@donationsystem.com / Admin@123
+            </div>
+        </div>
+    </div>
+</div>

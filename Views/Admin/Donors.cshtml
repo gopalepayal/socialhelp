@@ -1,0 +1,35 @@
+@model List<SocialHelpDonation.Models.Donor>
+@{ ViewData["Title"] = "Donors"; Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+<div class="page-header">
+    <div class="container"><h1><i class="bi bi-people me-2"></i>Registered Donors</h1><p>All donors on the platform</p></div>
+</div>
+
+<div class="container pb-5">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Address</th><th>Joined</th></tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="6" class="text-center py-5">
+                        <div class="empty-state"><div class="empty-icon">👤</div><h5>No Donors Yet</h5></div>
+                    </td></tr>
+                }
+                @foreach (var d in Model)
+                {
+                    <tr>
+                        <td>@d.Id</td>
+                        <td><strong>@d.Name</strong></td>
+                        <td>@d.Email</td>
+                        <td>@(d.Phone ?? "-")</td>
+                        <td>@(d.Address ?? "-")</td>
+                        <td>@d.CreatedAt.ToString("dd MMM yyyy")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

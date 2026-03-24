@@ -1,0 +1,81 @@
+@model SocialHelpDonation.Models.Donation
+@{ ViewData["Title"] = "Donation Receipt"; Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+<div class="container py-4">
+    <div class="no-print d-flex gap-2 mb-4 justify-content-center">
+        <button onclick="window.print()" class="btn btn-print btn-lg"><i class="bi bi-printer me-2"></i>Print Receipt</button>
+        <a href="/Donor/MyDonations" class="btn btn-outline-secondary btn-lg"><i class="bi bi-arrow-left me-2"></i>My Donations</a>
+    </div>
+
+    <div class="receipt-wrapper">
+        <div class="receipt-header">
+            <div class="receipt-icon">🧾</div>
+            <h2>Donation Receipt</h2>
+            <div class="receipt-number">Receipt No: <strong>@Model.ReceiptNumber</strong></div>
+        </div>
+
+        <div class="receipt-body">
+            <div class="receipt-stamp">✓ ACCEPTED</div>
+
+            <div class="receipt-row">
+                <span class="receipt-label"><i class="bi bi-hash me-1"></i>Receipt Number</span>
+                <span class="receipt-value">@Model.ReceiptNumber</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label"><i class="bi bi-person me-1"></i>Donor Name</span>
+                <span class="receipt-value">@Model.Donor?.Name</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label"><i class="bi bi-envelope me-1"></i>Donor Email</span>
+                <span class="receipt-value">@Model.Donor?.Email</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label"><i class="bi bi-building me-1"></i>Organisation</span>
+                <span class="receipt-value">@Model.Organisation?.Name</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label"><i class="bi bi-tag me-1"></i>Organisation Type</span>
+                <span class="receipt-value">@Model.Organisation?.OrgType</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label"><i class="bi bi-box-seam me-1"></i>Item Donated</span>
+                <span class="receipt-value">@Model.ItemType</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label"><i class="bi bi-123 me-1"></i>Quantity</span>
+                <span class="receipt-value">@Model.Quantity</span>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <div class="receipt-row">
+                    <span class="receipt-label"><i class="bi bi-card-text me-1"></i>Description</span>
+                    <span class="receipt-value">@Model.Description</span>
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.OrgNotes))
+            {
+                <div class="receipt-row">
+                    <span class="receipt-label"><i class="bi bi-chat-dots me-1"></i>Org Notes</span>
+                    <span class="receipt-value">@Model.OrgNotes</span>
+                </div>
+            }
+            <div class="receipt-row">
+                <span class="receipt-label"><i class="bi bi-calendar me-1"></i>Donation Date</span>
+                <span class="receipt-value">@Model.CreatedAt.ToString("dd MMMM yyyy, hh:mm tt")</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label"><i class="bi bi-check-circle me-1"></i>Accepted On</span>
+                <span class="receipt-value">@(Model.UpdatedAt?.ToString("dd MMMM yyyy, hh:mm tt") ?? "—")</span>
+            </div>
+            <div class="receipt-row" style="border-bottom:none">
+                <span class="receipt-label"><i class="bi bi-flag me-1"></i>Status</span>
+                <span class="receipt-value"><span class="badge badge-accepted" style="font-size:.85rem">✓ Accepted</span></span>
+            </div>
+        </div>
+
+        <div class="receipt-footer">
+            <p style="font-size:.85rem;color:var(--gray)">This is a computer-generated receipt. No signature required.</p>
+            <p style="font-size:.8rem;color:var(--gray);margin-top:.4rem">Generated on @DateTime.Now.ToString("dd MMM yyyy") by DonationSystem</p>
+        </div>
+    </div>
+</div>

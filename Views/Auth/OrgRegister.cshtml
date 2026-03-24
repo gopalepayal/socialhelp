@@ -1,0 +1,56 @@
+@model SocialHelpDonation.Models.ViewModels.OrgRegisterViewModel
+@{ ViewData["Title"] = "Organisation Register"; Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+<div class="auth-wrapper" style="padding: 2rem 1rem;">
+    <div class="auth-card" style="max-width:580px">
+        <div class="auth-header">
+            <div class="auth-icon"><i class="bi bi-building-add"></i></div>
+            <h2>Register Organisation</h2>
+            <p>Join our network and receive donations</p>
+        </div>
+        <div class="auth-body">
+            <form asp-action="OrgRegister" method="post">
+                <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label asp-for="Name" class="form-label"><i class="bi bi-building me-1"></i>Organisation Name</label>
+                        <input asp-for="Name" class="form-control" placeholder="e.g. Sunshine Orphanage Trust" />
+                        <span asp-validation-for="Name" class="field-validation-error"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Email" class="form-label"><i class="bi bi-envelope me-1"></i>Email</label>
+                        <input asp-for="Email" class="form-control" placeholder="org@example.com" />
+                        <span asp-validation-for="Email" class="field-validation-error"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Phone" class="form-label"><i class="bi bi-telephone me-1"></i>Phone</label>
+                        <input asp-for="Phone" class="form-control" placeholder="+91 XXXXX XXXXX" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Password" class="form-label"><i class="bi bi-lock me-1"></i>Password</label>
+                        <input asp-for="Password" type="password" class="form-control" placeholder="Min 6 chars" />
+                        <span asp-validation-for="Password" class="field-validation-error"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="OrgType" class="form-label"><i class="bi bi-tag me-1"></i>Type</label>
+                        <select asp-for="OrgType" class="form-select"
+                                asp-items="Html.GetEnumSelectList<SocialHelpDonation.Models.OrgType>()"></select>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Address" class="form-label"><i class="bi bi-geo-alt me-1"></i>Address</label>
+                        <input asp-for="Address" class="form-control" placeholder="Full address" />
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Description" class="form-label"><i class="bi bi-card-text me-1"></i>About Your Organisation</label>
+                        <textarea asp-for="Description" class="form-control" rows="3" placeholder="Tell donors about your work..."></textarea>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary w-100 btn-lg"><i class="bi bi-send me-2"></i>Submit for Approval</button>
+                        <p class="form-text text-center mt-2"><i class="bi bi-info-circle me-1"></i>Your account will be activated after admin review.</p>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="auth-footer">Already registered? <a href="/Auth/OrgLogin">Login here</a></div>
+    </div>
+</div>

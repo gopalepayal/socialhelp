@@ -1,0 +1,79 @@
+@model List<SocialHelpDonation.Models.Organisation>
+@{ ViewData["Title"] = "Organisations"; Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+<div class="page-header">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div><h1><i class="bi bi-building me-2"></i>Organisations</h1><p>Manage registration requests</p></div>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th><th>Name</th><th>Email</th><th>Type</th><th>Status</th><th>Registered</th><th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="7" class="text-center py-5">
+                        <div class="empty-state"><div class="empty-icon">🏢</div><h5>No Organisations Yet</h5><p>Organisations that register will appear here.</p></div>
+                    </td></tr>
+                }
+                @foreach (var org in Model)
+                {
+                    <tr>
+                        <td>@org.Id</td>
+                        <td><strong>@org.Name</strong><br/><small class="text-muted">@org.Phone</small></td>
+                        <td>@org.Email</td>
+                        <td><span class="badge badge-@org.OrgType.ToString().ToLower()">@org.OrgType</span></td>
+                        <td>
+                            @if (org.Status == SocialHelpDonation.Models.OrgStatus.Pending)
+                            {
+                                <span class="badge badge-pending"><i class="bi bi-hourglass"></i> Pending</span>
+                            }
+                            else if (org.Status == SocialHelpDonation.Models.OrgStatus.Approved)
+                            {
+                                <span class="badge badge-approved"><i class="bi bi-check-circle"></i> Approved</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-rejected"><i class="bi bi-x-circle"></i> Rejected</span>
+                            }
+                        </td>
+                        <td>@org.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td>
+                            @if (org.Status == SocialHelpDonation.Models.OrgStatus.Pending)
+                            {
+                                <form asp-action="ApproveOrg" method="post" style="display:inline" onsubmit="return confirm('Approve this organisation?')">
+                                    <input type="hidden" name="id" value="@org.Id" />
+                                    <button class="btn btn-success btn-sm"><i class="bi bi-check"></i> Approve</button>
+                                </form>
+                                <form asp-action="RejectOrg" method="post" style="display:inline" onsubmit="return confirm('Reject this organisation?')">
+                                    <input type="hidden" name="id" value="@org.Id" />
+                                    <button class="btn btn-danger btn-sm"><i class="bi bi-x"></i> Reject</button>
+                                </form>
+                            }
+                            else if (org.Status == SocialHelpDonation.Models.OrgStatus.Approved)
+                            {
+                                <form asp-action="RejectOrg" method="post" style="display:inline" onsubmit="return confirm('Revoke approval?')">
+                                    <input type="hidden" name="id" value="@org.Id" />
+                                    <button class="btn btn-warning btn-sm"><i class="bi bi-pause"></i> Revoke</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-action="ApproveOrg" method="post" style="display:inline">
+                                    <input type="hidden" name="id" value="@org.Id" />
+                                    <button class="btn btn-success btn-sm"><i class="bi bi-check"></i> Approve</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

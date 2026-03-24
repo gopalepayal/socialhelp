@@ -1,0 +1,53 @@
+@model List<SocialHelpDonation.Models.Requirement>
+@{ ViewData["Title"] = "Requirements"; Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+<div class="page-header">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div><h1><i class="bi bi-list-check me-2"></i>Our Requirements</h1><p>Items your organisation needs from donors</p></div>
+        <a href="/Organisation/AddRequirement" class="btn btn-primary"><i class="bi bi-plus me-1"></i>Add Requirement</a>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr><th>#</th><th>Item Type</th><th>Description</th><th>Qty Needed</th><th>Status</th><th>Posted</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="7" class="text-center py-5">
+                        <div class="empty-state">
+                            <div class="empty-icon">📋</div>
+                            <h5>No Requirements Yet</h5>
+                            <p>Add items your organisation needs.</p>
+                            <a href="/Organisation/AddRequirement" class="btn btn-primary mt-3"><i class="bi bi-plus me-1"></i>Add First Requirement</a>
+                        </div>
+                    </td></tr>
+                }
+                @foreach (var r in Model)
+                {
+                    <tr>
+                        <td>@r.Id</td>
+                        <td><strong>@r.ItemType</strong></td>
+                        <td style="max-width:200px;white-space:normal">@(r.Description ?? "-")</td>
+                        <td>@r.QuantityNeeded</td>
+                        <td><span class="badge badge-@r.Status.ToString().ToLower()">@r.Status</span></td>
+                        <td>@r.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td>
+                            @if (r.Status == SocialHelpDonation.Models.RequirementStatus.Open)
+                            {
+                                <form asp-action="CloseRequirement" method="post" style="display:inline">
+                                    <input type="hidden" name="id" value="@r.Id" />
+                                    <button class="btn btn-warning btn-sm"><i class="bi bi-x-square me-1"></i>Close</button>
+                                </form>
+                            }
+                            else { <span class="text-muted">—</span> }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
