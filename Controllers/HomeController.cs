@@ -13,7 +13,7 @@ namespace SocialHelpDonation.Controllers
         {
             ViewBag.TotalOrgs = _db.Organisations.Count(o => o.Status == SocialHelpDonation.Models.OrgStatus.Approved);
             ViewBag.TotalDonors = _db.Donors.Count();
-            ViewBag.TotalDonations = _db.Donations.Count(d => d.Status == SocialHelpDonation.Models.DonationStatus.Accepted);
+            ViewBag.TotalDonations = _db.Donations.Count(d => d.Status == SocialHelpDonation.Models.DonationStatus.Approved);
             return View();
         }
 

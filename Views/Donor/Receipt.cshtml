@@ -15,7 +15,12 @@
         </div>
 
         <div class="receipt-body">
-            <div class="receipt-stamp">✓ ACCEPTED</div>
+            <div class="receipt-stamp">
+                @if (Model.Status == SocialHelpDonation.Models.DonationStatus.Completed)
+                { <span>✓ COMPLETED</span> }
+                else
+                { <span>✓ APPROVED</span> }
+            </div>
 
             <div class="receipt-row">
                 <span class="receipt-label"><i class="bi bi-hash me-1"></i>Receipt Number</span>
@@ -34,17 +39,38 @@
                 <span class="receipt-value">@Model.Organisation?.Name</span>
             </div>
             <div class="receipt-row">
-                <span class="receipt-label"><i class="bi bi-tag me-1"></i>Organisation Type</span>
-                <span class="receipt-value">@Model.Organisation?.OrgType</span>
+                <span class="receipt-label"><i class="bi bi-tag me-1"></i>Donation Type</span>
+                <span class="receipt-value">@Model.DonationType</span>
             </div>
-            <div class="receipt-row">
-                <span class="receipt-label"><i class="bi bi-box-seam me-1"></i>Item Donated</span>
-                <span class="receipt-value">@Model.ItemType</span>
-            </div>
-            <div class="receipt-row">
-                <span class="receipt-label"><i class="bi bi-123 me-1"></i>Quantity</span>
-                <span class="receipt-value">@Model.Quantity</span>
-            </div>
+
+            @switch (Model.DonationType)
+            {
+                case SocialHelpDonation.Models.DonationType.Money:
+                    <div class="receipt-row">
+                        <span class="receipt-label"><i class="bi bi-cash me-1"></i>Amount</span>
+                        <span class="receipt-value">₹@(Model.Amount?.ToString("N2") ?? "0")</span>
+                    </div>
+                    break;
+                case SocialHelpDonation.Models.DonationType.Food:
+                    <div class="receipt-row">
+                        <span class="receipt-label"><i class="bi bi-basket me-1"></i>Food Details</span>
+                        <span class="receipt-value">@(Model.FoodType ?? "-") · @(Model.MealType ?? "-") · @(Model.NumberOfPlates ?? 0) plates</span>
+                    </div>
+                    break;
+                case SocialHelpDonation.Models.DonationType.Clothes:
+                    <div class="receipt-row">
+                        <span class="receipt-label"><i class="bi bi-person-lines-fill me-1"></i>Clothes Details</span>
+                        <span class="receipt-value">@(Model.ClothCategory ?? "-") @(Model.ClothType ?? "-") @(string.IsNullOrEmpty(Model.Size) ? "" : $"({Model.Size})") × @Model.Quantity</span>
+                    </div>
+                    break;
+                case SocialHelpDonation.Models.DonationType.Books:
+                    <div class="receipt-row">
+                        <span class="receipt-label"><i class="bi bi-book me-1"></i>Books Details</span>
+                        <span class="receipt-value">@(Model.BookType ?? "-") × @Model.Quantity</span>
+                    </div>
+                    break;
+            }
+
             @if (!string.IsNullOrWhiteSpace(Model.Description))
             {
                 <div class="receipt-row">
@@ -63,13 +89,14 @@
                 <span class="receipt-label"><i class="bi bi-calendar me-1"></i>Donation Date</span>
                 <span class="receipt-value">@Model.CreatedAt.ToString("dd MMMM yyyy, hh:mm tt")</span>
             </div>
-            <div class="receipt-row">
-                <span class="receipt-label"><i class="bi bi-check-circle me-1"></i>Accepted On</span>
-                <span class="receipt-value">@(Model.UpdatedAt?.ToString("dd MMMM yyyy, hh:mm tt") ?? "—")</span>
-            </div>
             <div class="receipt-row" style="border-bottom:none">
                 <span class="receipt-label"><i class="bi bi-flag me-1"></i>Status</span>
-                <span class="receipt-value"><span class="badge badge-accepted" style="font-size:.85rem">✓ Accepted</span></span>
+                <span class="receipt-value">
+                    @if (Model.Status == SocialHelpDonation.Models.DonationStatus.Completed)
+                    { <span class="badge badge-completed" style="font-size:.85rem">✓ Completed</span> }
+                    else
+                    { <span class="badge badge-approved" style="font-size:.85rem">✓ Approved</span> }
+                </span>
             </div>
         </div>
 

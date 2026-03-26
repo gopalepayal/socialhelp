@@ -61,6 +61,28 @@ namespace SocialHelpDonation.Controllers
                 QuantityNeeded = model.QuantityNeeded,
                 Status = RequirementStatus.Open
             };
+
+            // Map type-specific fields
+            switch (model.ItemType)
+            {
+                case DonationType.Money:
+                    req.Amount = model.Amount;
+                    break;
+                case DonationType.Food:
+                    req.FoodType = model.FoodType;
+                    req.MealType = model.MealType;
+                    req.NumberOfPlates = model.NumberOfPlates;
+                    break;
+                case DonationType.Clothes:
+                    req.ClothCategory = model.ClothCategory;
+                    req.ClothType = model.ClothType;
+                    req.Size = model.Size;
+                    break;
+                case DonationType.Books:
+                    req.BookType = model.BookType;
+                    break;
+            }
+
             _db.Requirements.Add(req);
             await _db.SaveChangesAsync();
             TempData["Success"] = "Requirement added successfully.";
@@ -94,17 +116,17 @@ namespace SocialHelpDonation.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AcceptDonation(int id, string? notes)
+        public async Task<IActionResult> ApproveDonation(int id, string? notes)
         {
             if (!IsOrg()) return Unauthorized();
             var donation = await _db.Donations.FirstOrDefaultAsync(d => d.Id == id && d.OrganisationId == OrgId());
-            if (donation != null)
+            if (donation != null && donation.Status == DonationStatus.Pending)
             {
-                donation.Status = DonationStatus.Accepted;
+                donation.Status = DonationStatus.Approved;
                 donation.OrgNotes = notes;
                 donation.UpdatedAt = DateTime.UtcNow;
                 await _db.SaveChangesAsync();
-                TempData["Success"] = "Donation accepted. Receipt generated.";
+                TempData["Success"] = "Donation approved.";
             }
             return RedirectToAction("DonationRequests");
         }
@@ -114,13 +136,28 @@ namespace SocialHelpDonation.Controllers
         {
             if (!IsOrg()) return Unauthorized();
             var donation = await _db.Donations.FirstOrDefaultAsync(d => d.Id == id && d.OrganisationId == OrgId());
-            if (donation != null)
+            if (donation != null && donation.Status == DonationStatus.Pending)
             {
                 donation.Status = DonationStatus.Rejected;
                 donation.OrgNotes = notes;
                 donation.UpdatedAt = DateTime.UtcNow;
                 await _db.SaveChangesAsync();
                 TempData["Success"] = "Donation rejected.";
+            }
+            return RedirectToAction("DonationRequests");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CompleteDonation(int id)
+        {
+            if (!IsOrg()) return Unauthorized();
+            var donation = await _db.Donations.FirstOrDefaultAsync(d => d.Id == id && d.OrganisationId == OrgId());
+            if (donation != null && donation.Status == DonationStatus.Approved)
+            {
+                donation.Status = DonationStatus.Completed;
+                donation.UpdatedAt = DateTime.UtcNow;
+                await _db.SaveChangesAsync();
+                TempData["Success"] = "Donation marked as completed. Thank you!";
             }
             return RedirectToAction("DonationRequests");
         }

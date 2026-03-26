@@ -12,7 +12,7 @@
     <div class="table-container">
         <table>
             <thead>
-                <tr><th>Receipt</th><th>Organisation</th><th>Item</th><th>Qty</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+                <tr><th>Receipt</th><th>Organisation</th><th>Type</th><th>Details</th><th>Status</th><th>Date</th><th>Actions</th></tr>
             </thead>
             <tbody>
                 @if (!Model.Any())
@@ -31,12 +31,37 @@
                     <tr>
                         <td><code style="font-size:.78rem">@d.ReceiptNumber</code></td>
                         <td>@(d.Organisation?.Name ?? "-")</td>
-                        <td>@d.ItemType</td>
-                        <td>@d.Quantity</td>
-                        <td><span class="badge badge-@d.Status.ToString().ToLower()">@d.Status</span></td>
+                        <td><span class="badge bg-secondary">@d.DonationType</span></td>
+                        <td style="font-size:.82rem">
+                            @switch (d.DonationType)
+                            {
+                                case SocialHelpDonation.Models.DonationType.Money:
+                                    <span>₹@(d.Amount?.ToString("N0") ?? "0")</span>
+                                    break;
+                                case SocialHelpDonation.Models.DonationType.Food:
+                                    <span>@(d.FoodType ?? "-") · @(d.MealType ?? "-") · @(d.NumberOfPlates ?? 0) plates</span>
+                                    break;
+                                case SocialHelpDonation.Models.DonationType.Clothes:
+                                    <span>@(d.ClothCategory ?? "-") @(d.ClothType ?? "-") × @d.Quantity</span>
+                                    break;
+                                case SocialHelpDonation.Models.DonationType.Books:
+                                    <span>@(d.BookType ?? "-") × @d.Quantity</span>
+                                    break;
+                            }
+                        </td>
+                        <td>
+                            @if (d.Status == SocialHelpDonation.Models.DonationStatus.Pending)
+                            { <span class="badge badge-pending"><i class="bi bi-hourglass"></i> Pending</span> }
+                            else if (d.Status == SocialHelpDonation.Models.DonationStatus.Approved)
+                            { <span class="badge badge-approved"><i class="bi bi-check-circle"></i> Approved</span> }
+                            else if (d.Status == SocialHelpDonation.Models.DonationStatus.Rejected)
+                            { <span class="badge badge-rejected"><i class="bi bi-x-circle"></i> Rejected</span> }
+                            else
+                            { <span class="badge badge-completed"><i class="bi bi-trophy"></i> Completed</span> }
+                        </td>
                         <td>@d.CreatedAt.ToString("dd MMM yyyy")</td>
                         <td>
-                            @if (d.Status == SocialHelpDonation.Models.DonationStatus.Accepted)
+                            @if (d.Status == SocialHelpDonation.Models.DonationStatus.Approved || d.Status == SocialHelpDonation.Models.DonationStatus.Completed)
                             {
                                 <a href="/Donor/Receipt/@d.Id" class="btn btn-primary btn-sm"><i class="bi bi-receipt me-1"></i>Receipt</a>
                             }

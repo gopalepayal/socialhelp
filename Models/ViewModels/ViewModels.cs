@@ -1,5 +1,6 @@
 using SocialHelpDonation.Models;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace SocialHelpDonation.Models.ViewModels
 {
@@ -32,8 +33,19 @@ namespace SocialHelpDonation.Models.ViewModels
 
         public OrgType OrgType { get; set; } = OrgType.Orphanage;
 
+        [Required, MaxLength(100)]
+        [Display(Name = "Registration Number (Government ID)")]
+        public string RegistrationNumber { get; set; } = string.Empty;
+
         [MaxLength(1000)]
         public string? Description { get; set; }
+
+        [Required(ErrorMessage = "Please upload a proof document (PDF or Image).")]
+        [Display(Name = "Proof Document")]
+        public IFormFile? DocumentFile { get; set; }
+
+        [Display(Name = "Organisation Image")]
+        public IFormFile? ImageFile { get; set; }
     }
 
     public class OrgLoginViewModel
@@ -78,26 +90,82 @@ namespace SocialHelpDonation.Models.ViewModels
         [Required]
         public int OrganisationId { get; set; }
 
-        [Required, MaxLength(200)]
-        public string ItemType { get; set; } = string.Empty;
+        [Required]
+        public DonationType DonationType { get; set; } = DonationType.Money;
 
         [MaxLength(1000)]
         public string? Description { get; set; }
 
+        // Money
+        [Range(1, 10000000)]
+        public decimal? Amount { get; set; }
+
+        // Food
+        [MaxLength(50)]
+        public string? FoodType { get; set; }
+
+        [MaxLength(50)]
+        public string? MealType { get; set; }
+
         [Range(1, 10000)]
+        public int? NumberOfPlates { get; set; }
+
+        // Clothes
+        [MaxLength(20)]
+        public string? ClothCategory { get; set; }
+
+        [MaxLength(50)]
+        public string? ClothType { get; set; }
+
+        [MaxLength(10)]
+        public string? Size { get; set; }
+
+        [Range(1, 100000)]
         public int Quantity { get; set; } = 1;
+
+        // Books
+        [MaxLength(50)]
+        public string? BookType { get; set; }
     }
 
     // ─── Requirement ViewModels ────────────────────────────────────────────────
     public class CreateRequirementViewModel
     {
-        [Required, MaxLength(200)]
-        public string ItemType { get; set; } = string.Empty;
+        [Required]
+        public DonationType ItemType { get; set; } = DonationType.Money;
 
         [MaxLength(1000)]
         public string? Description { get; set; }
 
+        // Money
+        [Range(1, 10000000)]
+        public decimal? Amount { get; set; }
+
+        // Food
+        [MaxLength(50)]
+        public string? FoodType { get; set; }
+
+        [MaxLength(50)]
+        public string? MealType { get; set; }
+
         [Range(1, 10000)]
+        public int? NumberOfPlates { get; set; }
+
+        // Clothes
+        [MaxLength(20)]
+        public string? ClothCategory { get; set; }
+
+        [MaxLength(50)]
+        public string? ClothType { get; set; }
+
+        [MaxLength(10)]
+        public string? Size { get; set; }
+
+        // Books
+        [MaxLength(50)]
+        public string? BookType { get; set; }
+
+        [Range(1, 100000)]
         public int QuantityNeeded { get; set; } = 1;
     }
 
@@ -109,7 +177,7 @@ namespace SocialHelpDonation.Models.ViewModels
         public int ApprovedOrgs { get; set; }
         public int TotalDonors { get; set; }
         public int TotalDonations { get; set; }
-        public int AcceptedDonations { get; set; }
+        public int ApprovedDonations { get; set; }
         public int PendingDonations { get; set; }
     }
 }

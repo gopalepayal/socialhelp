@@ -1,7 +1,7 @@
 @model SocialHelpDonation.Models.Organisation
 @{ ViewData["Title"] = Model?.Name + " - Profile"; Layout = "~/Views/Shared/_Layout.cshtml"; }
 
-<div class="page-header">
+<div class="page-header" data-aos="fade-down">
     <div class="container">
         <h1><i class="bi bi-building me-2"></i>@Model?.Name</h1>
         <p><span class="badge badge-@Model?.OrgType.ToString().ToLower()">@Model?.OrgType</span> &mdash; @(Model?.Address ?? "Address not provided")</p>
@@ -9,6 +9,17 @@
 </div>
 
 <div class="container pb-5">
+    <!-- Organisation Image -->
+    <div class="text-center mb-4" data-aos="zoom-in">
+        @if (!string.IsNullOrEmpty(Model?.ImagePath))
+        {
+            <img src="@Model.ImagePath" alt="@Model?.Name" style="max-height:280px; border-radius:var(--radius); box-shadow:var(--shadow-lg); object-fit:cover; width:100%; max-width:600px;" />
+        }
+        else
+        {
+            <img src="/images/default-org.png" alt="Organisation" style="max-height:280px; border-radius:var(--radius); box-shadow:var(--shadow-lg); object-fit:cover; width:100%; max-width:600px;" />
+        }
+    </div>
     <div class="row g-4">
         <div class="col-md-7">
             <div class="card mb-4">

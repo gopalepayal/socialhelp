@@ -18,5 +18,10 @@ namespace SocialHelpDonation.Models
         public string PasswordHash { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [MaxLength(255)]
+        public string? ResetToken { get; set; }
+
+        public DateTime? ResetTokenExpiry { get; set; }
     }
 }

@@ -29,7 +29,7 @@ namespace SocialHelpDonation.Controllers
                 ApprovedOrgs = await _db.Organisations.CountAsync(o => o.Status == OrgStatus.Approved),
                 TotalDonors = await _db.Donors.CountAsync(),
                 TotalDonations = await _db.Donations.CountAsync(),
-                AcceptedDonations = await _db.Donations.CountAsync(d => d.Status == DonationStatus.Accepted),
+                ApprovedDonations = await _db.Donations.CountAsync(d => d.Status == DonationStatus.Approved),
                 PendingDonations = await _db.Donations.CountAsync(d => d.Status == DonationStatus.Pending)
             };
             return View(report);
@@ -91,6 +91,35 @@ namespace SocialHelpDonation.Controllers
             return View(donations);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ApproveDonation(int id)
+        {
+            if (!IsAdmin()) return Unauthorized();
+            var donation = await _db.Donations.FindAsync(id);
+            if (donation != null && donation.Status == DonationStatus.Pending)
+            {
+                donation.Status = DonationStatus.Approved;
+                donation.UpdatedAt = DateTime.UtcNow;
+                await _db.SaveChangesAsync();
+                TempData["Success"] = $"Donation #{donation.ReceiptNumber} approved.";
+            }
+            return RedirectToAction("Donations");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteDonation(int id)
+        {
+            if (!IsAdmin()) return Unauthorized();
+            var donation = await _db.Donations.FindAsync(id);
+            if (donation != null)
+            {
+                _db.Donations.Remove(donation);
+                await _db.SaveChangesAsync();
+                TempData["Success"] = $"Donation #{donation.ReceiptNumber} deleted.";
+            }
+            return RedirectToAction("Donations");
+        }
+
         // ─── Reports ─────────────────────────────────────────────────────────────
         public async Task<IActionResult> Reports()
         {
@@ -102,7 +131,7 @@ namespace SocialHelpDonation.Controllers
                 ApprovedOrgs = await _db.Organisations.CountAsync(o => o.Status == OrgStatus.Approved),
                 TotalDonors = await _db.Donors.CountAsync(),
                 TotalDonations = await _db.Donations.CountAsync(),
-                AcceptedDonations = await _db.Donations.CountAsync(d => d.Status == DonationStatus.Accepted),
+                ApprovedDonations = await _db.Donations.CountAsync(d => d.Status == DonationStatus.Approved),
                 PendingDonations = await _db.Donations.CountAsync(d => d.Status == DonationStatus.Pending)
             };
             return View(report);

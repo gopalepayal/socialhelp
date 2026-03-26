@@ -70,13 +70,13 @@ namespace SocialHelpDonation.Controllers
 
         // ─── Send Donation ────────────────────────────────────────────────────────
         [HttpGet]
-        public async Task<IActionResult> Donate(int orgId, string? itemType = null)
+        public async Task<IActionResult> Donate(int orgId)
         {
             if (!IsDonor()) return RedirectToAction("DonorLogin", "Auth");
             var org = await _db.Organisations.FindAsync(orgId);
             if (org == null || org.Status != OrgStatus.Approved) return NotFound();
 
-            var model = new CreateDonationViewModel { OrganisationId = orgId, ItemType = itemType ?? "" };
+            var model = new CreateDonationViewModel { OrganisationId = orgId, DonationType = DonationType.Money };
             ViewBag.OrgName = org.Name;
             return View(model);
         }
@@ -85,6 +85,20 @@ namespace SocialHelpDonation.Controllers
         public async Task<IActionResult> Donate(CreateDonationViewModel model)
         {
             if (!IsDonor()) return RedirectToAction("DonorLogin", "Auth");
+
+            // Type-specific validation
+            if (model.DonationType == DonationType.Money && (model.Amount == null || model.Amount <= 0))
+                ModelState.AddModelError("Amount", "Please enter a valid amount.");
+
+            if (model.DonationType == DonationType.Food && (model.NumberOfPlates == null || model.NumberOfPlates <= 0))
+                ModelState.AddModelError("NumberOfPlates", "Please enter number of plates/people.");
+
+            if (model.DonationType == DonationType.Clothes && model.Quantity <= 0)
+                ModelState.AddModelError("Quantity", "Please enter quantity.");
+
+            if (model.DonationType == DonationType.Books && model.Quantity <= 0)
+                ModelState.AddModelError("Quantity", "Please enter quantity.");
+
             if (!ModelState.IsValid)
             {
                 var org = await _db.Organisations.FindAsync(model.OrganisationId);
@@ -92,17 +106,44 @@ namespace SocialHelpDonation.Controllers
                 return View(model);
             }
 
-            var receipt = "RCP-" + DateTime.UtcNow.ToString("yyyyMMddHHmmss") + "-" + new Random().Next(1000, 9999);
+            var receipt = "RCP-" + DateTime.UtcNow.ToString("yyyyMMdd") + "-" + new Random().Next(1000, 9999);
             var donation = new Donation
             {
                 ReceiptNumber = receipt,
                 DonorId = DonorId(),
                 OrganisationId = model.OrganisationId,
-                ItemType = model.ItemType,
+                DonationType = model.DonationType,
                 Description = model.Description,
-                Quantity = model.Quantity,
                 Status = DonationStatus.Pending
             };
+
+            switch (model.DonationType)
+            {
+                case DonationType.Money:
+                    donation.Amount = model.Amount;
+                    donation.Quantity = 1;
+                    break;
+
+                case DonationType.Food:
+                    donation.FoodType = model.FoodType;
+                    donation.MealType = model.MealType;
+                    donation.NumberOfPlates = model.NumberOfPlates;
+                    donation.Quantity = model.NumberOfPlates ?? 1;
+                    break;
+
+                case DonationType.Clothes:
+                    donation.ClothCategory = model.ClothCategory;
+                    donation.ClothType = model.ClothType;
+                    donation.Size = model.Size;
+                    donation.Quantity = model.Quantity;
+                    break;
+
+                case DonationType.Books:
+                    donation.BookType = model.BookType;
+                    donation.Quantity = model.Quantity;
+                    break;
+            }
+
             _db.Donations.Add(donation);
             await _db.SaveChangesAsync();
 
@@ -132,9 +173,9 @@ namespace SocialHelpDonation.Controllers
                 .FirstOrDefaultAsync(d => d.Id == id && d.DonorId == DonorId());
 
             if (donation == null) return NotFound();
-            if (donation.Status != DonationStatus.Accepted)
+            if (donation.Status != DonationStatus.Approved && donation.Status != DonationStatus.Completed)
             {
-                TempData["Error"] = "Receipt is only available for accepted donations.";
+                TempData["Error"] = "Receipt is only available for approved/completed donations.";
                 return RedirectToAction("MyDonations");
             }
             return View(donation);

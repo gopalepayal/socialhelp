@@ -11,7 +11,7 @@
 <div class="container pb-5">
     <div class="row g-4 mb-4">
         <div class="col-md-4 col-6"><div class="stat-card"><div class="stat-icon purple"><i class="bi bi-gift"></i></div><div><div class="stat-value">@Model.Count</div><div class="stat-label">Total Donations</div></div></div></div>
-        <div class="col-md-4 col-6"><div class="stat-card"><div class="stat-icon green"><i class="bi bi-check-circle"></i></div><div><div class="stat-value">@Model.Count(d => d.Status == SocialHelpDonation.Models.DonationStatus.Accepted)</div><div class="stat-label">Accepted</div></div></div></div>
+        <div class="col-md-4 col-6"><div class="stat-card"><div class="stat-icon green"><i class="bi bi-check-circle"></i></div><div><div class="stat-value">@Model.Count(d => d.Status == SocialHelpDonation.Models.DonationStatus.Approved || d.Status == SocialHelpDonation.Models.DonationStatus.Completed)</div><div class="stat-label">Approved / Completed</div></div></div></div>
         <div class="col-md-4 col-6"><div class="stat-card"><div class="stat-icon yellow"><i class="bi bi-hourglass"></i></div><div><div class="stat-value">@Model.Count(d => d.Status == SocialHelpDonation.Models.DonationStatus.Pending)</div><div class="stat-label">Pending</div></div></div></div>
     </div>
 
@@ -37,18 +37,27 @@
                     {
                         <div class="table-container" style="box-shadow:none;border:none">
                             <table>
-                                <thead><tr><th>Receipt</th><th>Organisation</th><th>Item</th><th>Status</th><th>Date</th><th></th></tr></thead>
+                                <thead><tr><th>Receipt</th><th>Organisation</th><th>Type</th><th>Status</th><th>Date</th><th></th></tr></thead>
                                 <tbody>
                                     @foreach (var d in Model)
                                     {
                                         <tr>
                                             <td><code style="font-size:.78rem">@d.ReceiptNumber</code></td>
                                             <td>@(d.Organisation?.Name ?? "-")</td>
-                                            <td>@d.ItemType (×@d.Quantity)</td>
-                                            <td><span class="badge badge-@d.Status.ToString().ToLower()">@d.Status</span></td>
+                                            <td><span class="badge bg-secondary">@d.DonationType</span></td>
+                                            <td>
+                                                @if (d.Status == SocialHelpDonation.Models.DonationStatus.Pending)
+                                                { <span class="badge badge-pending">Pending</span> }
+                                                else if (d.Status == SocialHelpDonation.Models.DonationStatus.Approved)
+                                                { <span class="badge badge-approved">Approved</span> }
+                                                else if (d.Status == SocialHelpDonation.Models.DonationStatus.Rejected)
+                                                { <span class="badge badge-rejected">Rejected</span> }
+                                                else
+                                                { <span class="badge badge-completed">Completed</span> }
+                                            </td>
                                             <td>@d.CreatedAt.ToString("dd MMM yyyy")</td>
                                             <td>
-                                                @if (d.Status == SocialHelpDonation.Models.DonationStatus.Accepted)
+                                                @if (d.Status == SocialHelpDonation.Models.DonationStatus.Approved || d.Status == SocialHelpDonation.Models.DonationStatus.Completed)
                                                 {
                                                     <a href="/Donor/Receipt/@d.Id" class="btn btn-primary btn-sm"><i class="bi bi-receipt me-1"></i>Receipt</a>
                                                 }
@@ -65,7 +74,6 @@
 
         <!-- Right Side: Sidebar Widgets -->
         <div class="col-md-4">
-            
             <!-- Urgent Needs -->
             <div class="card mb-4" style="border-top: 3px solid var(--danger-color)">
                 <div class="card-header bg-white"><i class="bi bi-exclamation-circle text-danger me-2"></i>Urgent Needs</div>
@@ -83,7 +91,7 @@
                                     <small class="text-muted d-block mb-2">@item.Description</small>
                                     <div class="d-flex justify-content-between align-items-end">
                                         <small class="text-muted"><i class="bi bi-building me-1"></i>@item.Organisation.Name</small>
-                                        <a href="/Donor/Donate?orgId=@item.OrganisationId&itemType=@Uri.EscapeDataString(item.ItemType)" class="btn btn-sm btn-outline-danger" style="font-weight:600; font-size: 0.8rem">Donate</a>
+                                        <a href="/Donor/Donate?orgId=@item.OrganisationId" class="btn btn-sm btn-outline-danger" style="font-weight:600; font-size: 0.8rem">Donate</a>
                                     </div>
                                 </li>
                             }
@@ -108,7 +116,7 @@
                                 <li class="list-group-item">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <strong>@org.Name</strong><br/>
+                                            <strong>@org.Name</strong> <i class="bi bi-patch-check-fill text-primary" style="font-size:.75rem"></i><br/>
                                             <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>@org.Address</small>
                                         </div>
                                         <a href="/Donor/Donate?orgId=@org.Id" class="btn btn-sm btn-link"><i class="bi bi-arrow-right-circle fs-5"></i></a>
@@ -119,7 +127,6 @@
                     </ul>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

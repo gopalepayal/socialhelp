@@ -37,13 +37,35 @@
         </div>
     </div>
 
+    <!-- Second Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4 col-6">
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="bi bi-check-circle"></i></div>
+                <div><div class="stat-value">@Model.ApprovedOrgs</div><div class="stat-label">Approved Orgs</div></div>
+            </div>
+        </div>
+        <div class="col-md-4 col-6">
+            <div class="stat-card">
+                <div class="stat-icon cyan"><i class="bi bi-gift"></i></div>
+                <div><div class="stat-value">@Model.ApprovedDonations</div><div class="stat-label">Approved Donations</div></div>
+            </div>
+        </div>
+        <div class="col-md-4 col-6">
+            <div class="stat-card">
+                <div class="stat-icon yellow"><i class="bi bi-clock"></i></div>
+                <div><div class="stat-value">@Model.PendingDonations</div><div class="stat-label">Pending Donations</div></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Quick Actions -->
     <div class="row g-4">
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header"><i class="bi bi-building-check me-2"></i>Manage Organisations</div>
                 <div class="card-body">
-                    <p style="font-size:.85rem;color:var(--gray)">Approve or reject organisation registrations and monitor their activity.</p>
+                    <p style="font-size:.85rem;color:var(--gray)">Verify documents, approve or reject organisation registrations.</p>
                     <a href="/Admin/Organisations" class="btn btn-primary"><i class="bi bi-arrow-right me-1"></i>View Organisations</a>
                 </div>
             </div>
@@ -59,10 +81,10 @@
         </div>
         <div class="col-md-4">
             <div class="card">
-                <div class="card-header"><i class="bi bi-bar-chart me-2"></i>Reports</div>
+                <div class="card-header"><i class="bi bi-gift me-2"></i>All Donations</div>
                 <div class="card-body">
-                    <p style="font-size:.85rem;color:var(--gray)">Generate and view system reports on donations and organisations.</p>
-                    <a href="/Admin/Reports" class="btn btn-primary"><i class="bi bi-arrow-right me-1"></i>View Reports</a>
+                    <p style="font-size:.85rem;color:var(--gray)">Monitor all donation activity across the system.</p>
+                    <a href="/Admin/Donations" class="btn btn-primary"><i class="bi bi-arrow-right me-1"></i>View Donations</a>
                 </div>
             </div>
         </div>

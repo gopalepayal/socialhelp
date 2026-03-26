@@ -30,8 +30,16 @@ namespace SocialHelpDonation.Data
                 .Property(d => d.Status)
                 .HasConversion<string>();
 
+            modelBuilder.Entity<Donation>()
+                .Property(d => d.DonationType)
+                .HasConversion<string>();
+
             modelBuilder.Entity<Requirement>()
                 .Property(r => r.Status)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Requirement>()
+                .Property(r => r.ItemType)
                 .HasConversion<string>();
 
             // Unique constraints

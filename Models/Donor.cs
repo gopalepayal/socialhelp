@@ -26,6 +26,11 @@ namespace SocialHelpDonation.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        [MaxLength(255)]
+        public string? ResetToken { get; set; }
+
+        public DateTime? ResetTokenExpiry { get; set; }
+
         public ICollection<Donation> Donations { get; set; } = new List<Donation>();
     }
 }

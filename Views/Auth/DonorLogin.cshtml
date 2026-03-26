@@ -20,6 +20,9 @@
                     <label asp-for="Password" class="form-label"><i class="bi bi-lock me-1"></i>Password</label>
                     <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" />
                     <span asp-validation-for="Password" class="field-validation-error"></span>
+                    <div class="text-end mt-1">
+                        <a href="/Auth/ForgotPassword" class="text-decoration-none small">Forgot Password?</a>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-success w-100 btn-lg"><i class="bi bi-box-arrow-in-right me-2"></i>Login</button>
             </form>

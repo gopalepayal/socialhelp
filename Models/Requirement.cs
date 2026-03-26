@@ -15,12 +15,39 @@ namespace SocialHelpDonation.Models
         [ForeignKey("OrganisationId")]
         public Organisation? Organisation { get; set; }
 
-        [Required, MaxLength(200)]
-        public string ItemType { get; set; } = string.Empty;
+        public DonationType ItemType { get; set; } = DonationType.Money;
 
         [MaxLength(1000)]
         public string? Description { get; set; }
 
+        // ─── Money ────────────────────────────────
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? Amount { get; set; }
+
+        // ─── Food ─────────────────────────────────
+        [MaxLength(50)]
+        public string? FoodType { get; set; }
+
+        [MaxLength(50)]
+        public string? MealType { get; set; }
+
+        public int? NumberOfPlates { get; set; }
+
+        // ─── Clothes ──────────────────────────────
+        [MaxLength(20)]
+        public string? ClothCategory { get; set; }
+
+        [MaxLength(50)]
+        public string? ClothType { get; set; }
+
+        [MaxLength(10)]
+        public string? Size { get; set; }
+
+        // ─── Books ────────────────────────────────
+        [MaxLength(50)]
+        public string? BookType { get; set; }
+
+        // ─── Common ──────────────────────────────
         public int QuantityNeeded { get; set; } = 1;
 
         public RequirementStatus Status { get; set; } = RequirementStatus.Open;

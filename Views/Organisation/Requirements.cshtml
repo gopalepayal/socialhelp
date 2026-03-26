@@ -12,7 +12,7 @@
     <div class="table-container">
         <table>
             <thead>
-                <tr><th>#</th><th>Item Type</th><th>Description</th><th>Qty Needed</th><th>Status</th><th>Posted</th><th>Action</th></tr>
+                <tr><th>#</th><th>Item Type</th><th>Details</th><th>Description</th><th>Status</th><th>Posted</th><th>Action</th></tr>
             </thead>
             <tbody>
                 @if (!Model.Any())
@@ -30,10 +30,33 @@
                 {
                     <tr>
                         <td>@r.Id</td>
-                        <td><strong>@r.ItemType</strong></td>
+                        <td><span class="badge bg-secondary">@r.ItemType</span></td>
+                        <td style="max-width:220px;white-space:normal;font-size:.82rem">
+                            @switch (r.ItemType)
+                            {
+                                case SocialHelpDonation.Models.DonationType.Money:
+                                    <span>₹@(r.Amount?.ToString("N0") ?? "0")</span>
+                                    break;
+                                case SocialHelpDonation.Models.DonationType.Food:
+                                    <span>@(r.FoodType ?? "-") · @(r.MealType ?? "-") · @(r.NumberOfPlates ?? 0) plates</span>
+                                    break;
+                                case SocialHelpDonation.Models.DonationType.Clothes:
+                                    <span>@(r.ClothCategory ?? "-") @(r.ClothType ?? "-") @(string.IsNullOrEmpty(r.Size) ? "" : $"({r.Size})") × @r.QuantityNeeded</span>
+                                    break;
+                                case SocialHelpDonation.Models.DonationType.Books:
+                                    <span>@(r.BookType ?? "-") × @r.QuantityNeeded</span>
+                                    break;
+                            }
+                        </td>
                         <td style="max-width:200px;white-space:normal">@(r.Description ?? "-")</td>
-                        <td>@r.QuantityNeeded</td>
-                        <td><span class="badge badge-@r.Status.ToString().ToLower()">@r.Status</span></td>
+                        <td>
+                            @if (r.Status == SocialHelpDonation.Models.RequirementStatus.Open)
+                            { <span class="badge badge-open"><i class="bi bi-circle-fill" style="font-size:.5rem"></i> Open</span> }
+                            else if (r.Status == SocialHelpDonation.Models.RequirementStatus.Fulfilled)
+                            { <span class="badge badge-fulfilled"><i class="bi bi-check-circle"></i> Fulfilled</span> }
+                            else
+                            { <span class="badge badge-closed"><i class="bi bi-x-circle"></i> Closed</span> }
+                        </td>
                         <td>@r.CreatedAt.ToString("dd MMM yyyy")</td>
                         <td>
                             @if (r.Status == SocialHelpDonation.Models.RequirementStatus.Open)

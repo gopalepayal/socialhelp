@@ -3,7 +3,7 @@
 
 <div class="page-header">
     <div class="container d-flex justify-content-between align-items-center">
-        <div><h1><i class="bi bi-building me-2"></i>Organisations</h1><p>Manage registration requests</p></div>
+        <div><h1><i class="bi bi-building me-2"></i>Organisations</h1><p>Verify and manage registration requests</p></div>
     </div>
 </div>
 
@@ -12,13 +12,13 @@
         <table>
             <thead>
                 <tr>
-                    <th>#</th><th>Name</th><th>Email</th><th>Type</th><th>Status</th><th>Registered</th><th>Actions</th>
+                    <th>#</th><th>Name</th><th>Email</th><th>Type</th><th>Reg. No.</th><th>Document</th><th>Status</th><th>Registered</th><th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @if (!Model.Any())
                 {
-                    <tr><td colspan="7" class="text-center py-5">
+                    <tr><td colspan="9" class="text-center py-5">
                         <div class="empty-state"><div class="empty-icon">🏢</div><h5>No Organisations Yet</h5><p>Organisations that register will appear here.</p></div>
                     </td></tr>
                 }
@@ -26,22 +26,34 @@
                 {
                     <tr>
                         <td>@org.Id</td>
-                        <td><strong>@org.Name</strong><br/><small class="text-muted">@org.Phone</small></td>
-                        <td>@org.Email</td>
-                        <td><span class="badge badge-@org.OrgType.ToString().ToLower()">@org.OrgType</span></td>
                         <td>
-                            @if (org.Status == SocialHelpDonation.Models.OrgStatus.Pending)
+                            <strong>@org.Name</strong>
+                            @if (org.Status == SocialHelpDonation.Models.OrgStatus.Approved)
                             {
-                                <span class="badge badge-pending"><i class="bi bi-hourglass"></i> Pending</span>
+                                <i class="bi bi-patch-check-fill text-primary ms-1" title="Verified"></i>
                             }
-                            else if (org.Status == SocialHelpDonation.Models.OrgStatus.Approved)
+                            <br/><small class="text-muted">@org.Phone</small>
+                        </td>
+                        <td>@org.Email</td>
+                        <td><span class="badge bg-secondary">@org.OrgType</span></td>
+                        <td><code style="font-size:.75rem">@org.RegistrationNumber</code></td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(org.ProofFilePath))
                             {
-                                <span class="badge badge-approved"><i class="bi bi-check-circle"></i> Approved</span>
+                                <a href="@org.ProofFilePath" target="_blank" class="btn btn-sm btn-outline-info" title="View Document"><i class="bi bi-file-earmark-text"></i> View</a>
                             }
                             else
                             {
-                                <span class="badge badge-rejected"><i class="bi bi-x-circle"></i> Rejected</span>
+                                <span class="text-muted small">No Doc</span>
                             }
+                        </td>
+                        <td>
+                            @if (org.Status == SocialHelpDonation.Models.OrgStatus.Pending)
+                            { <span class="badge badge-pending"><i class="bi bi-hourglass"></i> Pending</span> }
+                            else if (org.Status == SocialHelpDonation.Models.OrgStatus.Approved)
+                            { <span class="badge badge-approved"><i class="bi bi-check-circle"></i> Approved</span> }
+                            else
+                            { <span class="badge badge-rejected"><i class="bi bi-x-circle"></i> Rejected</span> }
                         </td>
                         <td>@org.CreatedAt.ToString("dd MMM yyyy")</td>
                         <td>

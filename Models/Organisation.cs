@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SocialHelpDonation.Models
 {
-    public enum OrgType { Orphanage, BlindSchool, OldAgeHome, Other }
+    public enum OrgType { Orphanage, BlindSchool, OldAgeHome, NGO }
     public enum OrgStatus { Pending, Approved, Rejected }
 
     public class Organisation
@@ -29,12 +29,26 @@ namespace SocialHelpDonation.Models
 
         public OrgType OrgType { get; set; } = OrgType.Orphanage;
 
+        [Required, MaxLength(100)]
+        public string RegistrationNumber { get; set; } = string.Empty;
+
+        [MaxLength(500)]
+        public string? ProofFilePath { get; set; }
+
+        [MaxLength(500)]
+        public string? ImagePath { get; set; }
+
         [MaxLength(1000)]
         public string? Description { get; set; }
 
         public OrgStatus Status { get; set; } = OrgStatus.Pending;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [MaxLength(255)]
+        public string? ResetToken { get; set; }
+
+        public DateTime? ResetTokenExpiry { get; set; }
 
         public ICollection<Requirement> Requirements { get; set; } = new List<Requirement>();
         public ICollection<Donation> Donations { get; set; } = new List<Donation>();

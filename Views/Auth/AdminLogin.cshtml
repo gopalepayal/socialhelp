@@ -18,8 +18,11 @@
                 </div>
                 <div class="mb-4">
                     <label asp-for="Password" class="form-label"><i class="bi bi-lock me-1"></i>Password</label>
-                    <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" />
+                    <input asp-for="Password" id="Password" name="Password" type="password" class="form-control" placeholder="Enter password" required />
                     <span asp-validation-for="Password" class="field-validation-error"></span>
+                    <div class="text-end mt-1">
+                        <a href="/Auth/ForgotPassword" class="text-decoration-none small text-danger">Forgot Password?</a>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-danger w-100 btn-lg"><i class="bi bi-shield-check me-2"></i>Login as Admin</button>
             </form>

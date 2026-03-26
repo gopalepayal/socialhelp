@@ -1,13 +1,13 @@
 @model List<SocialHelpDonation.Models.Organisation>
 @{ ViewData["Title"] = "Browse Organisations"; Layout = "~/Views/Shared/_Layout.cshtml"; }
 
-<div class="page-header">
-    <div class="container"><h1><i class="bi bi-search me-2"></i>Browse Organisations</h1><p>Find organisations to donate to</p></div>
+<div class="page-header" data-aos="fade-down">
+    <div class="container"><h1><i class="bi bi-search me-2"></i>Browse Organisations</h1><p>Find verified organisations to donate to</p></div>
 </div>
 
 <div class="container pb-5">
     <!-- Search / Filter -->
-    <div class="card mb-4 mt-2" style="border: none; box-shadow: var(--shadow-lg); border-radius: 20px;">
+    <div class="card mb-4 mt-2" data-aos="fade-up" style="border: none; box-shadow: var(--shadow-lg); border-radius: 20px;">
         <div class="card-body p-4">
             <form method="get" class="row g-3 align-items-end">
                 <div class="col-md-6">
@@ -21,13 +21,9 @@
                         @foreach (var t in Enum.GetValues<SocialHelpDonation.Models.OrgType>())
                         {
                             if (ViewBag.Type == t.ToString())
-                            {
-                                <option value="@t" selected="selected">@t</option>
-                            }
+                            { <option value="@t" selected="selected">@t</option> }
                             else
-                            {
-                                <option value="@t">@t</option>
-                            }
+                            { <option value="@t">@t</option> }
                         }
                     </select>
                 </div>
@@ -51,31 +47,53 @@
         <div class="row g-4">
             @foreach (var org in Model)
             {
-                <div class="col-md-4">
-                    <div class="org-card">
-                        <div class="org-card-icon">
-                            @if (org.OrgType == SocialHelpDonation.Models.OrgType.Orphanage) { <span>🏠</span> }
-                            else if (org.OrgType == SocialHelpDonation.Models.OrgType.BlindSchool) { <span>👁️</span> }
-                            else if (org.OrgType == SocialHelpDonation.Models.OrgType.OldAgeHome) { <span>🤲</span> }
-                            else { <span>❤️</span> }
+                <div class="col-md-4" data-aos="fade-up">
+                    <div class="category-card">
+                        <div class="category-img-wrapper">
+                            @if (!string.IsNullOrEmpty(org.ImagePath))
+                            {
+                                <img src="@org.ImagePath" alt="@org.Name" />
+                            }
+                            else if (org.OrgType == SocialHelpDonation.Models.OrgType.Orphanage)
+                            {
+                                <img src="~/images/orphanage.png" alt="Orphanage" />
+                            }
+                            else if (org.OrgType == SocialHelpDonation.Models.OrgType.BlindSchool)
+                            {
+                                <img src="~/images/blind-school.png" alt="Blind School" />
+                            }
+                            else if (org.OrgType == SocialHelpDonation.Models.OrgType.OldAgeHome)
+                            {
+                                <img src="~/images/old-age-home.png" alt="Old Age Home" />
+                            }
+                            else
+                            {
+                                <img src="~/images/default-org.png" alt="Organisation" />
+                            }
                         </div>
-                        <div class="org-type">@org.OrgType</div>
-                        <h5>@org.Name</h5>
-                        <p>@(org.Description?.Length > 100 ? org.Description.Substring(0, 100) + "…" : (org.Description ?? "A registered organisation accepting donations."))</p>
-                        @if (org.Requirements.Any())
-                        {
-                            <div class="req-tags mt-1 mb-2">
-                                @foreach (var r in org.Requirements.Take(4))
-                                {
-                                    <a href="/Donor/Donate?orgId=@org.Id&itemType=@Uri.EscapeDataString(r.ItemType)" class="req-tag text-decoration-none border border-primary-subtle" title="Donate @r.ItemType">
-                                        @r.ItemType <span class="badge bg-white text-primary border ms-1" style="font-size:0.65rem">@r.QuantityNeeded</span>
-                                    </a>
-                                }
+                        <div class="category-body">
+                            <div class="d-flex align-items-center gap-1 mb-1">
+                                <span class="badge badge-@org.OrgType.ToString().ToLower()">@org.OrgType</span>
+                                <i class="bi bi-patch-check-fill text-primary" title="Verified Organisation" style="font-size:.9rem"></i>
                             </div>
-                        }
-                        <div class="d-flex gap-2 mt-auto">
-                            <a href="/Donor/Donate?orgId=@org.Id" class="btn btn-primary btn-sm flex-fill"><i class="bi bi-heart me-1"></i>Donate</a>
-                            <a href="/Organisation/Profile/@org.Id" class="btn btn-outline-secondary btn-sm"><i class="bi bi-eye"></i></a>
+                            <h5>@org.Name</h5>
+                            <p style="font-size:.8rem;color:var(--gray)"><i class="bi bi-card-text me-1"></i>Reg: <code style="font-size:.72rem">@org.RegistrationNumber</code></p>
+                            <p>@(org.Description?.Length > 100 ? org.Description.Substring(0, 100) + "…" : (org.Description ?? "A verified organisation accepting donations."))</p>
+                            @if (org.Requirements.Any())
+                            {
+                                <div class="req-tags mt-1 mb-2">
+                                    @foreach (var r in org.Requirements.Take(4))
+                                    {
+                                        <a href="/Donor/Donate?orgId=@org.Id" class="req-tag text-decoration-none border border-primary-subtle" title="Donate @r.ItemType">
+                                            @r.ItemType <span class="badge bg-white text-primary border ms-1" style="font-size:0.65rem">@r.QuantityNeeded</span>
+                                        </a>
+                                    }
+                                </div>
+                            }
+                            <div class="d-flex gap-2 mt-auto">
+                                <a href="/Donor/Donate?orgId=@org.Id" class="btn btn-primary btn-sm flex-fill"><i class="bi bi-heart me-1"></i>Donate</a>
+                                <a href="/Organisation/Profile/@org.Id" class="btn btn-outline-secondary btn-sm"><i class="bi bi-eye"></i></a>
+                            </div>
                         </div>
                     </div>
                 </div>

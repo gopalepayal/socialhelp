@@ -5,18 +5,111 @@
     <div class="container"><h1><i class="bi bi-plus-circle me-2"></i>Add Requirement</h1><p>Let donors know what you need</p></div>
 </div>
 
-<div class="container pb-5" style="max-width:600px">
+<div class="container pb-5" style="max-width:650px">
     <div class="card">
         <div class="card-header"><i class="bi bi-list-check me-2"></i>New Requirement</div>
         <div class="card-body">
             <form asp-action="AddRequirement" method="post">
                 <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+                
                 <div class="mb-3">
                     <label asp-for="ItemType" class="form-label"><i class="bi bi-box-seam me-1"></i>Item Type</label>
-                    <input asp-for="ItemType" class="form-control" placeholder="e.g. Food, Clothes, Books, Medicines..." />
+                    <select asp-for="ItemType" class="form-select" id="reqTypeSelect"
+                            asp-items="Html.GetEnumSelectList<SocialHelpDonation.Models.DonationType>()">
+                    </select>
                     <span asp-validation-for="ItemType" class="field-validation-error"></span>
                 </div>
-                <div class="mb-3">
+
+                <!-- Money -->
+                <div id="reqMoneyFields" class="d-none req-dynamic bg-light p-3 rounded mb-3 border">
+                    <h6 class="mb-3 text-success"><i class="bi bi-cash-coin me-1"></i>Money Requirement</h6>
+                    <div class="mb-3">
+                        <label asp-for="Amount" class="form-label">Amount Needed (₹)</label>
+                        <input asp-for="Amount" type="number" step="1" min="1" class="form-control" placeholder="e.g. 50000" />
+                    </div>
+                </div>
+
+                <!-- Food -->
+                <div id="reqFoodFields" class="d-none req-dynamic bg-light p-3 rounded mb-3 border">
+                    <h6 class="mb-3 text-warning"><i class="bi bi-basket me-1"></i>Food Requirement</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="FoodType" class="form-label">Food Type</label>
+                            <select asp-for="FoodType" class="form-select">
+                                <option value="">-- Any --</option>
+                                <option value="Veg">Vegetarian</option>
+                                <option value="Non-Veg">Non-Vegetarian</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="MealType" class="form-label">Meal Type</label>
+                            <select asp-for="MealType" class="form-select">
+                                <option value="">-- Any --</option>
+                                <option value="Breakfast">Breakfast</option>
+                                <option value="Lunch">Lunch</option>
+                                <option value="Dinner">Dinner</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="NumberOfPlates" class="form-label">Number of Plates Needed</label>
+                        <input asp-for="NumberOfPlates" type="number" min="1" class="form-control" placeholder="e.g. 100" />
+                    </div>
+                </div>
+
+                <!-- Clothes -->
+                <div id="reqClothesFields" class="d-none req-dynamic bg-light p-3 rounded mb-3 border">
+                    <h6 class="mb-3 text-info"><i class="bi bi-person-lines-fill me-1"></i>Clothes Requirement</h6>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="ClothCategory" class="form-label">Category</label>
+                            <select asp-for="ClothCategory" class="form-select">
+                                <option value="">-- Any --</option>
+                                <option value="Men">Men</option>
+                                <option value="Women">Women</option>
+                                <option value="Kids">Kids</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="ClothType" class="form-label">Type</label>
+                            <select asp-for="ClothType" class="form-select">
+                                <option value="">-- Any --</option>
+                                <option value="Shirt">Shirt</option>
+                                <option value="Pants">Pants</option>
+                                <option value="Blanket">Blanket</option>
+                                <option value="Jacket">Jacket</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="Size" class="form-label">Size</label>
+                            <select asp-for="Size" class="form-select">
+                                <option value="">-- Any --</option>
+                                <option value="S">Small</option>
+                                <option value="M">Medium</option>
+                                <option value="L">Large</option>
+                                <option value="XL">XL</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Books -->
+                <div id="reqBooksFields" class="d-none req-dynamic bg-light p-3 rounded mb-3 border">
+                    <h6 class="mb-3 text-primary"><i class="bi bi-book me-1"></i>Books Requirement</h6>
+                    <div class="mb-3">
+                        <label asp-for="BookType" class="form-label">Book Type</label>
+                        <select asp-for="BookType" class="form-select">
+                            <option value="">-- Any --</option>
+                            <option value="Educational">Educational</option>
+                            <option value="Story">Story</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Common: Quantity & Description -->
+                <div id="reqQuantityField" class="mb-3">
                     <label asp-for="QuantityNeeded" class="form-label"><i class="bi bi-123 me-1"></i>Quantity Needed</label>
                     <input asp-for="QuantityNeeded" type="number" class="form-control" min="1" />
                     <span asp-validation-for="QuantityNeeded" class="field-validation-error"></span>
@@ -33,3 +126,35 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const select = document.getElementById('reqTypeSelect');
+            const qtyField = document.getElementById('reqQuantityField');
+
+            function updateReqFields() {
+                document.querySelectorAll('.req-dynamic').forEach(el => el.classList.add('d-none'));
+                qtyField.classList.remove('d-none');
+
+                const val = select.options[select.selectedIndex].text;
+
+                if (val === 'Money') {
+                    document.getElementById('reqMoneyFields').classList.remove('d-none');
+                    qtyField.classList.add('d-none');
+                } else if (val === 'Food') {
+                    document.getElementById('reqFoodFields').classList.remove('d-none');
+                    qtyField.classList.add('d-none');
+                } else if (val === 'Clothes') {
+                    document.getElementById('reqClothesFields').classList.remove('d-none');
+                } else if (val === 'Books') {
+                    document.getElementById('reqBooksFields').classList.remove('d-none');
+                }
+            }
+
+            select.addEventListener('change', updateReqFields);
+            updateReqFields();
+        });
+    </script>
+}

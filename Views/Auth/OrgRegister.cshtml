@@ -2,14 +2,14 @@
 @{ ViewData["Title"] = "Organisation Register"; Layout = "~/Views/Shared/_Layout.cshtml"; }
 
 <div class="auth-wrapper" style="padding: 2rem 1rem;">
-    <div class="auth-card" style="max-width:580px">
+    <div class="auth-card" style="max-width:620px">
         <div class="auth-header">
             <div class="auth-icon"><i class="bi bi-building-add"></i></div>
             <h2>Register Organisation</h2>
             <p>Join our network and receive donations</p>
         </div>
         <div class="auth-body">
-            <form asp-action="OrgRegister" method="post">
+            <form asp-action="OrgRegister" method="post" enctype="multipart/form-data">
                 <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
                 <div class="row g-3">
                     <div class="col-12">
@@ -37,6 +37,11 @@
                                 asp-items="Html.GetEnumSelectList<SocialHelpDonation.Models.OrgType>()"></select>
                     </div>
                     <div class="col-12">
+                        <label asp-for="RegistrationNumber" class="form-label"><i class="bi bi-card-text me-1"></i>Registration Number (Government ID)</label>
+                        <input asp-for="RegistrationNumber" class="form-control" placeholder="e.g. NGO/2024/MH/12345" />
+                        <span asp-validation-for="RegistrationNumber" class="field-validation-error"></span>
+                    </div>
+                    <div class="col-12">
                         <label asp-for="Address" class="form-label"><i class="bi bi-geo-alt me-1"></i>Address</label>
                         <input asp-for="Address" class="form-control" placeholder="Full address" />
                     </div>
@@ -45,8 +50,22 @@
                         <textarea asp-for="Description" class="form-control" rows="3" placeholder="Tell donors about your work..."></textarea>
                     </div>
                     <div class="col-12">
+                        <label asp-for="ImageFile" class="form-label"><i class="bi bi-image me-1"></i>Organisation Image (JPG/PNG)</label>
+                        <input asp-for="ImageFile" type="file" class="form-control" accept=".jpg,.jpeg,.png" id="orgImageInput" />
+                        <small class="form-text text-muted">Upload a logo or photo of your organisation (optional).</small>
+                        <div id="imgPreviewWrapper" class="mt-2" style="display:none;">
+                            <img id="imgPreview" src="" alt="Preview" style="max-height:160px; border-radius:var(--radius-sm); box-shadow:var(--shadow);" />
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="DocumentFile" class="form-label"><i class="bi bi-file-earmark-pdf me-1"></i>Proof Document (PDF/Image) <span class="text-danger">*</span></label>
+                        <input asp-for="DocumentFile" type="file" class="form-control" accept=".pdf,image/*" />
+                        <span asp-validation-for="DocumentFile" class="field-validation-error"></span>
+                        <small class="form-text text-muted">Upload registration certificate, trust deed, or government-issued ID proof.</small>
+                    </div>
+                    <div class="col-12">
                         <button type="submit" class="btn btn-primary w-100 btn-lg"><i class="bi bi-send me-2"></i>Submit for Approval</button>
-                        <p class="form-text text-center mt-2"><i class="bi bi-info-circle me-1"></i>Your account will be activated after admin review.</p>
+                        <p class="form-text text-center mt-2"><i class="bi bi-info-circle me-1"></i>Your account will be activated after admin verifies your documents.</p>
                     </div>
                 </div>
             </form>
@@ -54,3 +73,23 @@
         <div class="auth-footer">Already registered? <a href="/Auth/OrgLogin">Login here</a></div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById('orgImageInput')?.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            const wrapper = document.getElementById('imgPreviewWrapper');
+            const preview = document.getElementById('imgPreview');
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    preview.src = ev.target.result;
+                    wrapper.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                wrapper.style.display = 'none';
+            }
+        });
+    </script>
+}

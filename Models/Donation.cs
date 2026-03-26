@@ -4,7 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SocialHelpDonation.Models
 {
-    public enum DonationStatus { Pending, Accepted, Rejected, Completed }
+    public enum DonationStatus { Pending, Approved, Rejected, Completed }
+    public enum DonationType { Money, Food, Clothes, Books }
 
     public class Donation
     {
@@ -22,13 +23,40 @@ namespace SocialHelpDonation.Models
         [ForeignKey("OrganisationId")]
         public Organisation? Organisation { get; set; }
 
-        [Required, MaxLength(200)]
-        public string ItemType { get; set; } = string.Empty;
+        public DonationType DonationType { get; set; } = DonationType.Money;
+
+        // ─── Money Fields ─────────────────────────
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? Amount { get; set; }
+
+        // ─── Food Fields ──────────────────────────
+        [MaxLength(50)]
+        public string? FoodType { get; set; }       // Veg / Non-Veg
+
+        [MaxLength(50)]
+        public string? MealType { get; set; }       // Breakfast / Lunch / Dinner
+
+        public int? NumberOfPlates { get; set; }
+
+        // ─── Clothes Fields ───────────────────────
+        [MaxLength(20)]
+        public string? ClothCategory { get; set; }  // Men / Women / Kids
+
+        [MaxLength(50)]
+        public string? ClothType { get; set; }      // Shirt, Pants, Blanket, etc.
+
+        [MaxLength(10)]
+        public string? Size { get; set; }           // S, M, L, XL (optional)
+
+        // ─── Books Fields ─────────────────────────
+        [MaxLength(50)]
+        public string? BookType { get; set; }       // Educational / Story / Other
+
+        // ─── Common Fields ────────────────────────
+        public int Quantity { get; set; } = 1;
 
         [MaxLength(1000)]
         public string? Description { get; set; }
-
-        public int Quantity { get; set; } = 1;
 
         public DonationStatus Status { get; set; } = DonationStatus.Pending;
 

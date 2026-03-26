@@ -5,7 +5,7 @@
     <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div>
             <h1><i class="bi bi-speedometer2 me-2"></i>@Model?.Name</h1>
-            <p>Organisation Dashboard &mdash; <span class="badge badge-@Model?.OrgType.ToString().ToLower()">@Model?.OrgType</span></p>
+            <p>Organisation Dashboard &mdash; <span class="badge bg-secondary">@Model?.OrgType</span></p>
         </div>
     </div>
 </div>
@@ -27,7 +27,7 @@
         <div class="col-md-4 col-6">
             <div class="stat-card">
                 <div class="stat-icon green"><i class="bi bi-check-circle"></i></div>
-                <div><div class="stat-value">@(Model?.Donations?.Count(d => d.Status == SocialHelpDonation.Models.DonationStatus.Accepted) ?? 0)</div><div class="stat-label">Accepted</div></div>
+                <div><div class="stat-value">@(Model?.Donations?.Count(d => d.Status == SocialHelpDonation.Models.DonationStatus.Approved || d.Status == SocialHelpDonation.Models.DonationStatus.Completed) ?? 0)</div><div class="stat-label">Approved / Completed</div></div>
             </div>
         </div>
     </div>
@@ -37,7 +37,7 @@
             <div class="card">
                 <div class="card-header"><i class="bi bi-list-check me-2"></i>Requirements</div>
                 <div class="card-body">
-                    <p style="font-size:.85rem;color:var(--gray)">Post items your organisation needs: food, clothes, books, medicines, etc.</p>
+                    <p style="font-size:.85rem;color:var(--gray)">Post items your organisation needs: food, clothes, books, money, etc.</p>
                     <a href="/Organisation/Requirements" class="btn btn-primary me-2"><i class="bi bi-eye me-1"></i>View All</a>
                     <a href="/Organisation/AddRequirement" class="btn btn-outline-primary"><i class="bi bi-plus me-1"></i>Add New</a>
                 </div>
@@ -47,7 +47,7 @@
             <div class="card">
                 <div class="card-header"><i class="bi bi-inbox me-2"></i>Donation Requests</div>
                 <div class="card-body">
-                    <p style="font-size:.85rem;color:var(--gray)">Review incoming donation requests from donors and accept or reject them.</p>
+                    <p style="font-size:.85rem;color:var(--gray)">Review incoming donation requests. Approve, reject, or mark as completed.</p>
                     <a href="/Organisation/DonationRequests" class="btn btn-primary"><i class="bi bi-arrow-right me-1"></i>View Requests</a>
                 </div>
             </div>
@@ -60,7 +60,8 @@
                         <div class="col-md-6"><strong>Email:</strong> @Model?.Email</div>
                         <div class="col-md-6"><strong>Phone:</strong> @(Model?.Phone ?? "Not provided")</div>
                         <div class="col-md-6"><strong>Type:</strong> @Model?.OrgType</div>
-                        <div class="col-md-6"><strong>Address:</strong> @(Model?.Address ?? "Not provided")</div>
+                        <div class="col-md-6"><strong>Reg. No:</strong> @Model?.RegistrationNumber</div>
+                        <div class="col-md-12"><strong>Address:</strong> @(Model?.Address ?? "Not provided")</div>
                         <div class="col-12"><strong>About:</strong> @(Model?.Description ?? "No description.")</div>
                     </div>
                 </div>

@@ -11,7 +11,7 @@
         <div class="col-md-4 col-6"><div class="stat-card"><div class="stat-icon green"><i class="bi bi-check-circle"></i></div><div><div class="stat-value">@Model.ApprovedOrgs</div><div class="stat-label">Approved Orgs</div></div></div></div>
         <div class="col-md-4 col-6"><div class="stat-card"><div class="stat-icon yellow"><i class="bi bi-hourglass"></i></div><div><div class="stat-value">@Model.PendingOrgs</div><div class="stat-label">Pending Orgs</div></div></div></div>
         <div class="col-md-4 col-6"><div class="stat-card"><div class="stat-icon cyan"><i class="bi bi-people"></i></div><div><div class="stat-value">@Model.TotalDonors</div><div class="stat-label">Total Donors</div></div></div></div>
-        <div class="col-md-4 col-6"><div class="stat-card"><div class="stat-icon green"><i class="bi bi-gift"></i></div><div><div class="stat-value">@Model.AcceptedDonations</div><div class="stat-label">Accepted Donations</div></div></div></div>
+        <div class="col-md-4 col-6"><div class="stat-card"><div class="stat-icon green"><i class="bi bi-gift"></i></div><div><div class="stat-value">@Model.ApprovedDonations</div><div class="stat-label">Approved Donations</div></div></div></div>
         <div class="col-md-4 col-6"><div class="stat-card"><div class="stat-icon yellow"><i class="bi bi-hourglass-split"></i></div><div><div class="stat-value">@Model.PendingDonations</div><div class="stat-label">Pending Donations</div></div></div></div>
     </div>
 
@@ -42,13 +42,13 @@
                 <div class="card-header"><i class="bi bi-gift me-2"></i>Donation Breakdown</div>
                 <div class="card-body">
                     <div class="d-flex justify-content-between mb-2">
-                        <span>Accepted</span>
-                        <span class="badge badge-accepted">@Model.AcceptedDonations</span>
+                        <span>Approved</span>
+                        <span class="badge badge-approved">@Model.ApprovedDonations</span>
                     </div>
                     @if (Model.TotalDonations > 0)
                     {
                         <div style="height:12px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-bottom:1rem">
-                            <div style="height:100%;width:@(Model.AcceptedDonations * 100 / Model.TotalDonations)%;background:var(--success);border-radius:999px;transition:width .3s"></div>
+                            <div style="height:100%;width:@(Model.ApprovedDonations * 100 / Model.TotalDonations)%;background:var(--success);border-radius:999px;transition:width .3s"></div>
                         </div>
                     }
                     <div class="d-flex justify-content-between mb-2">
