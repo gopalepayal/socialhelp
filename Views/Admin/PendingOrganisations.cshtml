@@ -1,0 +1,83 @@
+@model List<SocialHelpDonation.Models.OrganizationVerification>
+@{ ViewData["Title"] = "Pending Organisations"; Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+<div class="page-header" data-aos="fade-down">
+    <div class="container">
+        <h1><i class="bi bi-shield-check me-2"></i>Organisation Verification</h1>
+        <p>Review and verify registration requests from NGOs</p>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="table-container mt-4" data-aos="fade-up">
+        <table class="table align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>NGO Name</th>
+                    <th>Type</th>
+                    <th>Reg No.</th>
+                    <th>Proofs</th>
+                    <th>Applied On</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                            No pending registrations found.
+                        </td>
+                    </tr>
+                }
+                @foreach (var v in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="fw-bold">@v.Organisation?.Name</div>
+                            <small class="text-muted">@v.Organisation?.Email</small>
+                        </td>
+                        <td><span class="badge bg-secondary">@v.Organisation?.OrgType</span></td>
+                        <td><code style="font-size: .8rem">@(v.Organisation?.RegistrationNumber ?? "N/A")</code></td>
+                        <td>
+                            <div class="d-flex flex-column gap-1">
+                                @if (!string.IsNullOrEmpty(v.CertificateFilePath))
+                                {
+                                    <a href="@v.CertificateFilePath" target="_blank" class="btn btn-sm btn-outline-primary py-0">
+                                        <i class="bi bi-file-earmark-text me-1"></i>Cert
+                                    </a>
+                                }
+                                @if (!string.IsNullOrEmpty(v.IdProofFilePath))
+                                {
+                                    <a href="@v.IdProofFilePath" target="_blank" class="btn btn-sm btn-outline-info py-0">
+                                        <i class="bi bi-person-badge me-1"></i>ID
+                                    </a>
+                                }
+                                @if (!string.IsNullOrEmpty(v.AddressProofFilePath))
+                                {
+                                    <a href="@v.AddressProofFilePath" target="_blank" class="btn btn-sm btn-outline-warning py-0">
+                                        <i class="bi bi-geo-alt me-1"></i>Addr
+                                    </a>
+                                }
+                            </div>
+                        </td>
+                        <td>@v.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-2">
+                                <form asp-action="ApproveOrganisation" method="post" onsubmit="return confirm('Approve this organisation?')">
+                                    <input type="hidden" name="id" value="@v.Id" />
+                                    <button class="btn btn-success btn-sm"><i class="bi bi-check-lg me-1"></i>Approve</button>
+                                </form>
+                                <form asp-action="RejectOrganisation" method="post" onsubmit="return confirm('Reject this organisation?')">
+                                    <input type="hidden" name="id" value="@v.Id" />
+                                    <button class="btn btn-danger btn-sm"><i class="bi bi-x-lg me-1"></i>Reject</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

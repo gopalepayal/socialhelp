@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.SignalR;
 using SocialHelpDonation.Data;
 using SocialHelpDonation.Models;
 using SocialHelpDonation.Models.ViewModels;
+using SocialHelpDonation.Hubs;
 
 namespace SocialHelpDonation.Controllers
 {
@@ -10,9 +12,12 @@ namespace SocialHelpDonation.Controllers
     {
         private readonly ApplicationDbContext _db;
 
-        public DonorController(ApplicationDbContext db)
+        private readonly IHubContext<ChatHub> _hubContext;
+
+        public DonorController(ApplicationDbContext db, IHubContext<ChatHub> hubContext)
         {
             _db = db;
+            _hubContext = hubContext;
         }
 
         private bool IsDonor() => HttpContext.Session.GetString("UserRole") == "Donor";
@@ -22,7 +27,22 @@ namespace SocialHelpDonation.Controllers
         public async Task<IActionResult> Dashboard()
         {
             if (!IsDonor()) return RedirectToAction("DonorLogin", "Auth");
-            
+            var totalDonations = await _db.Donations.CountAsync(d => d.DonorId == DonorId());
+            var approvedDonations = await _db.Donations.CountAsync(d => d.DonorId == DonorId() && (d.Status == DonationStatus.Approved || d.Status == DonationStatus.Completed));
+            var pendingDonations = await _db.Donations.CountAsync(d => d.DonorId == DonorId() && d.Status == DonationStatus.Pending);
+
+            string badge = "New Member";
+            string badgeColor = "secondary";
+            if (totalDonations >= 10) { badge = "Gold Donor"; badgeColor = "warning"; }
+            else if (totalDonations >= 5) { badge = "Silver Donor"; badgeColor = "secondary"; }
+            else if (totalDonations >= 1) { badge = "Bronze Donor"; badgeColor = "danger"; } // using danger as a bronze-ish fallback or custom
+
+            ViewBag.TotalDonations = totalDonations;
+            ViewBag.ApprovedDonations = approvedDonations;
+            ViewBag.PendingDonations = pendingDonations;
+            ViewBag.DonorBadge = badge;
+            ViewBag.BadgeColor = badgeColor;
+
             var donations = await _db.Donations
                 .Include(d => d.Organisation)
                 .Where(d => d.DonorId == DonorId())
@@ -37,11 +57,32 @@ namespace SocialHelpDonation.Controllers
                 .Take(4)
                 .ToListAsync();
 
-            ViewBag.FeaturedOrgs = await _db.Organisations
-                .Where(o => o.Status == OrgStatus.Approved)
-                .OrderByDescending(o => o.CreatedAt)
-                .Take(3)
+            var donorId = DonorId();
+            var pastDonatedOrgTypes = await _db.Donations
+                .Where(d => d.DonorId == donorId && d.Organisation != null)
+                .Select(d => d.Organisation!.OrgType)
+                .Distinct()
                 .ToListAsync();
+
+            var approvedOrgs = await _db.Organisations
+                .Where(o => o.Status == OrgStatus.Approved)
+                .ToListAsync();
+
+            if (pastDonatedOrgTypes.Any())
+            {
+                ViewBag.FeaturedOrgs = approvedOrgs
+                    .OrderByDescending(o => pastDonatedOrgTypes.Contains(o.OrgType))
+                    .ThenBy(x => Guid.NewGuid())
+                    .Take(3)
+                    .ToList();
+            }
+            else
+            {
+                ViewBag.FeaturedOrgs = approvedOrgs
+                    .OrderBy(x => Guid.NewGuid())
+                    .Take(3)
+                    .ToList();
+            }
 
             return View(donations);
         }
@@ -49,7 +90,7 @@ namespace SocialHelpDonation.Controllers
         // ─── Browse Organisations ─────────────────────────────────────────────────
         public async Task<IActionResult> BrowseOrganisations(string? search, string? type)
         {
-            if (!IsDonor()) return RedirectToAction("DonorLogin", "Auth");
+
 
             var query = _db.Organisations
                 .Include(o => o.Requirements.Where(r => r.Status == RequirementStatus.Open))
@@ -72,7 +113,7 @@ namespace SocialHelpDonation.Controllers
         [HttpGet]
         public async Task<IActionResult> Donate(int orgId)
         {
-            if (!IsDonor()) return RedirectToAction("DonorLogin", "Auth");
+            if (!IsDonor()) return RedirectToAction("DonorLogin", "Auth", new { returnUrl = $"/Donor/Donate?orgId={orgId}" });
             var org = await _db.Organisations.FindAsync(orgId);
             if (org == null || org.Status != OrgStatus.Approved) return NotFound();
 
@@ -84,7 +125,7 @@ namespace SocialHelpDonation.Controllers
         [HttpPost]
         public async Task<IActionResult> Donate(CreateDonationViewModel model)
         {
-            if (!IsDonor()) return RedirectToAction("DonorLogin", "Auth");
+            if (!IsDonor()) return RedirectToAction("DonorLogin", "Auth", new { returnUrl = $"/Donor/Donate?orgId={model.OrganisationId}" });
 
             // Type-specific validation
             if (model.DonationType == DonationType.Money && (model.Amount == null || model.Amount <= 0))
@@ -114,7 +155,12 @@ namespace SocialHelpDonation.Controllers
                 OrganisationId = model.OrganisationId,
                 DonationType = model.DonationType,
                 Description = model.Description,
-                Status = DonationStatus.Pending
+                Status = DonationStatus.Pending,
+                IsPickupRequested = model.IsPickupRequested,
+                PickupStatus = model.IsPickupRequested ? "Requested" : null,
+                PickupAddress = model.IsPickupRequested ? model.PickupAddress : null,
+                PickupLatitude = model.IsPickupRequested ? model.PickupLatitude : null,
+                PickupLongitude = model.IsPickupRequested ? model.PickupLongitude : null
             };
 
             switch (model.DonationType)
@@ -134,6 +180,7 @@ namespace SocialHelpDonation.Controllers
                 case DonationType.Clothes:
                     donation.ClothCategory = model.ClothCategory;
                     donation.ClothType = model.ClothType;
+                    donation.ClothCondition = model.ClothCondition;
                     donation.Size = model.Size;
                     donation.Quantity = model.Quantity;
                     break;
@@ -147,6 +194,9 @@ namespace SocialHelpDonation.Controllers
             _db.Donations.Add(donation);
             await _db.SaveChangesAsync();
 
+            // Notify Organisation (Broadcasting for now, can be refined with specific ConnectionId)
+            await _hubContext.Clients.All.SendAsync("ReceiveNotification", $"New donation received from {HttpContext.Session.GetString("DonorName")}!", "success");
+            
             TempData["Success"] = "Donation request sent successfully!";
             return RedirectToAction("MyDonations");
         }
@@ -161,6 +211,18 @@ namespace SocialHelpDonation.Controllers
                 .OrderByDescending(d => d.CreatedAt)
                 .ToListAsync();
             return View(donations);
+        }
+
+        public async Task<IActionResult> DonationDetails(int id)
+        {
+            if (!IsDonor()) return RedirectToAction("DonorLogin", "Auth");
+            var donation = await _db.Donations
+                .Include(d => d.Organisation)
+                .Include(d => d.ChatMessages)
+                .FirstOrDefaultAsync(d => d.Id == id && d.DonorId == DonorId());
+            
+            if (donation == null) return NotFound();
+            return View(donation);
         }
 
         // ─── Receipt ──────────────────────────────────────────────────────────────

@@ -9,12 +9,12 @@
     <div class="table-container">
         <table>
             <thead>
-                <tr><th>Receipt</th><th>Donor</th><th>Type</th><th>Details</th><th>Description</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+                <tr><th>Receipt</th><th>Donor</th><th>Type</th><th>Details</th><th>Description</th><th>Pickup</th><th>Status</th><th>Date</th><th>Actions</th></tr>
             </thead>
             <tbody>
                 @if (!Model.Any())
                 {
-                    <tr><td colspan="8" class="text-center py-5">
+                    <tr><td colspan="9" class="text-center py-5">
                         <div class="empty-state"><div class="empty-icon">📬</div><h5>No Donation Requests</h5><p>Donations from donors will appear here.</p></div>
                     </td></tr>
                 }
@@ -42,6 +42,27 @@
                             }
                         </td>
                         <td style="max-width:150px;white-space:normal;font-size:.82rem">@(d.Description ?? "-")</td>
+                        <td style="font-size:.82rem">
+                            @if (d.IsPickupRequested)
+                            {
+                                if (d.PickupStatus == "Scheduled")
+                                {
+                                    <span class="badge bg-info">Scheduled<br/>@d.PickupDate?.ToString("dd MMM yyyy")</span>
+                                }
+                                else if (d.PickupStatus == "Requested")
+                                {
+                                    <span class="badge bg-warning text-dark">Requested</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">@(d.PickupStatus ?? "Yes")</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">No</span>
+                            }
+                        </td>
                         <td>
                             @if (d.Status == SocialHelpDonation.Models.DonationStatus.Pending)
                             { <span class="badge badge-pending"><i class="bi bi-hourglass"></i> Pending</span> }
@@ -54,6 +75,13 @@
                         </td>
                         <td>@d.CreatedAt.ToString("dd MMM yy")</td>
                         <td>
+                            <div class="d-flex flex-column gap-1 mb-1">
+                                <a href="/Organisation/DonationDetails/@d.Id" class="btn btn-outline-info btn-sm w-100"><i class="bi bi-eye me-1"></i>View Details</a>
+                                <div class="d-flex gap-1 w-100">
+                                    <a href="/Organisation/DonationDetails/@d.Id#chat-section" class="btn btn-primary btn-sm flex-fill"><i class="bi bi-chat-dots me-1"></i>Chat</a>
+                                    <a href="/Organisation/DonationDetails/@d.Id#pickupMap" class="btn btn-outline-success btn-sm flex-fill"><i class="bi bi-geo-alt me-1"></i>Map</a>
+                                </div>
+                            </div>
                             @if (d.Status == SocialHelpDonation.Models.DonationStatus.Pending)
                             {
                                 <div style="display:flex;flex-direction:column;gap:.3rem">
@@ -69,12 +97,11 @@
                             }
                             else if (d.Status == SocialHelpDonation.Models.DonationStatus.Approved)
                             {
-                                <form asp-action="CompleteDonation" method="post" onsubmit="return confirm('Mark as completed (received)?')">
+                                <form asp-action="CompleteDonation" method="post" onsubmit="return confirm('Mark as completed (received)?')" class="mb-1">
                                     <input type="hidden" name="id" value="@d.Id" />
                                     <button class="btn btn-primary btn-sm w-100"><i class="bi bi-trophy me-1"></i>Mark Completed</button>
                                 </form>
                             }
-                            else { <span class="text-muted">—</span> }
                         </td>
                     </tr>
                 }

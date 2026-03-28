@@ -36,13 +36,20 @@ namespace SocialHelpDonation.Models
         public string? ProofFilePath { get; set; }
 
         [MaxLength(500)]
+        public string? IdProofFilePath { get; set; }
+
+        [MaxLength(500)]
+        public string? AddressProofFilePath { get; set; }
+
+        [MaxLength(500)]
         public string? ImagePath { get; set; }
 
         [MaxLength(1000)]
         public string? Description { get; set; }
 
         public OrgStatus Status { get; set; } = OrgStatus.Pending;
-
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [MaxLength(255)]

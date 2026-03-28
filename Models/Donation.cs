@@ -45,6 +45,9 @@ namespace SocialHelpDonation.Models
         [MaxLength(50)]
         public string? ClothType { get; set; }      // Shirt, Pants, Blanket, etc.
 
+        [MaxLength(50)]
+        public string? ClothCondition { get; set; } // New / Used
+
         [MaxLength(10)]
         public string? Size { get; set; }           // S, M, L, XL (optional)
 
@@ -63,7 +66,26 @@ namespace SocialHelpDonation.Models
         [MaxLength(500)]
         public string? OrgNotes { get; set; }
 
+        // ─── Pickup Additions ─────────────────────
+        public bool IsPickupRequested { get; set; } = false;
+
+        [MaxLength(50)]
+        public string? PickupStatus { get; set; } // Pending, Accepted, On the Way, Delivered
+
+        public DateTime? PickupDate { get; set; }
+        
+        [MaxLength(500)]
+        public string? PickupAddress { get; set; }
+
+        [MaxLength(500)]
+        public string? PickupLocation { get; set; }
+
+        public double? PickupLatitude { get; set; }
+        public double? PickupLongitude { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
+
+        public ICollection<ChatMessage> ChatMessages { get; set; } = new List<ChatMessage>();
     }
 }

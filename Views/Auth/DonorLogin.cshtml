@@ -9,7 +9,7 @@
             <p>Continue your giving journey</p>
         </div>
         <div class="auth-body">
-            <form asp-action="DonorLogin" method="post">
+            <form asp-action="DonorLogin" method="post" asp-route-returnUrl="@ViewBag.ReturnUrl">
                 <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
                 <div class="mb-3">
                     <label asp-for="Email" class="form-label"><i class="bi bi-envelope me-1"></i>Email</label>

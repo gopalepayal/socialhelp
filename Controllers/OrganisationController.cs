@@ -1,18 +1,22 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.SignalR;
 using SocialHelpDonation.Data;
 using SocialHelpDonation.Models;
 using SocialHelpDonation.Models.ViewModels;
+using SocialHelpDonation.Hubs;
 
 namespace SocialHelpDonation.Controllers
 {
     public class OrganisationController : Controller
     {
         private readonly ApplicationDbContext _db;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public OrganisationController(ApplicationDbContext db)
+        public OrganisationController(ApplicationDbContext db, IHubContext<ChatHub> hubContext)
         {
             _db = db;
+            _hubContext = hubContext;
         }
 
         private bool IsOrg() => HttpContext.Session.GetString("UserRole") == "Organisation";
@@ -115,6 +119,18 @@ namespace SocialHelpDonation.Controllers
             return View(donations);
         }
 
+        public async Task<IActionResult> DonationDetails(int id)
+        {
+            if (!IsOrg()) return RedirectToAction("OrgLogin", "Auth");
+            var donation = await _db.Donations
+                .Include(d => d.Donor)
+                .Include(d => d.ChatMessages)
+                .FirstOrDefaultAsync(d => d.Id == id && d.OrganisationId == OrgId());
+            
+            if (donation == null) return NotFound();
+            return View(donation);
+        }
+
         [HttpPost]
         public async Task<IActionResult> ApproveDonation(int id, string? notes)
         {
@@ -126,7 +142,9 @@ namespace SocialHelpDonation.Controllers
                 donation.OrgNotes = notes;
                 donation.UpdatedAt = DateTime.UtcNow;
                 await _db.SaveChangesAsync();
-                TempData["Success"] = "Donation approved.";
+                
+                // Notify Donor
+                await _hubContext.Clients.All.SendAsync("ReceiveNotification", $"Your donation (RCP-{donation.ReceiptNumber.Substring(donation.ReceiptNumber.Length-4)}) has been Approved!", "success");
             }
             return RedirectToAction("DonationRequests");
         }
@@ -142,7 +160,9 @@ namespace SocialHelpDonation.Controllers
                 donation.OrgNotes = notes;
                 donation.UpdatedAt = DateTime.UtcNow;
                 await _db.SaveChangesAsync();
-                TempData["Success"] = "Donation rejected.";
+                
+                // Notify Donor
+                await _hubContext.Clients.All.SendAsync("ReceiveNotification", $"Your donation (RCP-{donation.ReceiptNumber.Substring(donation.ReceiptNumber.Length-4)}) has been Rejected.", "error");
             }
             return RedirectToAction("DonationRequests");
         }
@@ -157,9 +177,28 @@ namespace SocialHelpDonation.Controllers
                 donation.Status = DonationStatus.Completed;
                 donation.UpdatedAt = DateTime.UtcNow;
                 await _db.SaveChangesAsync();
-                TempData["Success"] = "Donation marked as completed. Thank you!";
+                
+                // Notify Donor
+                await _hubContext.Clients.All.SendAsync("ReceiveNotification", $"Donation (RCP-{donation.ReceiptNumber.Substring(donation.ReceiptNumber.Length-4)}) marked as Completed. Thank you!", "success");
             }
             return RedirectToAction("DonationRequests");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdatePickupStatus(int id, string status)
+        {
+            if (!IsOrg()) return Unauthorized();
+            var donation = await _db.Donations.FirstOrDefaultAsync(d => d.Id == id && d.OrganisationId == OrgId());
+            if (donation != null && donation.IsPickupRequested)
+            {
+                donation.PickupStatus = status;
+                donation.UpdatedAt = DateTime.UtcNow;
+                await _db.SaveChangesAsync();
+
+                // Notify Donor
+                await _hubContext.Clients.All.SendAsync("ReceiveNotification", $"Pickup status updated for RCP-{donation.ReceiptNumber.Substring(donation.ReceiptNumber.Length-4)}: {status}", "info");
+            }
+            return RedirectToAction("DonationDetails", new { id });
         }
 
         // ─── Public Profile ──────────────────────────────────────────────────────

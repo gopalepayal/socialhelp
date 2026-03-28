@@ -12,6 +12,8 @@ namespace SocialHelpDonation.Data
         public DbSet<Donor> Donors { get; set; }
         public DbSet<Donation> Donations { get; set; }
         public DbSet<Requirement> Requirements { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
+        public DbSet<OrganizationVerification> OrganizationVerifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,6 +31,7 @@ namespace SocialHelpDonation.Data
             modelBuilder.Entity<Donation>()
                 .Property(d => d.Status)
                 .HasConversion<string>();
+
 
             modelBuilder.Entity<Donation>()
                 .Property(d => d.DonationType)

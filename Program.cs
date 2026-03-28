@@ -2,6 +2,7 @@ using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using SocialHelpDonation.Data;
 using SocialHelpDonation.Services;
+using SocialHelpDonation.Hubs;
 
 // Load .env file
 Env.Load();
@@ -10,16 +11,23 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ─── Read DB credentials from environment ────────────────────────────────────
 var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "3306";
-var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "donation_db";
-var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "root";
+var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
+var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "postgres";
+var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "postgres";
 var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "";
 
-var connectionString = $"Server={dbHost};Port={dbPort};Database={dbName};User={dbUser};Password={dbPassword};AllowPublicKeyRetrieval=true;SslMode=None;";
+var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword};SSL Mode=Require;Trust Server Certificate=true;Pooling=false;";
+
+// ─── Supabase API credentials ─────────────────────────────────────────────────
+var supabaseUrl  = Environment.GetEnvironmentVariable("SUPABASE_URL")      ?? "";
+var supabaseKey  = Environment.GetEnvironmentVariable("SUPABASE_ANON_KEY") ?? "";
+// These can be accessed from controllers via IConfiguration["SUPABASE_URL"] etc.
+builder.Configuration["SUPABASE_URL"]      = supabaseUrl;
+builder.Configuration["SUPABASE_ANON_KEY"] = supabaseKey;
 
 // ─── Services ────────────────────────────────────────────────────────────────
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<PasswordService>();
 builder.Services.AddScoped<EmailService>();
@@ -32,34 +40,21 @@ builder.Services.AddSession(options =>
 });
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddSignalR();
+
 
 var app = builder.Build();
 
-// ─── Drop & Recreate DB to apply new schema ───────────────────────────────────
+// ─── Seed data (Supabase tables already created via SQL Editor) ───────────────
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var startupLogger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
     try
     {
-        // Create database if it doesn't exist (preserves existing data)
-        db.Database.EnsureCreated();
-
-        // Safely add ImagePath column if it doesn't exist yet
-        try
-        {
-            db.Database.ExecuteSqlRaw("ALTER TABLE Organisations ADD COLUMN ImagePath VARCHAR(500) NULL");
-        }
-        catch { /* Column already exists, ignore */ }
-
-        // Safely add ResetToken and ResetTokenExpiry columns
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE Admins ADD COLUMN ResetToken VARCHAR(255) NULL"); } catch { }
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE Admins ADD COLUMN ResetTokenExpiry DATETIME(6) NULL"); } catch { }
-        
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE Donors ADD COLUMN ResetToken VARCHAR(255) NULL"); } catch { }
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE Donors ADD COLUMN ResetTokenExpiry DATETIME(6) NULL"); } catch { }
-
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE Organisations ADD COLUMN ResetToken VARCHAR(255) NULL"); } catch { }
-        try { db.Database.ExecuteSqlRaw("ALTER TABLE Organisations ADD COLUMN ResetTokenExpiry DATETIME(6) NULL"); } catch { }
+        // Test connection by running a lightweight query
+        db.Database.ExecuteSqlRaw("SELECT 1");
+        startupLogger.LogInformation("✅ Supabase PostgreSQL connection successful.");
 
         // Seed default admins only if empty
         if (!db.Admins.Any())
@@ -68,6 +63,7 @@ using (var scope = app.Services.CreateScope())
             db.Admins.Add(new SocialHelpDonation.Models.Admin { Name = "Super Admin", Email = "admin@donationsystem.com", PasswordHash = passwordService.HashPassword("Admin@123") });
             db.Admins.Add(new SocialHelpDonation.Models.Admin { Name = "Payal Admin", Email = "payalgopale449@gmail.com", PasswordHash = passwordService.HashPassword("Admin@123") });
             db.SaveChanges();
+            startupLogger.LogInformation("✅ Admin seed data inserted.");
         }
 
         // Seed Sample Organisations only if empty
@@ -85,6 +81,7 @@ using (var scope = app.Services.CreateScope())
                 RegistrationNumber = "NGO/2024/MH/00101",
                 Status = SocialHelpDonation.Models.OrgStatus.Approved,
                 Description = "A safe home for orphaned children, providing education and care.",
+                Latitude = 19.0760, Longitude = 72.8777,
                 CreatedAt = DateTime.UtcNow.AddDays(-10)
             };
             var org2 = new SocialHelpDonation.Models.Organisation
@@ -98,6 +95,7 @@ using (var scope = app.Services.CreateScope())
                 RegistrationNumber = "NGO/2024/MH/00202",
                 Status = SocialHelpDonation.Models.OrgStatus.Approved,
                 Description = "Providing a loving community and medical support for senior citizens.",
+                Latitude = 19.1136, Longitude = 72.8697,
                 CreatedAt = DateTime.UtcNow.AddDays(-5)
             };
             var org3 = new SocialHelpDonation.Models.Organisation
@@ -111,6 +109,7 @@ using (var scope = app.Services.CreateScope())
                 RegistrationNumber = "NGO/2024/MH/00303",
                 Status = SocialHelpDonation.Models.OrgStatus.Approved,
                 Description = "Empowering visually impaired youth through specialized education and skills training.",
+                Latitude = 19.0178, Longitude = 72.8478,
                 CreatedAt = DateTime.UtcNow.AddDays(-2)
             };
 
@@ -128,6 +127,22 @@ using (var scope = app.Services.CreateScope())
                 );
                 db.SaveChanges();
             }
+            startupLogger.LogInformation("✅ Organisation and requirement seed data inserted.");
+        }
+        else
+        {
+            // Update existing organisations with coordinates if they were created before this update
+            var orgs = db.Organisations.ToList();
+            bool updated = false;
+            foreach(var o in orgs) {
+                if(!o.Latitude.HasValue) {
+                    if(o.Name.Contains("Triya")) { o.Latitude = 19.0760; o.Longitude = 72.8777; }
+                    else if(o.Name.Contains("Serenity")) { o.Latitude = 19.1136; o.Longitude = 72.8697; }
+                    else if(o.Name.Contains("Vision")) { o.Latitude = 19.0178; o.Longitude = 72.8478; }
+                    updated = true;
+                }
+            }
+            if(updated) { db.SaveChanges(); startupLogger.LogInformation("✅ Updated coordinates for existing organisations."); }
         }
     }
     catch (Exception ex)
@@ -151,5 +166,7 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapHub<ChatHub>("/chatHub");
 
 app.Run();

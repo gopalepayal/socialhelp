@@ -40,9 +40,17 @@ namespace SocialHelpDonation.Models.ViewModels
         [MaxLength(1000)]
         public string? Description { get; set; }
 
-        [Required(ErrorMessage = "Please upload a proof document (PDF or Image).")]
-        [Display(Name = "Proof Document")]
+        [Required(ErrorMessage = "Please upload a Registration Certificate (PDF or Image).")]
+        [Display(Name = "Registration Certificate")]
         public IFormFile? DocumentFile { get; set; }
+
+        [Required(ErrorMessage = "Please upload a valid ID Proof.")]
+        [Display(Name = "ID Proof")]
+        public IFormFile? IdProofFile { get; set; }
+
+        [Required(ErrorMessage = "Please upload a valid Address Proof.")]
+        [Display(Name = "Address Proof")]
+        public IFormFile? AddressProofFile { get; set; }
 
         [Display(Name = "Organisation Image")]
         public IFormFile? ImageFile { get; set; }
@@ -117,6 +125,9 @@ namespace SocialHelpDonation.Models.ViewModels
         [MaxLength(50)]
         public string? ClothType { get; set; }
 
+        [MaxLength(50)]
+        public string? ClothCondition { get; set; }
+
         [MaxLength(10)]
         public string? Size { get; set; }
 
@@ -126,6 +137,17 @@ namespace SocialHelpDonation.Models.ViewModels
         // Books
         [MaxLength(50)]
         public string? BookType { get; set; }
+
+        public bool IsPickupRequested { get; set; } = false;
+
+        [MaxLength(500)]
+        public string? PickupAddress { get; set; }
+
+        [MaxLength(500)]
+        public string? PickupLocation { get; set; }
+
+        public double? PickupLatitude { get; set; }
+        public double? PickupLongitude { get; set; }
     }
 
     // ─── Requirement ViewModels ────────────────────────────────────────────────
@@ -157,6 +179,9 @@ namespace SocialHelpDonation.Models.ViewModels
 
         [MaxLength(50)]
         public string? ClothType { get; set; }
+
+        [MaxLength(50)]
+        public string? ClothCondition { get; set; }
 
         [MaxLength(10)]
         public string? Size { get; set; }

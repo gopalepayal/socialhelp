@@ -40,6 +40,9 @@ namespace SocialHelpDonation.Models
         [MaxLength(50)]
         public string? ClothType { get; set; }
 
+        [MaxLength(50)]
+        public string? ClothCondition { get; set; }
+
         [MaxLength(10)]
         public string? Size { get; set; }
 

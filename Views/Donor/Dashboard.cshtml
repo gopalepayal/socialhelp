@@ -3,16 +3,20 @@
 
 <div class="page-header">
     <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <div><h1><i class="bi bi-speedometer2 me-2"></i>Donor Dashboard</h1><p>Welcome, @Context.Session.GetString("DonorName")!</p></div>
+        <div><h1><i class="bi bi-speedometer2 me-2"></i>Donor Dashboard</h1>
+            <p class="mb-0 d-flex align-items-center gap-2">Welcome, @Context.Session.GetString("DonorName")! 
+                <span class="badge bg-@ViewBag.BadgeColor"><i class="bi bi-award-fill me-1"></i>@ViewBag.DonorBadge</span>
+            </p>
+        </div>
         <a href="/Donor/BrowseOrganisations" class="btn btn-primary"><i class="bi bi-search me-1"></i>Browse Organisations</a>
     </div>
 </div>
 
 <div class="container pb-5">
     <div class="row g-4 mb-4">
-        <div class="col-md-4 col-6"><div class="stat-card"><div class="stat-icon purple"><i class="bi bi-gift"></i></div><div><div class="stat-value">@Model.Count</div><div class="stat-label">Total Donations</div></div></div></div>
-        <div class="col-md-4 col-6"><div class="stat-card"><div class="stat-icon green"><i class="bi bi-check-circle"></i></div><div><div class="stat-value">@Model.Count(d => d.Status == SocialHelpDonation.Models.DonationStatus.Approved || d.Status == SocialHelpDonation.Models.DonationStatus.Completed)</div><div class="stat-label">Approved / Completed</div></div></div></div>
-        <div class="col-md-4 col-6"><div class="stat-card"><div class="stat-icon yellow"><i class="bi bi-hourglass"></i></div><div><div class="stat-value">@Model.Count(d => d.Status == SocialHelpDonation.Models.DonationStatus.Pending)</div><div class="stat-label">Pending</div></div></div></div>
+        <div class="col-md-4 col-6"><div class="stat-card"><div class="stat-icon purple"><i class="bi bi-gift"></i></div><div><div class="stat-value">@ViewBag.TotalDonations</div><div class="stat-label">Total Donations</div></div></div></div>
+        <div class="col-md-4 col-6"><div class="stat-card"><div class="stat-icon green"><i class="bi bi-check-circle"></i></div><div><div class="stat-value">@ViewBag.ApprovedDonations</div><div class="stat-label">Approved / Completed</div></div></div></div>
+        <div class="col-md-4 col-6"><div class="stat-card"><div class="stat-icon yellow"><i class="bi bi-hourglass"></i></div><div><div class="stat-value">@ViewBag.PendingDonations</div><div class="stat-label">Pending</div></div></div></div>
     </div>
 
     <div class="row">
@@ -57,10 +61,14 @@
                                             </td>
                                             <td>@d.CreatedAt.ToString("dd MMM yyyy")</td>
                                             <td>
-                                                @if (d.Status == SocialHelpDonation.Models.DonationStatus.Approved || d.Status == SocialHelpDonation.Models.DonationStatus.Completed)
-                                                {
-                                                    <a href="/Donor/Receipt/@d.Id" class="btn btn-primary btn-sm"><i class="bi bi-receipt me-1"></i>Receipt</a>
-                                                }
+                                                <div class="d-flex gap-1">
+                                                    <a href="/Donor/DonationDetails/@d.Id" class="btn btn-outline-info btn-sm"><i class="bi bi-chat-dots me-1"></i>Chat</a>
+                                                    <a href="/Donor/DonationDetails/@d.Id#pickupMap" class="btn btn-outline-success btn-sm"><i class="bi bi-geo-alt me-1"></i>Map</a>
+                                                    @if (d.Status == SocialHelpDonation.Models.DonationStatus.Approved || d.Status == SocialHelpDonation.Models.DonationStatus.Completed)
+                                                    {
+                                                        <a href="/Donor/Receipt/@d.Id" class="btn btn-primary btn-sm"><i class="bi bi-receipt me-1"></i>Receipt</a>
+                                                    }
+                                                </div>
                                             </td>
                                         </tr>
                                     }
@@ -104,9 +112,9 @@
                 </div>
             </div>
 
-            <!-- Featured Orgs -->
+            <!-- Recommended For You -->
             <div class="card mb-4" style="border-top: 3px solid var(--warning-color)">
-                <div class="card-header bg-white"><i class="bi bi-star-fill text-warning me-2"></i>Featured Orgs</div>
+                <div class="card-header bg-white"><i class="bi bi-stars text-warning me-2"></i>Recommended For You</div>
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush">
                         @if (ViewBag.FeaturedOrgs != null && ((IEnumerable<dynamic>)ViewBag.FeaturedOrgs).Any())

@@ -1,90 +1,49 @@
-@model SocialHelpDonation.Models.ViewModels.AdminReportViewModel
 @{ ViewData["Title"] = "Admin Dashboard"; Layout = "~/Views/Shared/_Layout.cshtml"; }
 
-<div class="page-header">
+<div class="page-header" data-aos="fade-down">
     <div class="container">
-        <h1><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h1>
-        <p>Welcome back, @Context.Session.GetString("AdminName")</p>
+        <h1>Welcome, @Context.Session.GetString("AdminName")</h1>
+        <p>Social Help & Donation System - Control Panel</p>
     </div>
 </div>
 
-<div class="container pb-5">
-    <!-- Stats Row -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-3 col-6">
-            <div class="stat-card">
-                <div class="stat-icon purple"><i class="bi bi-building"></i></div>
-                <div><div class="stat-value">@Model.TotalOrgs</div><div class="stat-label">Total Orgs</div></div>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="stat-card">
-                <div class="stat-icon yellow"><i class="bi bi-hourglass"></i></div>
-                <div><div class="stat-value">@Model.PendingOrgs</div><div class="stat-label">Pending Approval</div></div>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="stat-card">
-                <div class="stat-icon cyan"><i class="bi bi-people"></i></div>
-                <div><div class="stat-value">@Model.TotalDonors</div><div class="stat-label">Total Donors</div></div>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="stat-card">
-                <div class="stat-icon green"><i class="bi bi-gift"></i></div>
-                <div><div class="stat-value">@Model.TotalDonations</div><div class="stat-label">Total Donations</div></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Second Row -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-4 col-6">
-            <div class="stat-card">
-                <div class="stat-icon green"><i class="bi bi-check-circle"></i></div>
-                <div><div class="stat-value">@Model.ApprovedOrgs</div><div class="stat-label">Approved Orgs</div></div>
-            </div>
-        </div>
-        <div class="col-md-4 col-6">
-            <div class="stat-card">
-                <div class="stat-icon cyan"><i class="bi bi-gift"></i></div>
-                <div><div class="stat-value">@Model.ApprovedDonations</div><div class="stat-label">Approved Donations</div></div>
-            </div>
-        </div>
-        <div class="col-md-4 col-6">
-            <div class="stat-card">
-                <div class="stat-icon yellow"><i class="bi bi-clock"></i></div>
-                <div><div class="stat-value">@Model.PendingDonations</div><div class="stat-label">Pending Donations</div></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Quick Actions -->
+<div class="container py-5">
     <div class="row g-4">
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-header"><i class="bi bi-building-check me-2"></i>Manage Organisations</div>
-                <div class="card-body">
-                    <p style="font-size:.85rem;color:var(--gray)">Verify documents, approve or reject organisation registrations.</p>
-                    <a href="/Admin/Organisations" class="btn btn-primary"><i class="bi bi-arrow-right me-1"></i>View Organisations</a>
+            <div class="card h-100 border-0 shadow-sm" style="border-radius: 15px;">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="bi bi-building fs-3 text-primary"></i>
+                    </div>
+                    <h3 class="fw-bold">@ViewBag.PendingOrgs</h3>
+                    <p class="text-muted">Pending Verifications</p>
+                    <a href="/Admin/Organisations" class="btn btn-primary w-100 rounded-pill mt-2">Manage Organizations</a>
                 </div>
             </div>
         </div>
+        
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-header"><i class="bi bi-people me-2"></i>Donor Management</div>
-                <div class="card-body">
-                    <p style="font-size:.85rem;color:var(--gray)">View all registered donors and their contribution history.</p>
-                    <a href="/Admin/Donors" class="btn btn-primary"><i class="bi bi-arrow-right me-1"></i>View Donors</a>
+            <div class="card h-100 border-0 shadow-sm" style="border-radius: 15px;">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="bi bi-heart fs-3 text-success"></i>
+                    </div>
+                    <h3 class="fw-bold">@ViewBag.AllDonations</h3>
+                    <p class="text-muted">Total Donations</p>
+                    <a href="/Admin/Reports" class="btn btn-outline-success w-100 rounded-pill mt-2">View Reports</a>
                 </div>
             </div>
         </div>
+
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-header"><i class="bi bi-gift me-2"></i>All Donations</div>
-                <div class="card-body">
-                    <p style="font-size:.85rem;color:var(--gray)">Monitor all donation activity across the system.</p>
-                    <a href="/Admin/Donations" class="btn btn-primary"><i class="bi bi-arrow-right me-1"></i>View Donations</a>
+            <div class="card h-100 border-0 shadow-sm" style="border-radius: 15px;">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-info bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="bi bi-people fs-3 text-info"></i>
+                    </div>
+                    <h3 class="fw-bold">@ViewBag.TotalDonors</h3>
+                    <p class="text-muted">Registered Donors</p>
+                    <a href="/Admin/Donors" class="btn btn-outline-info w-100 rounded-pill mt-2">View Donors</a>
                 </div>
             </div>
         </div>

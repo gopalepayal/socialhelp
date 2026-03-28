@@ -1,6 +1,112 @@
 @model SocialHelpDonation.Models.ViewModels.CreateDonationViewModel
 @{ ViewData["Title"] = "Make a Donation"; Layout = "~/Views/Shared/_Layout.cshtml"; }
 
+@section Scripts {
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // -- Donation Type Fields Logic --
+            const select = document.getElementById('donationTypeSelect');
+            const quantityInput = document.querySelector('input[name="Quantity"]');
+            const booksQtyInput = document.querySelector('.books-qty');
+
+            if (booksQtyInput) {
+                booksQtyInput.addEventListener('input', function() {
+                    if (quantityInput) quantityInput.value = this.value;
+                });
+            }
+
+            function updateFields() {
+                document.querySelectorAll('.dynamic-field').forEach(el => {
+                    el.classList.add('d-none');
+                    el.classList.remove('animate-field');
+                });
+                
+                const val = select.options[select.selectedIndex].text;
+                let activeField = null;
+                const commonQty = document.getElementById('commonQuantityField');
+                
+                if (val === 'Money') {
+                    activeField = document.getElementById('moneyFields');
+                    if (commonQty) commonQty.classList.add('d-none');
+                } else {
+                    if (commonQty) commonQty.classList.remove('d-none');
+                    if (val === 'Food') {
+                        activeField = document.getElementById('foodFields');
+                    } else if (val === 'Clothes') {
+                        activeField = document.getElementById('clothesFields');
+                    } else if (val === 'Books') {
+                        activeField = document.getElementById('booksFields');
+                    }
+                }
+
+                if (activeField) {
+                    activeField.classList.remove('d-none');
+                    setTimeout(() => { activeField.classList.add('animate-field'); }, 10);
+                }
+            }
+            
+            select.addEventListener('change', updateFields);
+            updateFields();
+
+            // -- Pickup Map Logic --
+            const pickupCheck = document.getElementById('pickupCheck');
+            const pickupDetails = document.getElementById('pickupDetails');
+            const latInput = document.getElementById('pickupLat');
+            const lngInput = document.getElementById('pickupLng');
+            let map = null;
+            let marker = null;
+
+            pickupCheck.addEventListener('change', function() {
+                if(this.checked) {
+                    pickupDetails.classList.remove('d-none');
+                    // Initialize map if not already done
+                    if(!map) {
+                        // Default to India (can use navigator.geolocation for better UX)
+                        const defaultLat = 20.5937;
+                        const defaultLng = 78.9629;
+                        
+                        // Set map container height before init
+                        document.getElementById('pickupLocationMap').style.height = '250px';
+                        
+                        map = L.map('pickupLocationMap').setView([defaultLat, defaultLng], 5);
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            attribution: '© OpenStreetMap contributors'
+                        }).addTo(map);
+
+                        marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+                        
+                        marker.on('dragend', function(e) {
+                            const pos = marker.getLatLng();
+                            latInput.value = pos.lat.toFixed(6);
+                            lngInput.value = pos.lng.toFixed(6);
+                        });
+
+                        // Try to get user location
+                        if("geolocation" in navigator) {
+                            navigator.geolocation.getCurrentPosition(pos => {
+                                const lat = pos.coords.latitude;
+                                const lng = pos.coords.longitude;
+                                map.setView([lat, lng], 15);
+                                marker.setLatLng([lat, lng]);
+                                latInput.value = lat.toFixed(6);
+                                lngInput.value = lng.toFixed(6);
+                            });
+                        }
+                    }
+                    // Fix map sizing issues when inside a hidden div
+                    setTimeout(() => { map.invalidateSize(); }, 200);
+                } else {
+                    pickupDetails.classList.add('d-none');
+                }
+            });
+        });
+    </script>
+}
+
 <div class="page-header" data-aos="fade-down">
     <div class="container">
         <h1><i class="bi bi-gift me-2"></i>Make a Donation</h1>
@@ -44,6 +150,7 @@
                                 <option value="">-- Select --</option>
                                 <option value="Veg">Vegetarian</option>
                                 <option value="Non-Veg">Non-Vegetarian</option>
+                                <option value="Packaged">Packaged</option>
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
@@ -67,7 +174,7 @@
                 <div id="clothesFields" class="d-none dynamic-field bg-light p-3 rounded mb-3 border">
                     <h6 class="mb-3 text-info"><i class="bi bi-person-lines-fill me-1"></i>Clothes Donation Details</h6>
                     <div class="row">
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             <label asp-for="ClothCategory" class="form-label">Category</label>
                             <select asp-for="ClothCategory" class="form-select">
                                 <option value="">-- Select --</option>
@@ -76,7 +183,7 @@
                                 <option value="Kids">Kids</option>
                             </select>
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             <label asp-for="ClothType" class="form-label">Type</label>
                             <select asp-for="ClothType" class="form-select">
                                 <option value="">-- Select --</option>
@@ -87,7 +194,15 @@
                                 <option value="Other">Other</option>
                             </select>
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
+                            <label asp-for="ClothCondition" class="form-label">Condition</label>
+                            <select asp-for="ClothCondition" class="form-select">
+                                <option value="">-- Select --</option>
+                                <option value="New">New</option>
+                                <option value="Used">Used</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
                             <label asp-for="Size" class="form-label">Size (Optional)</label>
                             <select asp-for="Size" class="form-select">
                                 <option value="">-- Any --</option>
@@ -97,11 +212,6 @@
                                 <option value="XL">Extra Large (XL)</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Quantity <span class="text-danger">*</span></label>
-                        <input asp-for="Quantity" type="number" min="1" class="form-control clothes-qty" placeholder="Number of items" />
-                        <span asp-validation-for="Quantity" class="text-danger"></span>
                     </div>
                 </div>
 
@@ -117,27 +227,46 @@
                             <option value="Other">Other</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Quantity <span class="text-danger">*</span></label>
-                        <input type="number" min="1" class="form-control books-qty" placeholder="Number of books" value="1" />
-                        <span asp-validation-for="Quantity" class="text-danger"></span>
-                    </div>
                 </div>
 
-                <style>
-                    @@keyframes slideFadeIn {
-                        from { opacity: 0; transform: translateY(-10px); }
-                        to { opacity: 1; transform: translateY(0); }
-                    }
-                    .animate-field {
-                        animation: slideFadeIn 0.3s ease-out forwards;
-                    }
-                </style>
+                <!-- Common Quantity (Always visible as per strict rules) -->
+                <div id="commonQuantityField" class="mb-3">
+                    <label asp-for="Quantity" class="form-label">Quantity <span class="text-danger">*</span></label>
+                    <input asp-for="Quantity" type="number" min="1" class="form-control" placeholder="Number of items / meals" />
+                    <span asp-validation-for="Quantity" class="text-danger"></span>
+                </div>
 
-                <!-- Description (always visible) -->
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"><i class="bi bi-pencil-square me-1"></i>Description / Additional Notes (Optional)</label>
+                    <textarea asp-for="Description" class="form-control" rows="2" placeholder="Tell the organisation more about your donation..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
                 <div class="mb-4">
-                    <label asp-for="Description" class="form-label"><i class="bi bi-card-text me-1"></i>Description (optional)</label>
-                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="Additional details..."></textarea>
+                    <div class="form-check mb-2">
+                        <input asp-for="IsPickupRequested" class="form-check-input" type="checkbox" id="pickupCheck" />
+                        <label asp-for="IsPickupRequested" class="form-check-label text-primary fw-bold" for="pickupCheck">
+                            <i class="bi bi-truck me-1"></i> Request Pickup for this donation
+                        </label>
+                    </div>
+
+                    <div id="pickupDetails" class="d-none bg-light p-3 rounded border">
+                        <div class="mb-3">
+                            <label asp-for="PickupAddress" class="form-label">Pickup Address Line</label>
+                            <input asp-for="PickupAddress" class="form-control" placeholder="123 Example Street, Apt 4B" />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="PickupLocation" class="form-label">Pickup Location Name / Landmark (Optional)</label>
+                            <input asp-for="PickupLocation" class="form-control" placeholder="e.g. Near City Park entrance" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label"><i class="bi bi-geo-alt-fill text-danger me-1"></i>Pin Exact Location on Map</label>
+                            <div id="pickupLocationMap" class="w-100 rounded border shadow-sm" style="height: 0px; min-height: 250px; z-index: 1;"></div>
+                            <small class="text-muted d-block mt-1">Drag the marker to your precise pickup location.</small>
+                        </div>
+                        <input type="hidden" asp-for="PickupLatitude" id="pickupLat" />
+                        <input type="hidden" asp-for="PickupLongitude" id="pickupLng" />
+                    </div>
                 </div>
 
                 <div class="d-flex gap-2">
@@ -149,50 +278,4 @@
     </div>
 </div>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const select = document.getElementById('donationTypeSelect');
-            const quantityInput = document.querySelector('input[name="Quantity"]');
-            const booksQtyInput = document.querySelector('.books-qty');
 
-            // Sync books quantity to hidden Quantity field
-            if (booksQtyInput) {
-                booksQtyInput.addEventListener('input', function() {
-                    if (quantityInput) quantityInput.value = this.value;
-                });
-            }
-
-            function updateFields() {
-                document.querySelectorAll('.dynamic-field').forEach(el => {
-                    el.classList.add('d-none');
-                    el.classList.remove('animate-field');
-                });
-                
-                const val = select.options[select.selectedIndex].text;
-                let activeField = null;
-                
-                if (val === 'Money') {
-                    activeField = document.getElementById('moneyFields');
-                } else if (val === 'Food') {
-                    activeField = document.getElementById('foodFields');
-                } else if (val === 'Clothes') {
-                    activeField = document.getElementById('clothesFields');
-                } else if (val === 'Books') {
-                    activeField = document.getElementById('booksFields');
-                    if (booksQtyInput && quantityInput) quantityInput.value = booksQtyInput.value;
-                }
-
-                if (activeField) {
-                    activeField.classList.remove('d-none');
-                    // Add animation class after a tiny tick so CSS animation re-triggers
-                    setTimeout(() => { activeField.classList.add('animate-field'); }, 10);
-                }
-            }
-            
-            select.addEventListener('change', updateFields);
-            updateFields();
-        });
-    </script>
-}

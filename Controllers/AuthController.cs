@@ -73,23 +73,49 @@ namespace SocialHelpDonation.Controllers
                 Status = OrgStatus.Pending
             };
 
-            // Handle document upload
+            var verification = new OrganizationVerification
+            {
+                Organisation = org
+            };
+
+            // ─── Handle document uploads ──────────────────────────────────────────
+            var docsDir = Path.Combine(_env.WebRootPath, "uploads", "documents");
+            if (!Directory.Exists(docsDir)) Directory.CreateDirectory(docsDir);
+
+            // 1. Registration Certificate
             if (model.DocumentFile != null && model.DocumentFile.Length > 0)
             {
-                var uploadsDir = Path.Combine(_env.WebRootPath, "uploads", "documents");
-                if (!Directory.Exists(uploadsDir)) Directory.CreateDirectory(uploadsDir);
-
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.DocumentFile.FileName);
-                var filePath = Path.Combine(uploadsDir, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                var fileName = "CERT_" + Guid.NewGuid().ToString().Substring(0, 8) + Path.GetExtension(model.DocumentFile.FileName);
+                using (var stream = new FileStream(Path.Combine(docsDir, fileName), FileMode.Create))
                 {
                     await model.DocumentFile.CopyToAsync(stream);
                 }
-                org.ProofFilePath = "/uploads/documents/" + fileName;
+                verification.CertificateFilePath = "/uploads/documents/" + fileName;
             }
 
-            // Handle organisation image upload
+            // 2. ID Proof
+            if (model.IdProofFile != null && model.IdProofFile.Length > 0)
+            {
+                var fileName = "ID_" + Guid.NewGuid().ToString().Substring(0, 8) + Path.GetExtension(model.IdProofFile.FileName);
+                using (var stream = new FileStream(Path.Combine(docsDir, fileName), FileMode.Create))
+                {
+                    await model.IdProofFile.CopyToAsync(stream);
+                }
+                verification.IdProofFilePath = "/uploads/documents/" + fileName;
+            }
+
+            // 3. Address Proof
+            if (model.AddressProofFile != null && model.AddressProofFile.Length > 0)
+            {
+                var fileName = "ADDR_" + Guid.NewGuid().ToString().Substring(0, 8) + Path.GetExtension(model.AddressProofFile.FileName);
+                using (var stream = new FileStream(Path.Combine(docsDir, fileName), FileMode.Create))
+                {
+                    await model.AddressProofFile.CopyToAsync(stream);
+                }
+                verification.AddressProofFilePath = "/uploads/documents/" + fileName;
+            }
+
+            // ─── Handle organisation image upload (Additive field to Org) ──────────
             if (model.ImageFile != null && model.ImageFile.Length > 0)
             {
                 var allowed = new[] { ".jpg", ".jpeg", ".png" };
@@ -100,9 +126,7 @@ namespace SocialHelpDonation.Controllers
                     if (!Directory.Exists(imgDir)) Directory.CreateDirectory(imgDir);
 
                     var imgName = Guid.NewGuid().ToString() + ext;
-                    var imgPath = Path.Combine(imgDir, imgName);
-
-                    using (var stream = new FileStream(imgPath, FileMode.Create))
+                    using (var stream = new FileStream(Path.Combine(imgDir, imgName), FileMode.Create))
                     {
                         await model.ImageFile.CopyToAsync(stream);
                     }
@@ -111,6 +135,8 @@ namespace SocialHelpDonation.Controllers
             }
 
             _db.Organisations.Add(org);
+            _db.OrganizationVerifications.Add(verification);
+
             try
             {
                 await _db.SaveChangesAsync();
@@ -142,13 +168,12 @@ namespace SocialHelpDonation.Controllers
 
             if (org.Status == OrgStatus.Pending)
             {
-                ModelState.AddModelError("", "Your account is pending admin approval.");
+                ModelState.AddModelError("", "Your account is pending admin verification.");
                 return View(model);
             }
-
             if (org.Status == OrgStatus.Rejected)
             {
-                ModelState.AddModelError("", "Your account has been rejected. Contact admin.");
+                ModelState.AddModelError("", "Your verification was rejected. Please contact admin.");
                 return View(model);
             }
 
@@ -197,23 +222,38 @@ namespace SocialHelpDonation.Controllers
         }
 
         [HttpGet]
-        public IActionResult DonorLogin() => View();
+        public IActionResult DonorLogin(string? returnUrl = null)
+        {
+            ViewBag.ReturnUrl = returnUrl;
+            return View();
+        }
 
         [HttpPost]
-        public async Task<IActionResult> DonorLogin(DonorLoginViewModel model)
+        public async Task<IActionResult> DonorLogin(DonorLoginViewModel model, string? returnUrl = null)
         {
-            if (!ModelState.IsValid) return View(model);
+            if (!ModelState.IsValid)
+            {
+                ViewBag.ReturnUrl = returnUrl;
+                return View(model);
+            }
 
             var donor = await _db.Donors.FirstOrDefaultAsync(d => d.Email == model.Email);
             if (donor == null || !_pwd.VerifyPassword(model.Password, donor.PasswordHash))
             {
                 ModelState.AddModelError("", "Invalid email or password.");
+                ViewBag.ReturnUrl = returnUrl;
                 return View(model);
             }
 
             HttpContext.Session.SetInt32("DonorId", donor.Id);
             HttpContext.Session.SetString("DonorName", donor.Name);
             HttpContext.Session.SetString("UserRole", "Donor");
+
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+
             return RedirectToAction("Dashboard", "Donor");
         }
 
@@ -234,38 +274,24 @@ namespace SocialHelpDonation.Controllers
 
             if (admin == null && org == null && donor == null)
             {
-                // Don't reveal if email exists or not for security
-                return RedirectToAction("ForgotPasswordConfirmation");
+                ModelState.AddModelError("Email", "Email not found in our system.");
+                return View(model);
             }
 
-            var resetToken = Guid.NewGuid().ToString();
-            var expiry = DateTime.UtcNow.AddMinutes(15);
-
-            if (admin != null) { admin.ResetToken = resetToken; admin.ResetTokenExpiry = expiry; }
-            if (org != null) { org.ResetToken = resetToken; org.ResetTokenExpiry = expiry; }
-            if (donor != null) { donor.ResetToken = resetToken; donor.ResetTokenExpiry = expiry; }
-
-            await _db.SaveChangesAsync();
-
-            var resetLink = Url.Action("ResetPassword", "Auth", new { token = resetToken, email = model.Email }, Request.Scheme);
-            var emailBody = $"<p>You requested a password reset.</p><p>Please <a href='{resetLink}'>click here</a> to reset your password.</p><p>This link will expire in 15 minutes.</p>";
-
-            await _email.SendEmailAsync(model.Email, "Reset Your Password", emailBody);
-
-            return RedirectToAction("ForgotPasswordConfirmation");
+            return RedirectToAction("ResetPassword", new { email = model.Email });
         }
 
         [HttpGet]
         public IActionResult ForgotPasswordConfirmation() => View();
 
         [HttpGet]
-        public IActionResult ResetPassword(string token, string email)
+        public IActionResult ResetPassword(string email)
         {
-            if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(email))
+            if (string.IsNullOrEmpty(email))
             {
-                ModelState.AddModelError("", "Invalid password reset token.");
+                return RedirectToAction("ForgotPassword");
             }
-            return View(new ResetPasswordViewModel { Token = token, Email = email });
+            return View(new ResetPasswordViewModel { Email = email });
         }
 
         [HttpPost]
@@ -274,40 +300,28 @@ namespace SocialHelpDonation.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            var admin = await _db.Admins.FirstOrDefaultAsync(u => u.Email == model.Email && u.ResetToken == model.Token);
-            var org = await _db.Organisations.FirstOrDefaultAsync(u => u.Email == model.Email && u.ResetToken == model.Token);
-            var donor = await _db.Donors.FirstOrDefaultAsync(u => u.Email == model.Email && u.ResetToken == model.Token);
+            var admin = await _db.Admins.FirstOrDefaultAsync(u => u.Email == model.Email);
+            var org = await _db.Organisations.FirstOrDefaultAsync(u => u.Email == model.Email);
+            var donor = await _db.Donors.FirstOrDefaultAsync(u => u.Email == model.Email);
 
             if (admin == null && org == null && donor == null)
             {
-                ModelState.AddModelError("", "Invalid or expired token.");
-                return View(model);
-            }
-
-            bool isExpired = false;
-            if (admin != null && admin.ResetTokenExpiry < DateTime.UtcNow) isExpired = true;
-            if (org != null && org.ResetTokenExpiry < DateTime.UtcNow) isExpired = true;
-            if (donor != null && donor.ResetTokenExpiry < DateTime.UtcNow) isExpired = true;
-
-            if (isExpired)
-            {
-                ModelState.AddModelError("", "Token has expired. Please request a new password reset.");
+                ModelState.AddModelError("", "User not found.");
                 return View(model);
             }
 
             var newHash = _pwd.HashPassword(model.NewPassword);
+            string roleLoginAction = "DonorLogin";
 
-            if (admin != null) { admin.PasswordHash = newHash; admin.ResetToken = null; admin.ResetTokenExpiry = null; }
-            if (org != null) { org.PasswordHash = newHash; org.ResetToken = null; org.ResetTokenExpiry = null; }
-            if (donor != null) { donor.PasswordHash = newHash; donor.ResetToken = null; donor.ResetTokenExpiry = null; }
+            if (admin != null) { admin.PasswordHash = newHash; roleLoginAction = "AdminLogin"; }
+            if (org != null) { org.PasswordHash = newHash; roleLoginAction = "OrgLogin"; }
+            if (donor != null) { donor.PasswordHash = newHash; }
 
             await _db.SaveChangesAsync();
 
-            return RedirectToAction("ResetPasswordConfirmation");
+            TempData["Success"] = "Password updated successfully";
+            return RedirectToAction(roleLoginAction);
         }
-
-        [HttpGet]
-        public IActionResult ResetPasswordConfirmation() => View();
 
         // ─── Logout ──────────────────────────────────────────────────────────────
         public IActionResult Logout()

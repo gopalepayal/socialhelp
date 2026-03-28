@@ -1,0 +1,130 @@
+@model SocialHelpDonation.Models.Donation
+@{ ViewData["Title"] = "Donation Details"; Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+@section Scripts {
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- SignalR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <!-- Custom Chat JS/CSS -->
+    <link rel="stylesheet" href="~/css/chat.css" asp-append-version="true" />
+    <script src="~/js/chat.js" asp-append-version="true"></script>
+
+    <script>
+        // Organization specific status update logic
+        document.addEventListener("DOMContentLoaded", function() {
+            const statusSelect = document.getElementById("orgPickupStatusSelect");
+            if(statusSelect) {
+                statusSelect.addEventListener("change", function() {
+                    if(confirm("Update pickup status and notify donor?")) {
+                        this.form.submit();
+                    } else {
+                        // reset to previous value 
+                        statusSelect.value = "@Model.PickupStatus";
+                    }
+                });
+            }
+        });
+    </script>
+}
+
+<div class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="d-flex align-items-center">
+            <a href="/Organisation/DonationRequests" class="btn btn-outline-secondary me-3"><i class="bi bi-arrow-left"></i> Back</a>
+            <h2 class="mb-0">Request <span class="badge bg-secondary fs-6 align-middle ms-2">@Model.ReceiptNumber</span></h2>
+        </div>
+        
+        @if(Model.Status == SocialHelpDonation.Models.DonationStatus.Approved && Model.IsPickupRequested)
+        {
+            <form asp-action="UpdatePickupStatus" method="post" class="d-flex align-items-center gap-2 m-0 bg-white p-2 rounded shadow-sm border">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <label class="fw-bold mb-0 text-primary ms-1"><i class="bi bi-truck me-1"></i>Update Pickup:</label>
+                <select name="status" id="orgPickupStatusSelect" class="form-select form-select-sm" style="width: auto; min-width: 150px;">
+                    <option value="Pending" selected="@(Model.PickupStatus == "Pending" || string.IsNullOrEmpty(Model.PickupStatus))">Pending (Requested)</option>
+                    <option value="Accepted" selected="@(Model.PickupStatus == "Accepted")">Accepted</option>
+                    <option value="Scheduled" selected="@(Model.PickupStatus == "Scheduled")">Scheduled</option>
+                    <option value="On the Way" selected="@(Model.PickupStatus == "On the Way")">On the Way</option>
+                    <option value="Delivered" selected="@(Model.PickupStatus == "Delivered")">Delivered</option>
+                </select>
+            </form>
+        }
+    </div>
+
+    <!-- Hidden Fields for JS -->
+    <input type="hidden" id="chatDonationId" value="@Model.Id" />
+    <input type="hidden" id="chatUserId" value="@Context.Session.GetInt32("OrgId")" />
+    <input type="hidden" id="chatUserName" value="@Context.Session.GetString("OrgName")" />
+    <input type="hidden" id="chatUserRole" value="Organisation" />
+    <input type="hidden" id="pickupLat" value="@(Model.PickupLatitude?.ToString() ?? "")" />
+    <input type="hidden" id="pickupLng" value="@(Model.PickupLongitude?.ToString() ?? "")" />
+    <input type="hidden" id="orgLat" value="@(Model.Organisation?.Latitude?.ToString() ?? "")" />
+    <input type="hidden" id="orgLng" value="@(Model.Organisation?.Longitude?.ToString() ?? "")" />
+
+    <div class="row g-4">
+        <!-- Details Card -->
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0" style="border-radius:15px;">
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-primary"><i class="bi bi-person me-1"></i>Donor Info</h5>
+                            <p class="mb-1"><strong>Name:</strong> @Model.Donor?.Name</p>
+                            <p class="mb-1"><strong>Type:</strong> @Model.DonationType</p>
+                            <p class="mb-1"><strong>Status:</strong> <span class="badge @(Model.Status == SocialHelpDonation.Models.DonationStatus.Completed ? "bg-success" : "bg-primary")">@Model.Status</span></p>
+                            <p class="mb-0"><strong>Description:</strong> @(Model.Description ?? "-")</p>
+                        </div>
+                        <div class="col-md-6 mt-3 mt-md-0">
+                            @if(Model.IsPickupRequested)
+                            {
+                                <h5 class="text-info"><i class="bi bi-truck me-1"></i>Pickup Details</h5>
+                                <p class="mb-1"><strong>Current Status:</strong> <span class="badge bg-info text-dark" id="pickupStatusBadge">@(Model.PickupStatus ?? "Pending")</span></p>
+                                <p class="mb-1"><strong>Address:</strong> @(Model.PickupAddress ?? "Not provided")</p>
+                                <p class="mb-0"><strong>Date:</strong> @(Model.PickupDate?.ToString("MMM dd, yyyy") ?? "Not Scheduled")</p>
+                            }
+                            else
+                            {
+                                <div class="alert alert-secondary mb-0"><i class="bi bi-box me-1"></i>Donor prefers self drop-off.</div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map & Chat Container -->
+        <div class="col-12 interaction-container mt-1">
+            <!-- Map Card -->
+            <div class="map-card" data-aos="fade-right">
+                <div class="map-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-geo-alt-fill"></i> Pickup Location Map</span>
+                    @if (Model.PickupLatitude.HasValue && Model.PickupLongitude.HasValue)
+                    {
+                        <a href="https://www.google.com/maps/search/?api=1&query=@Model.PickupLatitude,@Model.PickupLongitude" target="_blank" class="btn btn-sm btn-light border py-0 px-2" style="font-size: 0.75rem;">
+                            <i class="bi bi-map me-1"></i>Open in Google Maps
+                        </a>
+                    }
+                </div>
+                <div class="map-body">
+                    <div id="pickupMap"></div>
+                </div>
+            </div>
+
+            <!-- Chat Card -->
+            <div class="chat-card" data-aos="fade-left">
+                <div class="chat-header">
+                    <i class="bi bi-chat-dots-fill"></i> Direct Chat with @Model.Donor?.Name
+                </div>
+                <div class="chat-body" id="chatBody">
+                    <div class="text-center text-muted mt-5"><div class="spinner-border spinner-border-sm"></div> Loading messages...</div>
+                </div>
+                <div class="chat-footer">
+                    <input type="text" id="chatInput" class="chat-input" placeholder="Type a message..." autocomplete="off"/>
+                    <button id="btnSend" class="btn-send" title="Send (Enter)"><i class="bi bi-send-fill"></i></button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

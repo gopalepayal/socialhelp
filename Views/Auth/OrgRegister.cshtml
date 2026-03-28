@@ -50,22 +50,38 @@
                         <textarea asp-for="Description" class="form-control" rows="3" placeholder="Tell donors about your work..."></textarea>
                     </div>
                     <div class="col-12">
-                        <label asp-for="ImageFile" class="form-label"><i class="bi bi-image me-1"></i>Organisation Image (JPG/PNG)</label>
+                        <label asp-for="ImageFile" class="form-label fw-bold"><i class="bi bi-image me-1"></i>Organisation Image (Logo/Building)</label>
                         <input asp-for="ImageFile" type="file" class="form-control" accept=".jpg,.jpeg,.png" id="orgImageInput" />
-                        <small class="form-text text-muted">Upload a logo or photo of your organisation (optional).</small>
+                        <small class="form-text text-muted">Upload a logo or photo for your organisation's profile (optional).</small>
                         <div id="imgPreviewWrapper" class="mt-2" style="display:none;">
-                            <img id="imgPreview" src="" alt="Preview" style="max-height:160px; border-radius:var(--radius-sm); box-shadow:var(--shadow);" />
+                            <img id="imgPreview" src="" alt="Preview" style="max-height:160px; border-radius:10px; box-shadow:var(--shadow-sm);" />
                         </div>
                     </div>
-                    <div class="col-12">
-                        <label asp-for="DocumentFile" class="form-label"><i class="bi bi-file-earmark-pdf me-1"></i>Proof Document (PDF/Image) <span class="text-danger">*</span></label>
-                        <input asp-for="DocumentFile" type="file" class="form-control" accept=".pdf,image/*" />
-                        <span asp-validation-for="DocumentFile" class="field-validation-error"></span>
-                        <small class="form-text text-muted">Upload registration certificate, trust deed, or government-issued ID proof.</small>
+
+                    <div class="col-12 mt-4">
+                        <h6 class="text-primary border-bottom pb-2 mb-3"><i class="bi bi-shield-lock me-2"></i>Verification Documents</h6>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label asp-for="DocumentFile" class="form-label small fw-bold">Registration Certificate*</label>
+                                <input asp-for="DocumentFile" type="file" class="form-control form-control-sm" accept=".pdf,image/*" />
+                                <span asp-validation-for="DocumentFile" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="IdProofFile" class="form-label small fw-bold">ID Proof*</label>
+                                <input asp-for="IdProofFile" type="file" class="form-control form-control-sm" accept=".pdf,image/*" />
+                                <span asp-validation-for="IdProofFile" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="AddressProofFile" class="form-label small fw-bold">Address Proof*</label>
+                                <input asp-for="AddressProofFile" type="file" class="form-control form-control-sm" accept=".pdf,image/*" />
+                                <span asp-validation-for="AddressProofFile" class="text-danger small"></span>
+                            </div>
+                        </div>
                     </div>
+
                     <div class="col-12">
-                        <button type="submit" class="btn btn-primary w-100 btn-lg"><i class="bi bi-send me-2"></i>Submit for Approval</button>
-                        <p class="form-text text-center mt-2"><i class="bi bi-info-circle me-1"></i>Your account will be activated after admin verifies your documents.</p>
+                        <button type="submit" class="btn btn-primary w-100 btn-lg shadow-sm mt-3"><i class="bi bi-send me-2"></i>Submit for Verification</button>
+                        <p class="form-text text-center mt-2"><i class="bi bi-info-circle me-1"></i>Your profile will become visible once admin verifies these documents.</p>
                     </div>
                 </div>
             </form>

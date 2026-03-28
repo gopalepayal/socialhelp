@@ -12,12 +12,12 @@
     <div class="table-container">
         <table>
             <thead>
-                <tr><th>Receipt</th><th>Organisation</th><th>Type</th><th>Details</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+                <tr><th>Receipt</th><th>Organisation</th><th>Type</th><th>Details</th><th>Pickup</th><th>Status</th><th>Date</th><th>Actions</th></tr>
             </thead>
             <tbody>
                 @if (!Model.Any())
                 {
-                    <tr><td colspan="7" class="text-center py-5">
+                    <tr><td colspan="8" class="text-center py-5">
                         <div class="empty-state">
                             <div class="empty-icon">🎁</div>
                             <h5>No Donations Yet</h5>
@@ -49,6 +49,27 @@
                                     break;
                             }
                         </td>
+                        <td style="font-size:.82rem">
+                            @if (d.IsPickupRequested)
+                            {
+                                if (d.PickupStatus == "Scheduled")
+                                {
+                                    <span class="badge bg-info">Scheduled<br/>@d.PickupDate?.ToString("dd MMM yyyy")</span>
+                                }
+                                else if (d.PickupStatus == "Requested")
+                                {
+                                    <span class="badge bg-warning text-dark">Requested</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">@(d.PickupStatus ?? "Yes")</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">No</span>
+                            }
+                        </td>
                         <td>
                             @if (d.Status == SocialHelpDonation.Models.DonationStatus.Pending)
                             { <span class="badge badge-pending"><i class="bi bi-hourglass"></i> Pending</span> }
@@ -61,11 +82,11 @@
                         </td>
                         <td>@d.CreatedAt.ToString("dd MMM yyyy")</td>
                         <td>
+                            <a href="/Donor/DonationDetails/@d.Id" class="btn btn-outline-info btn-sm mb-1 w-100"><i class="bi bi-eye me-1"></i>View Details</a>
                             @if (d.Status == SocialHelpDonation.Models.DonationStatus.Approved || d.Status == SocialHelpDonation.Models.DonationStatus.Completed)
                             {
-                                <a href="/Donor/Receipt/@d.Id" class="btn btn-primary btn-sm"><i class="bi bi-receipt me-1"></i>Receipt</a>
+                                <a href="/Donor/Receipt/@d.Id" class="btn btn-primary btn-sm w-100"><i class="bi bi-receipt me-1"></i>Receipt</a>
                             }
-                            else { <span class="text-muted">—</span> }
                         </td>
                     </tr>
                 }
