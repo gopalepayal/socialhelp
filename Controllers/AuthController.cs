@@ -116,12 +116,9 @@ namespace SocialHelpDonation.Controllers
             }
 
             // ─── Handle organisation image upload (Additive field to Org) ──────────
-            if (model.ImageFile != null && model.ImageFile.Length > 0)
-            {
-                var allowed = new[] { ".jpg", ".jpeg", ".png" };
-                var ext = Path.GetExtension(model.ImageFile.FileName).ToLowerInvariant();
-                if (allowed.Contains(ext))
+                if (model.ImageFile != null && model.ImageFile.Length > 0)
                 {
+                    var ext = Path.GetExtension(model.ImageFile.FileName).ToLowerInvariant();
                     var imgDir = Path.Combine(_env.WebRootPath, "images", "orgs");
                     if (!Directory.Exists(imgDir)) Directory.CreateDirectory(imgDir);
 
@@ -132,7 +129,6 @@ namespace SocialHelpDonation.Controllers
                     }
                     org.ImagePath = "/images/orgs/" + imgName;
                 }
-            }
 
             _db.Organisations.Add(org);
             _db.OrganizationVerifications.Add(verification);
@@ -147,7 +143,7 @@ namespace SocialHelpDonation.Controllers
                 return View(model);
             }
 
-            TempData["Success"] = "Registration successful! Please wait for admin approval.";
+            TempData["Success"] = "Your organization is under verification. Admin will review your documents before approval.";
             return RedirectToAction("OrgLogin");
         }
 
