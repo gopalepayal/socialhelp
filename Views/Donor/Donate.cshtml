@@ -138,6 +138,24 @@
                         <input asp-for="Amount" type="number" step="1" min="1" class="form-control" placeholder="Enter amount in INR" />
                         <span asp-validation-for="Amount" class="text-danger"></span>
                     </div>
+                    
+                    <!-- QR Code Payment Section -->
+                    <div class="card p-3 mb-3 border-success text-center">
+                        <h6 class="text-success mb-2 fw-bold"><i class="bi bi-qr-code-scan me-1"></i>Scan & Pay via UPI App</h6>
+                        <p class="small text-muted mb-2">Google Pay / PhonePe / Paytm</p>
+                        <div class="d-flex justify-content-center mb-2">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=UPI:donation@upi" alt="QR Code" class="img-fluid border p-2 rounded bg-white shadow-sm" style="max-height: 150px;"/>
+                        </div>
+                        <p class="mb-1 text-dark fw-bold">UPI ID: org_donations@upi</p>
+                        <p class="mb-0 text-muted small">Name: Social Help Foundation (Demo)</p>
+                    </div>
+
+                    <!-- Payment Screenshot -->
+                    <div class="mb-1">
+                        <label class="form-label fw-semibold"><i class="bi bi-camera me-1"></i>Upload Payment Screenshot (Optional)</label>
+                        <input type="file" class="form-control" name="PaymentScreenshot" accept="image/*" />
+                        <small class="text-muted d-block mt-1">Upload a snapshot of your successful transaction to help fast-track verification.</small>
+                    </div>
                 </div>
 
                 <!-- Food Fields -->
@@ -258,6 +276,11 @@
                         <div class="mb-3">
                             <label asp-for="PickupLocation" class="form-label">Pickup Location Name / Landmark (Optional)</label>
                             <input asp-for="PickupLocation" class="form-control" placeholder="e.g. Near City Park entrance" />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="PickupDate" class="form-label"><i class="bi bi-clock me-1"></i>Suggested Pickup Date & Time</label>
+                            <input asp-for="PickupDate" type="datetime-local" class="form-control" />
+                            <span asp-validation-for="PickupDate" class="text-danger"></span>
                         </div>
                         <div class="mb-2">
                             <label class="form-label"><i class="bi bi-geo-alt-fill text-danger me-1"></i>Pin Exact Location on Map</label>

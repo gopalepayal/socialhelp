@@ -32,7 +32,6 @@
         <div class="collapse navbar-collapse" id="navMenu">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house me-1"></i>Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="/Donor/BrowseOrganisations"><i class="bi bi-search me-1"></i>Browse Orgs</a></li>
             </ul>
             <ul class="navbar-nav ms-auto align-items-center gap-1">
                 @if (Context.Session.GetString("UserRole") == "Admin")
@@ -65,17 +64,21 @@
                 else
                 {
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="bi bi-person-circle me-1"></i>Login</a>
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="bi bi-person-heart me-1"></i>Donor</a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><h6 class="dropdown-header">Login As</h6></li>
-                            <li><a class="dropdown-item" href="/Auth/AdminLogin"><i class="bi bi-shield-fill me-2 text-danger"></i>Admin</a></li>
-                            <li><a class="dropdown-item" href="/Auth/OrgLogin"><i class="bi bi-building me-2 text-primary"></i>Organisation</a></li>
-                            <li><a class="dropdown-item" href="/Auth/DonorLogin"><i class="bi bi-person-heart me-2 text-success"></i>Donor</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><h6 class="dropdown-header">Register As</h6></li>
-                            <li><a class="dropdown-item" href="/Auth/OrgRegister"><i class="bi bi-building-add me-2 text-primary"></i>Organisation</a></li>
-                            <li><a class="dropdown-item" href="/Auth/DonorRegister"><i class="bi bi-person-plus me-2 text-success"></i>Donor</a></li>
+                            <li><a class="dropdown-item" href="/Auth/DonorRegister"><i class="bi bi-person-plus me-2 text-success"></i>Register Donor</a></li>
+                            <li><a class="dropdown-item" href="/Auth/DonorLogin"><i class="bi bi-box-arrow-in-right me-2 text-primary"></i>Login Donor</a></li>
                         </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="bi bi-building me-1"></i>Organisation</a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/Auth/OrgRegister"><i class="bi bi-building-add me-2 text-success"></i>Register Organisation</a></li>
+                            <li><a class="dropdown-item" href="/Auth/OrgLogin"><i class="bi bi-box-arrow-in-right me-2 text-primary"></i>Login Organisation</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn-nav-primary ms-lg-2" href="/Auth/AdminLogin"><i class="bi bi-shield-lock me-1"></i>Login</a>
                     </li>
                 }
             </ul>

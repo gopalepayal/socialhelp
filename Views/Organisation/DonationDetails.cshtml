@@ -15,7 +15,7 @@
         // Organization specific status update logic
         document.addEventListener("DOMContentLoaded", function() {
             const statusSelect = document.getElementById("orgPickupStatusSelect");
-            if(statusSelect) {
+                if(statusSelect) {
                 statusSelect.addEventListener("change", function() {
                     if(confirm("Update pickup status and notify donor?")) {
                         this.form.submit();
@@ -24,6 +24,88 @@
                         statusSelect.value = "@Model.PickupStatus";
                     }
                 });
+            }
+
+            // --- Map Tracking Logic ---
+            const pLat = parseFloat(document.getElementById("pickupLat").value);
+            const pLng = parseFloat(document.getElementById("pickupLng").value);
+            const oLat = parseFloat(document.getElementById("orgLat").value);
+            const oLng = parseFloat(document.getElementById("orgLng").value);
+
+            let statusText = "@Model.PickupStatus" || "Pending";
+
+            const mapContainer = document.getElementById("pickupMap");
+            if(!mapContainer) return;
+
+            if (!isNaN(pLat) && !isNaN(pLng)) {
+                // Ensure map container has height
+                mapContainer.style.height = "350px";
+
+                const map = L.map('pickupMap');
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+
+                const donorIcon = L.icon({
+                    iconUrl: 'https://cdn-icons-png.flaticon.com/512/819/819814.png',
+                    iconSize: [32, 32], iconAnchor: [16, 32]
+                });
+
+                const orgIcon = L.icon({
+                    iconUrl: 'https://cdn-icons-png.flaticon.com/512/2838/2838912.png',
+                    iconSize: [32, 32], iconAnchor: [16, 32]
+                });
+
+                const truckIcon = L.icon({
+                    iconUrl: 'https://cdn-icons-png.flaticon.com/512/825/825066.png',
+                    iconSize: [36, 36], iconAnchor: [18, 18]
+                });
+
+                const pPoint = [pLat, pLng];
+                let bounds = [pPoint];
+                L.marker(pPoint, { icon: donorIcon }).addTo(map).bindPopup("<b>Donor Location (Pickup Point)</b>");
+
+                if (!isNaN(oLat) && !isNaN(oLng) && oLat !== 0) {
+                    const oPoint = [oLat, oLng];
+                    bounds.push(oPoint);
+                    L.marker(oPoint, { icon: orgIcon }).addTo(map).bindPopup("<b>Your Organisation Location</b>");
+                    
+                    // Draw Route
+                    const routeLine = L.polyline([pPoint, oPoint], { color: '#0d6efd', weight: 4, dashArray: '10, 10' }).addTo(map);
+
+                    // Add panel UI
+                    const distance = map.distance(pPoint, oPoint);
+                    const km = (distance / 1000).toFixed(1);
+                    const estMins = Math.max(10, Math.round((distance / 1000) * 3));
+
+                    const infoPanel = L.control({position: 'topright'});
+                    infoPanel.onAdd = function (map) {
+                        var div = L.DomUtil.create('div', 'info panel bg-white p-2 rounded shadow border border-primary');
+                        div.innerHTML = `<h6 class="mb-1 fw-bold text-primary"><i class="bi bi-geo-alt-fill me-1"></i>Track Route</h6>
+                                         <div class="small"><b>Distance:</b> ${km} km</div>
+                                         <div class="small"><b>Est. Time:</b> ~${estMins} mins</div>
+                                         <div class="small mt-1 text-center"><span class="badge bg-warning text-dark">${statusText}</span></div>`;
+                        return div;
+                    };
+                    infoPanel.addTo(map);
+
+                    if (statusText === "On the Way") {
+                        const movingMarker = L.marker(oPoint, { icon: truckIcon }).addTo(map);
+                        let progress = 0;
+                        setInterval(() => {
+                            progress += 0.01;
+                            if(progress > 1) progress = 1;
+                            const currLat = oLat + (pLat - oLat) * progress;
+                            const currLng = oLng + (pLng - oLng) * progress;
+                            movingMarker.setLatLng([currLat, currLng]);
+                        }, 1000);
+                    }
+                }
+
+                map.fitBounds(bounds, { padding: [50, 50] });
+                setTimeout(() => { map.invalidateSize(); }, 500);
+            } else {
+                mapContainer.innerHTML = "<div class='p-3 text-center text-muted'>Location coordinates not available.</div>";
             }
         });
     </script>
@@ -81,7 +163,7 @@
                                 <h5 class="text-info"><i class="bi bi-truck me-1"></i>Pickup Details</h5>
                                 <p class="mb-1"><strong>Current Status:</strong> <span class="badge bg-info text-dark" id="pickupStatusBadge">@(Model.PickupStatus ?? "Pending")</span></p>
                                 <p class="mb-1"><strong>Address:</strong> @(Model.PickupAddress ?? "Not provided")</p>
-                                <p class="mb-0"><strong>Date:</strong> @(Model.PickupDate?.ToString("MMM dd, yyyy") ?? "Not Scheduled")</p>
+                                <p class="mb-0"><strong>Preferred Date & Time:</strong> @(Model.PickupDate?.ToString("MMM dd, yyyy HH:mm") ?? "Not Provided")</p>
                             }
                             else
                             {

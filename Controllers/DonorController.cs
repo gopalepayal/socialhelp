@@ -160,7 +160,8 @@ namespace SocialHelpDonation.Controllers
                 PickupStatus = model.IsPickupRequested ? "Requested" : null,
                 PickupAddress = model.IsPickupRequested ? model.PickupAddress : null,
                 PickupLatitude = model.IsPickupRequested ? model.PickupLatitude : null,
-                PickupLongitude = model.IsPickupRequested ? model.PickupLongitude : null
+                PickupLongitude = model.IsPickupRequested ? model.PickupLongitude : null,
+                PickupDate = (model.IsPickupRequested && model.PickupDate.HasValue) ? DateTime.SpecifyKind(model.PickupDate.Value, DateTimeKind.Utc) : null
             };
 
             switch (model.DonationType)

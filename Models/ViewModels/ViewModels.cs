@@ -148,6 +148,9 @@ namespace SocialHelpDonation.Models.ViewModels
 
         public double? PickupLatitude { get; set; }
         public double? PickupLongitude { get; set; }
+
+        [Display(Name = "Pickup Date & Time")]
+        public DateTime? PickupDate { get; set; }
     }
 
     // ─── Requirement ViewModels ────────────────────────────────────────────────

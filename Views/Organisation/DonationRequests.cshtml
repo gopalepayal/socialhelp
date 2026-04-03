@@ -51,11 +51,11 @@
                                 }
                                 else if (d.PickupStatus == "Requested")
                                 {
-                                    <span class="badge bg-warning text-dark">Requested</span>
+                                    <span class="badge bg-warning text-dark">Requested<br/>@d.PickupDate?.ToString("dd MMM, HH:mm")</span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-secondary">@(d.PickupStatus ?? "Yes")</span>
+                                    <span class="badge bg-secondary">@(d.PickupStatus ?? "Yes")<br/>@d.PickupDate?.ToString("dd MMM, HH:mm")</span>
                                 }
                             }
                             else
@@ -79,7 +79,10 @@
                                 <a href="/Organisation/DonationDetails/@d.Id" class="btn btn-outline-info btn-sm w-100"><i class="bi bi-eye me-1"></i>View Details</a>
                                 <div class="d-flex gap-1 w-100">
                                     <a href="/Organisation/DonationDetails/@d.Id#chat-section" class="btn btn-primary btn-sm flex-fill"><i class="bi bi-chat-dots me-1"></i>Chat</a>
-                                    <a href="/Organisation/DonationDetails/@d.Id#pickupMap" class="btn btn-outline-success btn-sm flex-fill"><i class="bi bi-geo-alt me-1"></i>Map</a>
+                                    @if(d.IsPickupRequested)
+                                    {
+                                        <a href="/Organisation/DonationDetails/@d.Id#pickupMap" class="btn btn-warning btn-sm flex-fill text-dark fw-bold"><i class="bi bi-geo-alt-fill me-1"></i>Track</a>
+                                    }
                                 </div>
                             </div>
                             @if (d.Status == SocialHelpDonation.Models.DonationStatus.Pending)
