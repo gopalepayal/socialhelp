@@ -1,7 +1,7 @@
 \documentclass{article}
 \usepackage{tikz}
-\usetikzlibrary{shapes.geometric, positioning, arrows.meta}
-\usepackage[margin=1in]{geometry}
+\usetikzlibrary{shapes.geometric, positioning, arrows.meta, fit}
+\usepackage[margin=0.5in]{geometry}
 
 \begin{document}
 \begin{figure}[htbp]
@@ -10,64 +10,73 @@
 \resizebox{\textwidth}{!}{
 \begin{tikzpicture}[
     >=Latex, thick,
-    entity/.style={draw, rectangle, minimum width=3cm, minimum height=1cm, fill=blue!10, font=\small\bfseries},
+    entity/.style={draw, rectangle, minimum width=3cm, minimum height=1cm, fill=blue!10, font=\small\bfseries, align=center},
     attribute/.style={draw, ellipse, minimum width=2.5cm, minimum height=0.8cm, fill=yellow!10, font=\small},
     primary/.style={draw, ellipse, minimum width=2.5cm, minimum height=0.8cm, fill=yellow!30, font=\small\bfseries\underbar},
-    relationship/.style={draw, diamond, minimum width=3cm, minimum height=1.5cm, fill=green!10, font=\small\bfseries}
+    relationship/.style={draw, diamond, minimum width=3cm, minimum height=1.5cm, fill=green!10, font=\small\bfseries, align=center}
 ]
 
 % -------------------------
 % Entities
 % -------------------------
-\node[entity] (Admin) at (0, 5) {ADMINS};
+\node[entity] (Admin) at (0, 7) {ADMINS};
 \node[entity] (Donor) at (-6, 0) {DONORS};
 \node[entity] (Org) at (6, 0) {ORGANISATIONS};
-\node[entity] (Donation) at (0, -5) {DONATIONS};
+\node[entity] (Donation) at (0, -4) {DONATIONS};
+\node[entity] (Req) at (6, -7) {REQUIREMENTS};
+\node[entity] (Chat) at (-6, -7) {CHAT\_MESSAGES};
+\node[entity] (Verif) at (12, 0) {ORGANIZATION\\VERIFICATIONS};
 
 % -------------------------
 % Relationships
 % -------------------------
-\node[relationship] (Rel_Donor) at (-3, 2.5) {Links};
-\node[relationship] (Rel_Org) at (3, 2.5) {Links};
-\node[relationship] (Makes) at (-3, -2.5) {Makes};
-\node[relationship] (Receives) at (3, -2.5) {Receives};
+\node[relationship] (Makes) at (-3, -2) {Makes};
+\node[relationship] (Receives) at (3, -2) {Receives};
+\node[relationship] (Posts) at (6, -3.5) {Posts};
+\node[relationship] (HasChat) at (-3, -5.5) {Has};
+\node[relationship] (Submits) at (9, 0) {Submits};
 
 % -------------------------
 % Connections
 % -------------------------
-\draw[-] (Admin) -- (Rel_Donor);
-\draw[-] (Rel_Donor) -- (Donor);
-
-\draw[-] (Admin) -- (Rel_Org);
-\draw[-] (Rel_Org) -- (Org);
-
 \draw[-] (Donor) -- (Makes) node[midway, left] {1};
-\draw[-] (Makes) -- (Donation) node[midway, left] {M};
+\draw[-] (Makes) -- (Donation) node[midway, right] {M};
 
 \draw[-] (Org) -- (Receives) node[midway, right] {1};
-\draw[-] (Receives) -- (Donation) node[midway, right] {M};
+\draw[-] (Receives) -- (Donation) node[midway, left] {M};
+
+\draw[-] (Org) -- (Posts) node[midway, left] {1};
+\draw[-] (Posts) -- (Req) node[midway, left] {M};
+
+\draw[-] (Donation) -- (HasChat) node[midway, left] {1};
+\draw[-] (HasChat) -- (Chat) node[midway, right] {M};
+
+\draw[-] (Org) -- (Submits) node[midway, above] {1};
+\draw[-] (Submits) -- (Verif) node[midway, above] {1};
 
 % -------------------------
-% Attributes
+% Key Attributes (Condensed for clarity)
 % -------------------------
-\node[primary] (AdminId) at (-2, 7) {Id};
-\node[attribute] (AdminName) at (0, 7.5) {Name};
-\node[attribute] (AdminEmail) at (2, 7) {Email};
-
+% Admin
+\node[primary] (AdminId) at (-2, 8.5) {Id};
 \draw[-] (Admin) -- (AdminId);
-\draw[-] (Admin) -- (AdminName);
-\draw[-] (Admin) -- (AdminEmail);
 
-\node[primary] (DonationId) at (-2, -7.5) {Id};
-\node[attribute] (DonationType) at (0, -8) {DonationType};
-\node[attribute] (DonationAmt) at (2, -7.5) {Amount\_Quantity};
+% Donor
+\node[primary] (DonorId) at (-8, 1.5) {Id};
+\draw[-] (Donor) -- (DonorId);
 
-\draw[-] (Donation) -- (DonationId);
-\draw[-] (Donation) -- (DonationType);
-\draw[-] (Donation) -- (DonationAmt);
+% Org
+\node[primary] (OrgId) at (4.5, 1.5) {Id};
+\draw[-] (Org) -- (OrgId);
+
+% Donation
+\node[primary] (DonId) at (-2, -5.5) {Id};
+\node[attribute] (DonType) at (2, -5.5) {DonationType};
+\draw[-] (Donation) -- (DonId);
+\draw[-] (Donation) -- (DonType);
 
 \end{tikzpicture}
 }
-\caption{ER Diagram: Social Help and Donation System}
+\caption{Entity-Relationship (ER) Diagram: Social Help and Donation System Database Schema}
 \end{figure}
 \end{document}
