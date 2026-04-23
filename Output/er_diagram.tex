@@ -7,34 +7,38 @@
 \begin{figure}[htbp]
 \centering
 \vspace{1cm}
-\resizebox{\textwidth}{!}{
-\begin{tikzpicture}[
-    >=Latex, thick,
-    entity/.style={draw, rectangle, minimum width=3cm, minimum height=1cm, fill=blue!10, font=\small\bfseries, align=center},
-    attribute/.style={draw, ellipse, minimum width=2.5cm, minimum height=0.8cm, fill=yellow!10, font=\small},
-    primary/.style={draw, ellipse, minimum width=2.5cm, minimum height=0.8cm, fill=yellow!30, font=\small\bfseries\underbar},
-    relationship/.style={draw, diamond, minimum width=3cm, minimum height=1.5cm, fill=green!10, font=\small\bfseries, align=center}
-]
+% Use native TikZ transform properties to scale cleanly in strict engines like Overleaf
+\begin{tikzpicture}[>=stealth, font=\tiny, thick, scale=0.8, transform shape]
+
+% -------------------------
+% Defines
+% -------------------------
+\tikzset{
+    entity/.style={draw, rectangle, minimum width=2.5cm, minimum height=0.8cm, fill=blue!10, font=\scriptsize\bfseries, align=center},
+    attribute/.style={draw, ellipse, minimum width=2cm, minimum height=0.6cm, fill=yellow!10, font=\tiny, align=center},
+    primary/.style={draw, ellipse, minimum width=2cm, minimum height=0.6cm, fill=yellow!30, font=\tiny\bfseries\underbar, align=center},
+    relationship/.style={draw, diamond, minimum width=2.5cm, minimum height=1cm, fill=green!10, font=\tiny\bfseries, align=center}
+}
 
 % -------------------------
 % Entities
 % -------------------------
-\node[entity] (Admin) at (0, 7) {ADMINS};
-\node[entity] (Donor) at (-6, 0) {DONORS};
-\node[entity] (Org) at (6, 0) {ORGANISATIONS};
+\node[entity] (Admin) at (0, 8) {ADMINS};
+\node[entity] (Donor) at (-6, 2) {DONORS};
+\node[entity] (Org) at (6, 2) {ORGANISATIONS};
 \node[entity] (Donation) at (0, -4) {DONATIONS};
-\node[entity] (Req) at (6, -7) {REQUIREMENTS};
-\node[entity] (Chat) at (-6, -7) {CHAT\_MESSAGES};
-\node[entity] (Verif) at (12, 0) {ORGANIZATION\\VERIFICATIONS};
+\node[entity] (Req) at (6, -9) {REQUIREMENTS};
+\node[entity] (Chat) at (-6, -9) {CHAT\_MESSAGES};
+\node[entity] (Verif) at (13, 2) {ORGANIZATION\\VERIFICATIONS};
 
 % -------------------------
 % Relationships
 % -------------------------
-\node[relationship] (Makes) at (-3, -2) {Makes};
-\node[relationship] (Receives) at (3, -2) {Receives};
-\node[relationship] (Posts) at (6, -3.5) {Posts};
-\node[relationship] (HasChat) at (-3, -5.5) {Has};
-\node[relationship] (Submits) at (9, 0) {Submits};
+\node[relationship] (Makes) at (-3, -1) {Makes};
+\node[relationship] (Receives) at (3, -1) {Receives};
+\node[relationship] (Posts) at (6, -4) {Posts};
+\node[relationship] (HasChat) at (-3, -6.5) {Has};
+\node[relationship] (Submits) at (9.5, 2) {Submits};
 
 % -------------------------
 % Connections
@@ -55,28 +59,63 @@
 \draw[-] (Submits) -- (Verif) node[midway, above] {1};
 
 % -------------------------
-% Key Attributes (Condensed for clarity)
+% Attributes Mapping
 % -------------------------
-% Admin
-\node[primary] (AdminId) at (-2, 8.5) {Id};
-\draw[-] (Admin) -- (AdminId);
 
-% Donor
-\node[primary] (DonorId) at (-8, 1.5) {Id};
-\draw[-] (Donor) -- (DonorId);
+% Admin Attributes
+\node[primary] (A1) at (-2, 9.5) {Id};
+\node[attribute] (A2) at (0, 9.8) {Name};
+\node[attribute] (A3) at (2, 9.5) {Email};
+\node[attribute] (A4) at (3.5, 8.5) {PasswordHash};
+\draw[-] (Admin) -- (A1); \draw[-] (Admin) -- (A2); \draw[-] (Admin) -- (A3); \draw[-] (Admin) -- (A4);
 
-% Org
-\node[primary] (OrgId) at (4.5, 1.5) {Id};
-\draw[-] (Org) -- (OrgId);
+% Donor Attributes
+\node[primary] (D1) at (-9, 3.5) {Id};
+\node[attribute] (D2) at (-7, 4) {Name};
+\node[attribute] (D3) at (-5, 4) {Email};
+\node[attribute] (D4) at (-8.5, 1) {Phone};
+\node[attribute] (D5) at (-9, 2) {Address};
+\draw[-] (Donor) -- (D1); \draw[-] (Donor) -- (D2); \draw[-] (Donor) -- (D3); \draw[-] (Donor) -- (D4); \draw[-] (Donor) -- (D5);
 
-% Donation
-\node[primary] (DonId) at (-2, -5.5) {Id};
-\node[attribute] (DonType) at (2, -5.5) {DonationType};
-\draw[-] (Donation) -- (DonId);
-\draw[-] (Donation) -- (DonType);
+% Org Attributes
+\node[primary] (O1) at (4, 4) {Id};
+\node[attribute] (O2) at (6, 4.5) {Name};
+\node[attribute] (O3) at (8, 4) {Email};
+\node[attribute] (O4) at (9.5, 3) {RegNumber};
+\node[attribute] (O5) at (9.5, 4.5) {Status};
+\node[attribute] (O6) at (3.5, 3) {OrgType};
+\draw[-] (Org) -- (O1); \draw[-] (Org) -- (O2); \draw[-] (Org) -- (O3); \draw[-] (Org) -- (O4); \draw[-] (Org) -- (O5); \draw[-] (Org) -- (O6);
+
+% Donation Attributes
+\node[primary] (Do1) at (-3, -3) {Id};
+\node[attribute] (Do2) at (-2.5, -4.5) {ReceiptNumber};
+\node[attribute] (Do3) at (2.5, -3) {DonationType};
+\node[attribute] (Do4) at (2.5, -4.5) {Status};
+\node[attribute] (Do5) at (-1, -5.5) {Amount\_Quantity};
+\node[attribute] (Do6) at (1, -5.5) {PickupDate};
+\draw[-] (Donation) -- (Do1); \draw[-] (Donation) -- (Do2); \draw[-] (Donation) -- (Do3); \draw[-] (Donation) -- (Do4); \draw[-] (Donation) -- (Do5); \draw[-] (Donation) -- (Do6);
+
+% Requirement Attributes
+\node[primary] (R1) at (9, -8.5) {Id};
+\node[attribute] (R2) at (8.5, -10) {ItemType};
+\node[attribute] (R3) at (6, -11) {QuantityNeeded};
+\node[attribute] (R4) at (4, -10) {Status};
+\draw[-] (Req) -- (R1); \draw[-] (Req) -- (R2); \draw[-] (Req) -- (R3); \draw[-] (Req) -- (R4);
+
+% Chat Attributes
+\node[primary] (C1) at (-9, -8) {Id};
+\node[attribute] (C2) at (-9, -9.5) {Message};
+\node[attribute] (C3) at (-6, -11) {SenderRole};
+\node[attribute] (C4) at (-3.5, -10) {Timestamp};
+\draw[-] (Chat) -- (C1); \draw[-] (Chat) -- (C2); \draw[-] (Chat) -- (C3); \draw[-] (Chat) -- (C4);
+
+% Verif Attributes
+\node[primary] (V1) at (13, 4) {Id};
+\node[attribute] (V2) at (15.5, 3) {CertificatePath};
+\node[attribute] (V3) at (15.5, 1) {AdminRemarks};
+\draw[-] (Verif) -- (V1); \draw[-] (Verif) -- (V2); \draw[-] (Verif) -- (V3);
 
 \end{tikzpicture}
-}
-\caption{Entity-Relationship (ER) Diagram: Social Help and Donation System Database Schema}
+\caption{Highly Detailed Entity-Relationship (ER) Diagram: Social Help and Donation System Data Layer}
 \end{figure}
 \end{document}
