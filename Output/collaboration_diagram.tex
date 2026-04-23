@@ -1,0 +1,114 @@
+\documentclass{article}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usetikzlibrary{shapes, shapes.symbols, positioning, calc}
+
+\begin{document}
+\begin{figure}[htbp]
+\centering
+\vspace*{0.5cm}
+
+% Completely removed \resizebox to prevent Overleaf grouping crashes. 
+% We rely strictly on native TikZ matrix scaling!
+\begin{tikzpicture}[>=stealth, font=\small, thick, scale=0.75, transform shape]
+
+% -------------------------
+% 1. Web Interface Node
+% -------------------------
+\filldraw[thick, fill=white] (0, 0) rectangle (6, -2.6);
+\filldraw[thick, fill=gray!10] (0, 0) -- ++(0.3, 0.3) -- ++(6, 0) -- (6, 0) -- cycle;
+\filldraw[thick, fill=gray!25] (6, 0) -- ++(0.3, 0.3) -- ++(0, -2.6) -- (6, -2.6) -- cycle;
+\node[anchor=north west, font=\small] at (0, 0) {\underline{Web Client}};
+
+% Inner Component
+\filldraw[thick, fill=white] (1, -0.8) rectangle (5, -2.0);
+\filldraw[thick, fill=white] (0.8, -1.0) rectangle (1.2, -1.3);
+\filldraw[thick, fill=white] (0.8, -1.5) rectangle (1.2, -1.8);
+\node[font=\footnotesize\bfseries, align=center, text width=3.5cm] at (3, -1.4) {SocialHelp UI (Razor)};
+
+% -------------------------
+% 2. Authentication System Node
+% -------------------------
+\filldraw[thick, fill=white] (-1, -4) rectangle (7, -6.6);
+\filldraw[thick, fill=gray!10] (-1, -4) -- ++(0.3, 0.3) -- ++(8, 0) -- (7, -4) -- cycle;
+\filldraw[thick, fill=gray!25] (7, -4) -- ++(0.3, 0.3) -- ++(0, -2.6) -- (7, -6.6) -- cycle;
+\node[anchor=north west, font=\small] at (-1, -4) {\underline{Identity Management}};
+
+% Inner Component
+\filldraw[thick, fill=white] (1, -4.8) rectangle (5, -6.0);
+\filldraw[thick, fill=white] (0.8, -5.0) rectangle (1.2, -5.3);
+\filldraw[thick, fill=white] (0.8, -5.5) rectangle (1.2, -5.8);
+\node[font=\footnotesize\bfseries, align=center, text width=3.5cm] at (3, -5.4) {Custom Role Authentication};
+
+% -------------------------
+% 3. Web Server Node
+% -------------------------
+\filldraw[thick, fill=white] (-1.5, -8) rectangle (7.5, -12.8);
+\filldraw[thick, fill=gray!10] (-1.5, -8) -- ++(0.3, 0.3) -- ++(9, 0) -- (7.5, -8) -- cycle;
+\filldraw[thick, fill=gray!25] (7.5, -8) -- ++(0.3, 0.3) -- ++(0, -4.8) -- (7.5, -12.8) -- cycle;
+\node[anchor=north west, font=\small] at (-1.5, -8) {\underline{Application Server}};
+
+% Inner Component 1
+\filldraw[thick, fill=white] (1, -9) rectangle (5, -10.2);
+\filldraw[thick, fill=white] (0.8, -9.2) rectangle (1.2, -9.5);
+\filldraw[thick, fill=white] (0.8, -9.7) rectangle (1.2, -10.0);
+\node[font=\footnotesize\bfseries, align=center, text width=3.5cm] at (3, -9.6) {MVC Controllers \& SignalR};
+
+% Inner Component 2
+\filldraw[thick, fill=white] (1, -11) rectangle (5, -12.2);
+\filldraw[thick, fill=white] (0.8, -11.2) rectangle (1.2, -11.5);
+\filldraw[thick, fill=white] (0.8, -11.7) rectangle (1.2, -12.0);
+\node[font=\footnotesize\bfseries, align=center, text width=3.5cm] at (3, -11.6) {Entity Framework Core};
+
+% -------------------------
+% 4. Database Server Node
+% -------------------------
+\filldraw[thick, fill=white] (0, -14.5) rectangle (6, -17.1);
+\filldraw[thick, fill=gray!10] (0, -14.5) -- ++(0.3, 0.3) -- ++(6, 0) -- (6, -14.5) -- cycle;
+\filldraw[thick, fill=gray!25] (6, -14.5) -- ++(0.3, 0.3) -- ++(0, -2.6) -- (6, -17.1) -- cycle;
+\node[anchor=north west, font=\small] at (0, -14.5) {\underline{Database Server}};
+
+% Inner Component
+\filldraw[thick, fill=white] (1, -15.3) rectangle (5, -16.5);
+\filldraw[thick, fill=white] (0.8, -15.5) rectangle (1.2, -15.8);
+\filldraw[thick, fill=white] (0.8, -16.0) rectangle (1.2, -16.3);
+\node[font=\footnotesize\bfseries, align=center, text width=3.5cm] at (3, -15.9) {PostgreSQL Database};
+
+% -------------------------
+% Vertical Dashed Linkages (Centered along X=3)
+% -------------------------
+\draw[->, dashed, thick] (3, -2.6) -- (3, -4); 
+\draw[->, dashed, thick] (3, -6.6) -- (3, -8);
+\draw[->, dashed, thick] (3, -12.8) -- (3, -14.5);
+
+% -------------------------
+% End-User Access Point
+% -------------------------
+\coordinate (UserHead) at (-5, -0.5);
+\draw[thick] (UserHead) circle (0.2); % Head
+\draw[thick] (-5, -0.7) -- (-5, -1.5); % Body
+\draw[thick] (-5.4, -1) -- (-4.6, -1); % Arms
+\draw[thick] (-5, -1.5) -- (-5.4, -2.2); % Left Leg
+\draw[thick] (-5, -1.5) -- (-4.6, -2.2); % Right Leg
+\node[below, font=\scriptsize, align=center] at (-5, -2.2) {Donors, NGOs\\\& Admins};
+
+% User to Browser linkage
+\draw[->, dashed, thick] (-4.3, -1.2) -- (0, -1.2);
+
+% -------------------------
+% Explanatory Document Notes (Aligned perfectly to the right edges)
+% -------------------------
+\node[draw, shape=note, fill=white, align=left, text width=4.5cm] (Note1) at (10.5, -5.3) {Authenticating Admin, Donor, and NGO roles independently};
+\draw[->, thick] (Note1.west) -- (7, -5.3);
+
+\node[draw, shape=note, fill=white, align=left, text width=3.5cm] (Note2) at (10, -10.5) {Donation, Requirement logic, and Real-time Chat};
+\draw[->, thick] (Note2.west) -- (7.5, -10.5);
+
+\node[draw, shape=note, fill=white, align=center] (Note3) at (5.5, -13.5) {EF PostgreSQL\\Connection};
+\draw[-, dashed, thick] (Note3.west) -- (3, -13.5);
+
+\end{tikzpicture}
+
+\caption{Collaboration Diagram highlighting component intersections for the Social Help framework}
+\end{figure}
+\end{document}
