@@ -10,11 +10,11 @@ Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
 // ─── Read DB credentials from environment ────────────────────────────────────
-var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
-var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "postgres";
-var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "postgres";
-var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "";
+var dbHost = Environment.GetEnvironmentVariable("SUPABASE_DB_HOST") ?? "localhost";
+var dbPort = Environment.GetEnvironmentVariable("SUPABASE_DB_PORT") ?? "5432";
+var dbName = Environment.GetEnvironmentVariable("SUPABASE_DB_NAME") ?? "postgres";
+var dbUser = Environment.GetEnvironmentVariable("SUPABASE_DB_USER") ?? "postgres";
+var dbPassword = Environment.GetEnvironmentVariable("SUPABASE_DB_PASSWORD") ?? "";
 
 var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword};SSL Mode=Require;Trust Server Certificate=true;Pooling=false;";
 
