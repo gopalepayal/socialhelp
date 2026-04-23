@@ -1,0 +1,73 @@
+\documentclass{article}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, positioning, arrows.meta}
+\usepackage[margin=1in]{geometry}
+
+\begin{document}
+\begin{figure}[htbp]
+\centering
+\vspace{1cm}
+\resizebox{\textwidth}{!}{
+\begin{tikzpicture}[
+    >=Latex, thick,
+    entity/.style={draw, rectangle, minimum width=3cm, minimum height=1cm, fill=blue!10, font=\small\bfseries},
+    attribute/.style={draw, ellipse, minimum width=2.5cm, minimum height=0.8cm, fill=yellow!10, font=\small},
+    primary/.style={draw, ellipse, minimum width=2.5cm, minimum height=0.8cm, fill=yellow!30, font=\small\bfseries\underbar},
+    relationship/.style={draw, diamond, minimum width=3cm, minimum height=1.5cm, fill=green!10, font=\small\bfseries}
+]
+
+% -------------------------
+% Entities
+% -------------------------
+\node[entity] (Admin) at (0, 5) {ADMINS};
+\node[entity] (Donor) at (-6, 0) {DONORS};
+\node[entity] (Org) at (6, 0) {ORGANISATIONS};
+\node[entity] (Donation) at (0, -5) {DONATIONS};
+
+% -------------------------
+% Relationships
+% -------------------------
+\node[relationship] (Rel_Donor) at (-3, 2.5) {Links};
+\node[relationship] (Rel_Org) at (3, 2.5) {Links};
+\node[relationship] (Makes) at (-3, -2.5) {Makes};
+\node[relationship] (Receives) at (3, -2.5) {Receives};
+
+% -------------------------
+% Connections
+% -------------------------
+\draw[-] (Admin) -- (Rel_Donor);
+\draw[-] (Rel_Donor) -- (Donor);
+
+\draw[-] (Admin) -- (Rel_Org);
+\draw[-] (Rel_Org) -- (Org);
+
+\draw[-] (Donor) -- (Makes) node[midway, left] {1};
+\draw[-] (Makes) -- (Donation) node[midway, left] {M};
+
+\draw[-] (Org) -- (Receives) node[midway, right] {1};
+\draw[-] (Receives) -- (Donation) node[midway, right] {M};
+
+% -------------------------
+% Attributes
+% -------------------------
+\node[primary] (AdminId) at (-2, 7) {Id};
+\node[attribute] (AdminName) at (0, 7.5) {Name};
+\node[attribute] (AdminEmail) at (2, 7) {Email};
+
+\draw[-] (Admin) -- (AdminId);
+\draw[-] (Admin) -- (AdminName);
+\draw[-] (Admin) -- (AdminEmail);
+
+\node[primary] (DonationId) at (-2, -7.5) {Id};
+\node[attribute] (DonationType) at (0, -8) {DonationType};
+\node[attribute] (DonationAmt) at (2, -7.5) {Amount\_Quantity};
+
+\draw[-] (Donation) -- (DonationId);
+\draw[-] (Donation) -- (DonationType);
+\draw[-] (Donation) -- (DonationAmt);
+
+\end{tikzpicture}
+}
+\caption{ER Diagram: Social Help and Donation System}
+\end{figure}
+\end{document}

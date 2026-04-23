@@ -1,0 +1,169 @@
+\documentclass{article}
+\usepackage{tikz}
+\usetikzlibrary{shapes.multipart, positioning, arrows.meta, fit}
+\usepackage[margin=0.5in]{geometry}
+
+\begin{document}
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tikzpicture}[
+    >=Latex,
+    class/.style={
+        draw, rectangle split, rectangle split parts=3,
+        minimum width=4cm, align=left, fill=blue!5, thick, font=\footnotesize
+    }
+]
+
+% ==========================================
+% CORE ENTITIES (No Inheritance - Parallel Tables)
+% ==========================================
+
+% 1. Admin
+\node[class] (Admin) at (0, 8) {
+    \textbf{Admin}
+    \nodepart{second}
+    - Id : int \\
+    - Name : string \\
+    - Email : string \\
+    - PasswordHash : string \\
+    - ResetToken : string? \\
+    - ResetTokenExpiry : DateTime?
+    \nodepart{third}
+    + Login() : bool \\
+    + HashPassword() : string \\
+    + ManageSystem() : void
+};
+
+% 2. Donor
+\node[class] (Donor) at (-6, 3) {
+    \textbf{Donor}
+    \nodepart{second}
+    - Id : int \\
+    - Name : string \\
+    - Email : string \\
+    - PasswordHash : string \\
+    - Phone : string? \\
+    - Address : string? \\
+    - CreatedAt : DateTime
+    \nodepart{third}
+    + MakeDonation() : void \\
+    + TrackDonations() : List<Donation>
+};
+
+% 3. Organisation
+\node[class] (Org) at (6, 3) {
+    \textbf{Organisation}
+    \nodepart{second}
+    - Id : int \\
+    - Name : string \\
+    - Email : string \\
+    - Phone : string? \\
+    - OrgType : Enum \\
+    - Status : Enum \\
+    - RegNumber : string \\
+    - ImagePath : string?
+    \nodepart{third}
+    + CreateRequirement() : void \\
+    + ReceiveDonation() : void \\
+    + UpdateStatus() : void
+};
+
+% 4. Donation
+\node[class] (Donation) at (0, -3) {
+    \textbf{Donation}
+    \nodepart{second}
+    - Id : int \\
+    - ReceiptNumber : string \\
+    - DonorId : int \\
+    - OrganisationId : int \\
+    - DonationType : Enum \\
+    - Amount : decimal? \\
+    - Quantity : int \\
+    - Status : Enum \\
+    - PickupDate : DateTime?
+    \nodepart{third}
+    + UpdateStatus() : void \\
+    + SchedulePickup() : void
+};
+
+% 5. Requirement
+\node[class] (Requirement) at (10, -3) {
+    \textbf{Requirement}
+    \nodepart{second}
+    - Id : int \\
+    - OrganisationId : int \\
+    - ItemType : Enum \\
+    - QuantityNeeded : int \\
+    - Status : Enum \\
+    - Description : string?
+    \nodepart{third}
+    + UpdateRequirement() : void
+};
+
+% 6. ChatMessage
+\node[class] (Chat) at (-6, -6) {
+    \textbf{ChatMessage}
+    \nodepart{second}
+    - Id : int \\
+    - DonationId : int \\
+    - SenderId : string \\
+    - SenderRole : string \\
+    - Message : string \\
+    - Timestamp : DateTime
+    \nodepart{third}
+    + SendMessage() : void
+};
+
+% 7. OrgVerification
+\node[class] (Verification) at (10, 8) {
+    \textbf{OrganizationVerification}
+    \nodepart{second}
+    - Id : int \\
+    - OrganisationId : int \\
+    - CertificatePath : string? \\
+    - IdProofPath : string? \\
+    - AdminRemarks : string?
+    \nodepart{third}
+    + ReviewDocuments() : void
+};
+
+% ==========================================
+% RELATIONSHIPS (Navigation Properties)
+% ==========================================
+
+% Donor 1 -- * Donation
+\draw[->, thick] (Donor) -- (Donation.north west) 
+    node[pos=0.1, right] {1} 
+    node[midway, sloped, above] {has} 
+    node[pos=0.9, left] {*};
+
+% Organisation 1 -- * Donation
+\draw[->, thick] (Org) -- (Donation.north east) 
+    node[pos=0.1, left] {1} 
+    node[midway, sloped, above] {receives} 
+    node[pos=0.9, right] {*};
+
+% Organisation 1 -- * Requirement
+\draw[->, thick] (Org) -- (Requirement.north) 
+    node[pos=0.1, left] {1} 
+    node[midway, right] {posts} 
+    node[pos=0.9, left] {*};
+
+% Organisation 1 -- 1 Verification
+\draw[->, thick] (Org) -- (Verification.south) 
+    node[pos=0.1, left] {1} 
+    node[midway, right] {submits} 
+    node[pos=0.9, left] {1};
+
+% Donation 1 -- * ChatMessage
+\draw[->, thick] (Donation.south west) -- (Chat.north east) 
+    node[pos=0.1, below] {1} 
+    node[midway, sloped, above] {facilitates} 
+    node[pos=0.9, left] {*};
+
+\end{tikzpicture}
+}
+\caption{UML Class Diagram: Social Help and Donation System (Strict Model Alignment)}
+\end{figure}
+\end{document}

@@ -1,0 +1,82 @@
+\documentclass{article}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, calc}
+
+\begin{document}
+\begin{figure}[htbp]
+\centering
+\vspace{1cm}
+\resizebox{\textwidth}{!}{
+\begin{tikzpicture}[>=Latex, font=\small, thick]
+
+% -------------------------
+% Lifeline Headers (Exact Objects)
+% -------------------------
+\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=white] (UI) at (0, 0) {\underline{Dashboard}};
+\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=white] (User) at (8, 0) {\underline{user : User}};
+\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=white] (Issue) at (16, 0) {\underline{issue : Issue}};
+\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=white] (Worker) at (24, 0) {\underline{worker : Worker}};
+
+% -------------------------
+% Vertical Dashed Lifelines
+% -------------------------
+\draw[dashed, thick] (0, -0.4) -- (0, -19);
+\draw[dashed, thick] (8, -0.4) -- (8, -19);
+\draw[dashed, thick] (16, -0.4) -- (16, -19);
+\draw[dashed, thick] (24, -0.4) -- (24, -19);
+
+% -------------------------
+% Phase 1: Issue Reporting Flow 
+% -------------------------
+% Activation Bars
+\filldraw[fill=white, draw=black] (-0.2, -1.5) rectangle (0.2, -5);
+\filldraw[fill=white, draw=black] (7.8, -2) rectangle (8.2, -4.5);
+\filldraw[fill=white, draw=black] (15.8, -2.5) rectangle (16.2, -3.5);
+
+% Arrows calling User methods
+\draw[->] (0.2, -2) -- (7.8, -2) node[midway, above] {ReportIssue(Title, Desc, Location)};
+\draw[->] (8.2, -2.5) -- (15.8, -2.5) node[midway, above] {Create Database Entity};
+\draw[<-, dashed] (8.2, -3.5) -- (15.8, -3.5) node[midway, above] {Return IssueId};
+\draw[<-, dashed] (0.2, -4.5) -- (7.8, -4.5) node[midway, above] {Submission Confirmation};
+
+% -------------------------
+% Phase 2: Assignment & Resolution Flow
+% -------------------------
+% Activation Bars
+\filldraw[fill=white, draw=black] (-0.2, -6) rectangle (0.2, -18);
+\filldraw[fill=white, draw=black] (15.8, -6.5) rectangle (16.2, -14);
+\filldraw[fill=white, draw=black] (23.8, -7.5) rectangle (24.2, -13);
+
+% Arrows calling Issue and Worker methods
+\draw[->] (0.2, -6.5) -- (15.8, -6.5) node[midway, above, fill=white] {AssignWorker(WorkerId)};
+\draw[->] (16.2, -7.5) -- (23.8, -7.5) node[midway, above] {AcceptTask()};
+
+% Worker Loops executing their specific methods
+\draw[->] (24.2, -8.2) .. controls (25.5, -8.2) and (25.5, -9.0) .. (24.2, -9.0) node[midway, right] {UpdateAvailability(false)};
+\draw[->] (24.2, -10.0) .. controls (25.5, -10.0) and (25.5, -10.8) .. (24.2, -10.8) node[midway, right] {ResolveIssue()};
+
+% Updating Issue from Worker
+\draw[->] (23.8, -12) -- (16.2, -12) node[midway, above] {UpdateStatus("Resolved")};
+\draw[<-, dashed] (23.8, -13) -- (16.2, -13) node[midway, above] {Acknowledge};
+
+% Return to UI
+\draw[<-, dashed] (0.2, -13.5) -- (15.8, -13.5) node[midway, above, fill=white] {Status Reflected Internally};
+
+% -------------------------
+% Phase 3: Track Status Flow
+% -------------------------
+% Activation Bars
+\filldraw[fill=white, draw=black] (7.8, -15.5) rectangle (8.2, -17.5);
+\filldraw[fill=white, draw=black] (15.8, -16) rectangle (16.2, -17);
+
+% Arrows calling User and Issue methods
+\draw[->] (0.2, -15.5) -- (7.8, -15.5) node[midway, above] {TrackStatus()};
+\draw[->] (8.2, -16) -- (15.8, -16) node[midway, above] {GetDetails()};
+\draw[<-, dashed] (8.2, -17) -- (15.8, -17) node[midway, above] {Return Analytics \& Status Data};
+\draw[<-, dashed] (0.2, -17.5) -- (7.8, -17.5) node[midway, above] {Display Issue Details to Citizen};
+
+\end{tikzpicture}
+}
+\caption{Sequence Diagram strictly mirroring Class Diagram objects and methods}
+\end{figure}
+\end{document}

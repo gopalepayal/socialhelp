@@ -1,0 +1,100 @@
+\documentclass{article}
+\usepackage{tikz}
+\usetikzlibrary{shapes, shapes.misc, shapes.symbols, positioning, calc, arrows.meta}
+
+\begin{document}
+\begin{figure}[htbp]
+\centering
+\vspace{0.5cm}
+\begin{tikzpicture}[>=stealth, font=\small, thick, scale=0.8, transform shape]
+
+% -------------------------
+% Node Formatting Definitions
+% -------------------------
+\tikzset{
+    act/.style={draw, rounded rectangle, minimum height=0.7cm, fill=white, align=center, thick},
+    note/.style={draw, shape=note, fill=white, align=left, font=\scriptsize, inner sep=0.2cm},
+    sync/.style={draw, fill=black, rectangle, minimum height=0.15cm, inner sep=0},
+    init/.style={fill=black, circle, minimum size=0.4cm, inner sep=0},
+    finalouter/.style={draw, circle, minimum size=0.5cm, inner sep=0, thick},
+    finalinner/.style={fill=black, circle, minimum size=0.25cm, inner sep=0}
+}
+
+% -------------------------
+% 1. Central Vertical Axis Nodes
+% -------------------------
+\node[init] (Start) at (0, 0) {};
+
+\node[act] (UI) at (0, -1.5) {User Interface};
+\node[act] (WCF) at (0, -3.5) {Call to MVC Controller for user request};
+\node[act] (Deliver) at (0, -5.5) {Deliver call to EF Core business logic};
+
+% -------------------------
+% 2. Synchronization Bars
+% -------------------------
+\node[sync, minimum width=14cm] (Fork) at (0, -7.5) {};
+\node[sync, minimum width=14cm] (Join) at (0, -12.5) {};
+
+% -------------------------
+% 3. Explanatory Note Blocks
+% -------------------------
+\node[note] (N1) at (4, -2.5) {Generate analytic event};
+\draw[thin] (N1.west) -- (0, -2.5);
+
+\node[note] (N2) at (4, -4.5) {Execute controller logic\\for event};
+\draw[thin] (N2.west) -- (0, -4.5);
+
+\node[note] (N3) at (4, -6.5) {Call to specific Entity\\Framework functions};
+\draw[thin] (N3.west) -- (0, -6.5);
+
+% -------------------------
+% 4. Parallel Process Branches (V-Staggered to prevent cluster overlap)
+% -------------------------
+\node[act] (T1) at (-5.5, -10.5) {Fetch Category\\Stats Data};
+\node[act] (T2) at (-3.3, -9) {Fetch Issue\\Status Data};
+\node[act] (T3) at (-1.1, -10.5) {Calculate SLA\\Breaches};
+\node[act] (T4) at (1.1, -9) {Count Active\\Staff/Workers};
+\node[act] (T5) at (3.3, -10.5) {Fetch Recent\\Reports Data};
+\node[act] (T6) at (5.5, -9) {Generate PDF\\Report};
+
+% -------------------------
+% 5. Reporting Terminal Nodes
+% -------------------------
+\node[act] (Generate) at (0, -14.5) {Generate Report and View Data Accordingly};
+
+\node[finalouter] (EndO) at (0, -16) {};
+\node[finalinner] (EndI) at (0, -16) {};
+
+% -------------------------
+% 6. Path Renderings
+% -------------------------
+% Main Vertical drops
+\draw[->] (Start) -- (UI);
+\draw[->] (UI) -- (WCF);
+\draw[->] (WCF) -- (Deliver);
+\draw[->] (Deliver) -- (Fork);
+
+% Fan Out from Fork
+\draw[->] (Fork) -- (T1.north);
+\draw[->] (Fork) -- (T2.north);
+\draw[->] (Fork) -- (T3.north);
+\draw[->] (Fork) -- (T4.north);
+\draw[->] (Fork) -- (T5.north);
+\draw[->] (Fork) -- (T6.north);
+
+% Converge into Join
+\draw[->] (T1.south) -- (Join);
+\draw[->] (T2.south) -- (Join);
+\draw[->] (T3.south) -- (Join);
+\draw[->] (T4.south) -- (Join);
+\draw[->] (T5.south) -- (Join);
+\draw[->] (T6.south) -- (Join);
+
+% Exit Vertical drops
+\draw[->] (Join) -- (Generate);
+\draw[->] (Generate) -- (EndO);
+
+\end{tikzpicture}
+\caption{Activity Diagram illustrating strictly vertical parallel execution reporting flows}
+\end{figure}
+\end{document}

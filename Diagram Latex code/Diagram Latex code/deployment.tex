@@ -1,0 +1,97 @@
+\documentclass{article}
+\usepackage{tikz}
+\usetikzlibrary{shapes, shapes.symbols, positioning, calc, arrows.meta}
+
+\begin{document}
+\begin{figure}[htbp]
+\centering
+\vspace{1cm}
+% Standard scaling to prevent Overleaf compiling issues while matching page widths perfectly
+\begin{tikzpicture}[>=stealth, font=\small, thick, scale=0.85, transform shape]
+
+% -------------------------
+% Custom 3D Server Block Macro
+% -------------------------
+\def\drawbox#1#2#3#4#5{
+    % #1:x, #2:y, #3:width, #4:height, #5:title
+    \filldraw[thick, fill=white] (#1, #2) rectangle (#1+#3, #2-#4);
+    \filldraw[thick, fill=gray!10] (#1, #2) -- ++(0.3, 0.3) -- ++(#3, 0) -- (#1+#3, #2) -- cycle;
+    \filldraw[thick, fill=gray!25] (#1+#3, #2) -- ++(0.3, 0.3) -- ++(0, -#4) -- (#1+#3, #2-#4) -- cycle;
+    % Fixed LaTeX formatting: using \underline strictly inside the text rendering envelope!
+    \node[anchor=north west, font=\small] at (#1, #2) {\underline{#5}};
+}
+
+% -------------------------
+% Custom Component Macro
+% -------------------------
+\def\drawcomp#1#2#3#4{
+    % #1:x, #2:y, #3:width, #4:label
+    \filldraw[thick, fill=white] (#1, #2) rectangle (#1+#3, #2-1.5);
+    \filldraw[thick, fill=white] (#1-0.2, #2-0.3) rectangle (#1+0.2, #2-0.6);
+    \filldraw[thick, fill=white] (#1-0.2, #2-0.9) rectangle (#1+0.2, #2-1.2);
+    \node[font=\footnotesize\bfseries, align=center, text width=#3cm-0.5cm] at (#1+#3/2, #2-0.75) {#4};
+}
+
+% -------------------------
+% 1. Web Browser Node
+% -------------------------
+\drawbox{0}{0}{7}{2.8}{Web Browser}
+\drawcomp{1.5}{-0.8}{4}{SmartConnect UI}
+
+% -------------------------
+% 2. Web Server Node
+% -------------------------
+% Widened and dropped to physically map the massive 2-component hierarchy
+\drawbox{-1}{-4.2}{9}{5.2}{Web Server}
+\drawcomp{1.5}{-5}{4}{MVC Controllers}
+\drawcomp{1.5}{-7.3}{4}{Entity Framework Core}
+
+% -------------------------
+% 3. Database Server Node
+% -------------------------
+\drawbox{0.5}{-11}{6}{2.8}{Database Server}
+\drawcomp{1.5}{-11.8}{4}{Microsoft SQL Server}
+
+% -------------------------
+% Vertical Connectivity Paths (Geometrically aligned perfectly along X=3.5)
+% -------------------------
+% UI to MVC
+\draw[->, dashed, thick] (3.5, -2.3) -- (3.5, -5.0);
+
+% MVC to EF Core
+\draw[->, dashed, thick] (3.5, -6.5) -- (3.5, -7.3);
+
+% EF Core to SQL Database
+\draw[->, dashed, thick] (3.5, -8.8) -- (3.5, -11.8);
+
+% -------------------------
+% End-User Access Point
+% -------------------------
+\coordinate (UserHead) at (-5.5, 0);
+\draw[thick] (UserHead) circle (0.2); % Head
+\draw[thick] (-5.5, -0.2) -- (-5.5, -1.0); % Body
+\draw[thick] (-5.9, -0.5) -- (-5.1, -0.5); % Arms
+\draw[thick] (-5.5, -1.0) -- (-5.9, -1.7); % Left Leg
+\draw[thick] (-5.5, -1.0) -- (-5.1, -1.7); % Right Leg
+\node[below, font=\scriptsize] at (-5.5, -1.7) {System User};
+
+% -------------------------
+% User to UI Linkage (Staircase dashed path perfectly mapping reference trace)
+% -------------------------
+\draw[->, dashed, thick] (-5.3, 0) -- (-2.5, 0) -- (-2.5, -1.55) -- (1.3, -1.55);
+
+% -------------------------
+% Explanatory Document Notes
+% -------------------------
+% Business Logic Note (Hits strictly right edge of Web Server)
+\node[draw, shape=note, fill=white, align=left, text width=3cm] (Note1) at (10.5, -6.8) {All System Domain\\Business Logic};
+\draw[->, thick] (Note1.west) -- (8, -6.8);
+
+% Database Connection Note (Hits strictly the central dashed DB line)
+\node[draw, shape=note, fill=white, align=center] (Note2) at (7, -10.3) {EF Database\\Connection};
+\draw[-, dashed, thick] (Note2.west) -- (3.5, -10.3);
+
+\end{tikzpicture}
+\caption{Deployment Diagram modeling structural hardware allocations mapping strict logical boundaries}
+\end{figure}
+\end{document}

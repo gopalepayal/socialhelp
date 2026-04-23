@@ -1,0 +1,64 @@
+# SOCIAL HELP AND DONATION SYSTEM - FLOW DOCUMENTATION
+
+## 1. System Authentication Flow
+1. **Login**: Admin, Donor, and Organisation use separate login pages but follow a similar flow: 
+   - Enter Email/Password -> Validate Hash -> Create Session/Cookie.
+2. **Dashboard Redirection**:
+   - Admin -> Admin/Dashboard
+   - Donor -> Donor/Dashboard
+   - Organisation -> Organisation/Dashboard
+
+## 2. Donation & Requirement Flow (Correct Logic)
+1. **NGO** creates a **Requirement** (e.g., Needs 100 Books).
+2. **Donor** browses Requirements.
+3. **Donor** creates a **Donation** linked to that Requirement/Organisation.
+4. **NGO** reviews the Donation:
+   - **Approve**: If pickup is needed, NGO accepts pickup.
+   - **Reject**: If items are not suitable.
+5. **Donor** & **NGO** can Chat regarding the specific Donation.
+6. **Completion**: Once items are received/verified, Status becomes 'Completed'.
+
+## 3. Black and White Class Diagram (ASCII Format)
+
+```text
++-----------------------------+          +-----------------------------+
+|           ADMIN             |          |        ORGANISATION         |
++-----------------------------+          +-----------------------------+
+| - Id: int                   |          | - Id: int                   |
+| - Name: string              |          | - Name: string              |
+| - Email: string             |          | - Email: string             |
+| - PasswordHash: string      |          | - Status: Enum (Pending...) |
++-----------------------------+          | - RegNumber: string         |
+| + ManageSystem()            |          +-----------------------------+
+| + Login()                   |          | + CreateRequirement()       |
++-----------------------------+          | + ReceiveDonation()         |
+                                         +--------------+--------------+
+                                                        |
+                                                        | (1)
+                                                        |
+                                                        | accepts
+                                                        |
+                                                        | (*)
++-----------------------------+          +--------------v--------------+
+|            DONOR            |          |          DONATION           |
++-----------------------------+          +-----------------------------+
+| - Id: int                   | (1)      | - Id: int                   |
+| - Name: string              | -------- | - ReceiptNumber: string     |
+| - Email: string             |   makes  | - DonationType: Enum        |
+| - PasswordHash: string      |   (*)    | - Amount: decimal?          |
++-----------------------------+          | - Status: Enum              |
+| + MakeDonation()            |          +--------------+--------------+
+| + TrackDonations()          |                         |
++-----------------------------+                         | (1)
+                                                        |
+                                                        | facilitates
+                                                        |
+                                                        | (*)
+                                         +--------------v--------------+
+                                         |         CHAT_MESSAGE        |
+                                         +-----------------------------+
+                                         | - Id: int                   |
+                                         | - Message: string           |
+                                         | - SenderRole: string        |
+                                         +-----------------------------+
+```
