@@ -1,0 +1,94 @@
+\documentclass{article}
+\usepackage{tikz}
+\usetikzlibrary{shapes, shapes.symbols, positioning, calc, arrows.meta}
+
+\begin{document}
+\begin{figure}[htbp]
+\centering
+\vspace{1cm}
+% Use native TikZ transform properties to scale cleanly in strict engines like Overleaf
+\begin{tikzpicture}[>=stealth, font=\small, thick, scale=0.8, transform shape]
+
+% -------------------------
+% Custom Component Macro
+% -------------------------
+\def\drawcomp#1#2#3#4{
+    % #1:x, #2:y, #3:width, #4:label
+    \filldraw[thick, fill=white] (#1, #2) rectangle (#1+#3, #2-1.5);
+    \filldraw[thick, fill=white] (#1-0.2, #2-0.3) rectangle (#1+0.2, #2-0.6);
+    \filldraw[thick, fill=white] (#1-0.2, #2-0.9) rectangle (#1+0.2, #2-1.2);
+    \node[font=\footnotesize\bfseries, align=center, text width=#3cm-0.5cm] at (#1+#3/2, #2-0.75) {#4};
+}
+
+% -------------------------
+% Custom UML Package Macro
+% -------------------------
+\def\drawpkg#1#2#3#4#5{
+    % #1:x, #2:y, #3:width, #4:height, #5:label
+    % Draw the tiny Folder Tab
+    \filldraw[thick, fill=white] (#1, #2) -- (#1, #2+0.4) -- (#1+0.8, #2+0.4) -- (#1+0.8, #2) -- cycle;
+    % Draw the Main Box
+    \filldraw[thick, fill=white] (#1, #2) rectangle (#1+#3, #2-#4);
+    \node[font=\footnotesize\bfseries, align=center, text width=#3cm-0.2cm] at (#1+#3/2, #2-#4/2) {#5};
+}
+
+% -------------------------
+% 1. Core Components (Top-Down Sequence)
+% -------------------------
+% View Component Layer
+\drawcomp{-5}{0}{4.0}{Donate.cshtml}
+
+% Stacked Controller & Service Layer
+\drawcomp{1.5}{-2.5}{4.0}{DonorController.cs}
+\drawcomp{1.5}{-5.5}{4.0}{AuthService.cs}
+\drawcomp{1.5}{-8.5}{4.0}{ApplicationDbContext.cs}
+
+% -------------------------
+% 2. Interface Connectivity Paths
+% -------------------------
+% Staircase drop from View to Controller
+\draw[->, dashed, thick] (-1.0, -0.75) -- (0, -0.75) -- (0, -3.25) -- (1.5, -3.25);
+
+% Vertical drops between Controller -> Service -> DbContext
+\draw[->, dashed, thick] (3.5, -4.0) -- (3.5, -5.5);
+\draw[->, dashed, thick] (3.5, -7.0) -- (3.5, -8.5);
+
+% Drop from DbContext down to the Horizontal Hub Bus
+\draw[dashed, thick] (3.5, -10.0) -- (3.5, -11.0);
+
+% Horizontal Bus Path
+\draw[dashed, thick] (-3.1, -11.0) -- (11.5, -11.0);
+
+% Distributing drops into the Packages
+\draw[->, dashed, thick] (-3.1, -11.0) -- (-3.1, -12);
+\draw[->, dashed, thick] (-0.5, -11.0) -- (-0.5, -12);
+\draw[->, dashed, thick] (2.1, -11.0) -- (2.1, -12);
+\draw[->, dashed, thick] (4.7, -11.0) -- (4.7, -12);
+\draw[->, dashed, thick] (7.3, -11.0) -- (7.3, -12);
+\draw[->, dashed, thick] (9.9, -11.0) -- (9.9, -12);
+
+% -------------------------
+% 3. Package Instances (Widened specific X-axis to wrap variables cleanly)
+% -------------------------
+\drawpkg{-4.2}{-12}{2.2}{1.5}{Admin\\Profiles}
+\drawpkg{-1.6}{-12}{2.2}{1.5}{Donor\\Models}
+\drawpkg{1.0}{-12}{2.2}{1.5}{Org\\Profiles}
+\drawpkg{3.6}{-12}{2.2}{1.5}{Donation\\Core}
+\drawpkg{6.2}{-12}{2.2}{1.5}{NGO\\Reqs}
+\drawpkg{8.8}{-12}{2.2}{1.5}{\mbox{Chat Logic}}
+
+% -------------------------
+% 4. Explanatory Documentation Notes
+% -------------------------
+\node[draw, shape=note, fill=white, minimum width=2cm, minimum height=1cm, align=center, font=\scriptsize] at (1, -0.2) {Donor Request};
+
+\node[draw, shape=note, fill=white, minimum width=2.5cm, minimum height=0.8cm, align=left, font=\scriptsize] at (8.0, -4.75) {Execute internal\\dashboard logic};
+
+\node[draw, shape=note, fill=white, minimum width=2.5cm, minimum height=0.8cm, align=left, font=\scriptsize] at (8.0, -7.75) {Call appropriate\\repository mapping\\function};
+
+\node[draw, shape=note, fill=white, align=left, text width=3.5cm, font=\scriptsize] at (12, -10.3) {Call to particular Entity Framework logic according to dashboard event};
+
+\end{tikzpicture}
+\caption{Component Diagram modeling explicit physical module boundaries integrated over EF Core for Social Help System}
+\end{figure}
+\end{document}
