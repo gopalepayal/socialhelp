@@ -6,13 +6,13 @@
     font=\sffamily\small,
     entity/.style={
         rectangle, draw=black, thick, 
-        fill=gray!20, % Mimics the gradient/fill in screenshot
-        minimum width=3.5cm, minimum height=0.8cm, align=center
+        fill=gray!20, 
+        minimum width=3.5cm, minimum height=1cm, align=center
     },
     attribute/.style={
         ellipse, draw=black, thin, 
         fill=gray!5, 
-        minimum width=2cm, minimum height=0.6cm, align=center, font=\footnotesize
+        minimum width=2.2cm, minimum height=0.7cm, align=center, font=\footnotesize
     },
     relationship/.style={
         diamond, draw=black, thick, 
@@ -26,92 +26,70 @@
     line/.style={draw=black, thick}
 ]
 
-% -------------------------
-% 1. TOP SECTION: User Base & Admin
-% -------------------------
-\node[entity] (User) at (0, 8) {SocialHelp\_User};
-\node[attribute] (U1) at (-2.5, 9.5) {Id};
-\node[attribute] (U2) at (0, 10) {Name};
-\node[attribute] (U3) at (2.5, 9.5) {Email};
-\draw (User) -- (U1); \draw (User) -- (U2); \draw (User) -- (U3);
+% 1. TOP SECTION: Admin & Actors
+\node[entity] (Admin) at (0, 7) {Admins};
+\node[attribute] (A1) at (-2.5, 8.5) {Id};
+\node[attribute] (A2) at (0, 9) {Email};
+\node[attribute] (A3) at (2.5, 8.5) {PasswordHash};
+\draw (Admin) -- (A1); \draw (Admin) -- (A2); \draw (Admin) -- (A3);
 
-\node[isa] (UserISA) at (0, 6) {IS A};
-\draw[line] (User) -- (UserISA);
-
-% Specializations
-\node[entity] (Admin) at (0, 4) {Admin\_Core};
-\node[entity] (Donor) at (-6, 4) {Donor\_Profile};
-\node[entity] (Org) at (6, 4) {Org\_Account};
-
-\draw[line] (UserISA) -- (Admin);
-\draw[line] (UserISA) -- (-6, 6) -- (Donor);
-\draw[line] (UserISA) -- (6, 6) -- (Org);
-
-% Attributes for Donor/Org
-\node[attribute] (D1) at (-8.5, 5) {Phone};
-\node[attribute] (D2) at (-8.5, 3) {Address};
-\draw (Donor) -- (D1); \draw (Donor) -- (D2);
-
-\node[attribute] (O1) at (8.5, 5) {RegNumber};
-\node[attribute] (O2) at (8.5, 3) {Status};
-\draw (Org) -- (O1); \draw (Org) -- (O2);
-
-% -------------------------
-% 2. CENTER SECTION: Donations (Grouped)
-% -------------------------
+% Actors Box
 \begin{scope}[on background layer]
-    \node[draw, dashed, rectangle, inner sep=0.8cm, fit=(Donor) (Org) (Admin)] (PartyBox) {};
+    \node[draw, dashed, rectangle, inner sep=0.8cm] (ActorBox) at (0, 3) [minimum width=15cm, minimum height=3cm] {};
+    \node[anchor=north west] at (ActorBox.north west) {System\_Actors};
 \end{scope}
 
-\node[relationship] (HasA) at (0, 1) {HAS A};
-\draw[line] (PartyBox.south) -- (HasA);
+\node[entity] (Donor) at (-4, 3) {Donors};
+\node[entity] (Org) at (4, 3) {Organisations};
 
-\node[entity] (Donation) at (0, -2) {Social\_Donation};
-\draw[line] (HasA) -- (Donation);
+% Actor Attributes
+\node[attribute] (D1) at (-6.5, 4.5) {Name};
+\node[attribute] (D2) at (-6.5, 1.5) {Email};
+\draw (Donor) -- (D1); \draw (Donor) -- (D2);
+
+\node[attribute] (O1) at (6.5, 4.5) {OrgType};
+\node[attribute] (O2) at (6.5, 1.5) {Status};
+\draw (Org) -- (O1); \draw (Org) -- (O2);
+
+% 2. CENTER SECTION: Donations
+\node[relationship] (Rel1) at (0, 0.5) {HAS A};
+\draw[line] (ActorBox.south) -- (Rel1);
+
+\node[entity] (Donation) at (0, -2) {Donations};
+\draw[line] (Rel1) -- (Donation);
 
 % Donation Attributes
-\node[attribute] (Do1) at (-3.5, -3) {ReceiptNo};
-\node[attribute] (Do2) at (-4.5, -1.5) {Type};
-\node[attribute] (Do3) at (3.5, -3) {Status};
+\node[attribute] (Do1) at (-3.5, -3) {ReceiptNumber};
+\node[attribute] (Do2) at (-4.5, -1.5) {DonationType};
+\node[attribute] (Do3) at (3.5, -3) {Quantity};
 \node[attribute] (Do4) at (4.5, -1.5) {Amount};
 \draw (Donation) -- (Do1); \draw (Donation) -- (Do2); \draw (Donation) -- (Do3); \draw (Donation) -- (Do4);
 
-% -------------------------
-% 3. BOTTOM SECTION: Transactions & Requirements
-% -------------------------
-\node[isa] (DonISA) at (0, -4.5) {IS A};
-\draw[line] (Donation) -- (DonISA);
+% 3. BOTTOM SECTION: Requirements & Chat
+\node[relationship] (RelReq) at (6, -2) {POSTS};
+\draw[line] (Org) |- (RelReq);
 
-\node[entity] (Transaction) at (0, -7) {Donation\_Tranx};
-\draw[line] (DonISA) -- (Transaction);
-
-% Transaction Attributes
-\node[attribute] (T1) at (-3, -8.5) {Tranx ID};
-\node[attribute] (T2) at (0, -9) {Timestamp};
-\node[attribute] (T3) at (3, -8.5) {PaymentKey};
-\draw (Transaction) -- (T1); \draw (Transaction) -- (T2); \draw (Transaction) -- (T3);
-
-% Right Side: Requirements & Stats
-\node[relationship] (RelReq) at (6, -2) {HAS};
-\draw[line] (Org) -- (RelReq);
-
-\node[entity] (Requirement) at (6, -5) {Social\_Requirement};
+\node[entity] (Requirement) at (6, -5) {Requirements};
 \draw[line] (RelReq) -- (Requirement);
 
-\node[attribute] (R1) at (9, -4.5) {Item};
-\node[attribute] (R2) at (9, -5.5) {Quantity};
+\node[attribute] (R1) at (9, -4.5) {ItemType};
+\node[attribute] (R2) at (9, -5.5) {QuantityNeeded};
 \draw (Requirement) -- (R1); \draw (Requirement) -- (R2);
 
-% Left Side: Messages
-\node[relationship] (RelMsg) at (-6, -2) {HAS};
-\draw[line] (Donation) -- (RelMsg);
+\node[relationship] (RelMsg) at (-6, -6) {HAS};
+\draw[line] (Donation) |- (RelMsg);
 
-\node[entity] (Message) at (-6, -5) {Chat\_Message};
+\node[entity] (Message) at (-6, -9) {ChatMessages};
 \draw[line] (RelMsg) -- (Message);
 
-\node[attribute] (M1) at (-9, -4.5) {Sender};
-\node[attribute] (M2) at (-9, -5.5) {Text};
+\node[attribute] (M1) at (-9, -8.5) {SenderRole};
+\node[attribute] (M2) at (-9, -9.5) {Message};
 \draw (Message) -- (M1); \draw (Message) -- (M2);
+
+% Admin Manages link
+\node[relationship] (RelAdm) at (9, 7) {MANAGES};
+\draw[line] (Admin) -- (RelAdm);
+\draw[line] (RelAdm) -- (9, -2) -- (Org); % Admin manages organisations/approval
 
 \end{tikzpicture}
 \end{document}
