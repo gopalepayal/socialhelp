@@ -10,75 +10,49 @@
 \begin{tikzpicture}[>=Latex, font=\small, thick]
 
 % -------------------------
-% Lifeline Headers (Exact Objects)
+% Lifelines
 % -------------------------
-\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=white] (UI) at (0, 0) {\underline{Dashboard}};
-\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=white] (Donor) at (8, 0) {\underline{donor : Donor}};
-\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=white] (Donation) at (16, 0) {\underline{donation : Donation}};
-\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=white] (Org) at (24, 0) {\underline{org : Organisation}};
+\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=white] (UI) at (0, 0) {\underline{Web Dashboard}};
+\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=white] (Donor) at (7, 0) {\underline{donor : Donor}};
+\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=white] (System) at (14, 0) {\underline{System Logic}};
+\node[draw, rectangle, minimum width=3cm, minimum height=0.8cm, fill=white] (Org) at (21, 0) {\underline{org : Organisation}};
 
-% -------------------------
-% Vertical Dashed Lifelines
-% -------------------------
-\draw[dashed, thick] (0, -0.4) -- (0, -19);
-\draw[dashed, thick] (8, -0.4) -- (8, -19);
-\draw[dashed, thick] (16, -0.4) -- (16, -19);
-\draw[dashed, thick] (24, -0.4) -- (24, -19);
+% Vertical Dashed Lines
+\draw[dashed, thick] (0, -0.4) -- (0, -18);
+\draw[dashed, thick] (7, -0.4) -- (7, -18);
+\draw[dashed, thick] (14, -0.4) -- (14, -18);
+\draw[dashed, thick] (21, -0.4) -- (21, -18);
 
 % -------------------------
-% Phase 1: Donation Creation Flow 
+% Interaction Sequence
 % -------------------------
-% Activation Bars
-\filldraw[fill=white, draw=black] (-0.2, -1.5) rectangle (0.2, -5);
-\filldraw[fill=white, draw=black] (7.8, -2) rectangle (8.2, -4.5);
-\filldraw[fill=white, draw=black] (15.8, -2.5) rectangle (16.2, -3.5);
 
-% Arrows calling Donor methods
-\draw[->] (0.2, -2) -- (7.8, -2) node[midway, above] {MakeDonation(Type, Amount, Desc)};
-\draw[->] (8.2, -2.5) -- (15.8, -2.5) node[midway, above] {Create Database Entity};
-\draw[<-, dashed] (8.2, -3.5) -- (15.8, -3.5) node[midway, above] {Return DonationId};
-\draw[<-, dashed] (0.2, -4.5) -- (7.8, -4.5) node[midway, above] {Submission Confirmation};
+% 1. Donor Registration/Login
+\draw[->] (0.2, -1.5) -- (6.8, -1.5) node[midway, above] {SubmitCredentials()};
+\draw[->] (7.2, -2.0) -- (13.8, -2.0) node[midway, above] {ValidateUser()};
+\draw[<-, dashed] (0.2, -2.5) -- (6.8, -2.5) node[midway, below] {AuthenticationSuccess()};
 
-% -------------------------
-% Phase 2: NGO Review & Coordination Flow
-% -------------------------
-% Activation Bars
-\filldraw[fill=white, draw=black] (-0.2, -6) rectangle (0.2, -18);
-\filldraw[fill=white, draw=black] (23.8, -6.5) rectangle (24.2, -14);
-\filldraw[fill=white, draw=black] (15.8, -7.5) rectangle (16.2, -13);
+% 2. Donation Process
+\draw[->] (0.2, -4.0) -- (6.8, -4.0) node[midway, above] {InitiateDonation()};
+\draw[->] (7.2, -4.5) -- (13.8, -4.5) node[midway, above] {CreateDonationRecord()};
+\draw[->] (13.8, -5.5) -- (20.8, -5.5) node[midway, above] {NotifyNewDonation()};
+\draw[<-, dashed] (7.2, -6.0) -- (13.8, -6.0) node[midway, below] {DonationAcknowledged()};
 
-% Dashboard calls Organisation
-\draw[->] (0.2, -6.5) -- (23.8, -6.5) node[midway, above, fill=white] {ReviewPendingDonations()};
+% 3. Organisation Response
+\draw[->] (21.2, -7.5) -- (14.2, -7.5) node[midway, above] {AcceptDonation(DonationId)};
+\draw[->] (21.2, -8.5) -- (22.5, -8.5) -- (22.5, -9.5) -- (21.2, -9.5) node[midway, right] {SetPickupSchedule()};
+\draw[->] (13.8, -10.5) -- (7.2, -10.5) node[midway, above] {UpdateDonationStatus(Accepted)};
 
-% Organisation interacts with Donation
-\draw[->] (23.8, -7.5) -- (16.2, -7.5) node[midway, above] {AcceptDonation(DonationId)};
+% 4. Communication (Chat)
+\draw[->] (6.8, -12.0) -- (13.8, -12.0) node[midway, above] {SendMessage(DonorToOrg)};
+\draw[->] (13.8, -12.5) -- (20.8, -12.5) node[midway, above] {DeliverMessage()};
 
-% Org Loops executing their specific methods
-\draw[->] (24.2, -8.2) .. controls (25.5, -8.2) and (25.5, -9.0) .. (24.2, -9.0) node[midway, right] {SchedulePickup()};
-\draw[->] (24.2, -10.0) .. controls (25.5, -10.0) and (25.5, -10.8) .. (24.2, -10.8) node[midway, right] {NotifyDonor(Time)};
-
-% Updating Donation from Org
-\draw[->] (23.8, -12) -- (16.2, -12) node[midway, above] {UpdateStatus("Approved")};
-\draw[<-, dashed] (23.8, -13) -- (16.2, -13) node[midway, above] {Acknowledge Data Update};
-
-% Return to UI
-\draw[<-, dashed] (0.2, -13.5) -- (23.8, -13.5) node[midway, above, fill=white] {Status Reflected Internally};
-
-% -------------------------
-% Phase 3: Track Status Flow
-% -------------------------
-% Activation Bars
-\filldraw[fill=white, draw=black] (7.8, -15.5) rectangle (8.2, -17.5);
-\filldraw[fill=white, draw=black] (15.8, -16) rectangle (16.2, -17);
-
-% Arrows calling Donor and Donation methods
-\draw[->] (0.2, -15.5) -- (7.8, -15.5) node[midway, above] {TrackDonations()};
-\draw[->] (8.2, -16) -- (15.8, -16) node[midway, above] {GetDonationStatus()};
-\draw[<-, dashed] (8.2, -17) -- (15.8, -17) node[midway, above] {Return Analytics \& Status Data};
-\draw[<-, dashed] (0.2, -17.5) -- (7.8, -17.5) node[midway, above] {Display Donation Details to Donor};
+% 5. Completion
+\draw[->] (21.2, -14.5) -- (14.2, -14.5) node[midway, above] {MarkAsCompleted()};
+\draw[->] (13.8, -15.5) -- (0.2, -15.5) node[midway, above] {UpdateDonorDashboard()};
 
 \end{tikzpicture}
 }
-\caption{Sequence Diagram strictly mirroring true flow sequence for the Social Help System}
+\caption{Professional Sequence Diagram for Social Help System}
 \end{figure}
 \end{document}
