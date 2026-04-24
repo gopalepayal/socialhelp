@@ -1,121 +1,266 @@
 \documentclass{article}
 \usepackage{tikz}
-\usetikzlibrary{shapes.multipart, positioning, arrows.meta}
+\usetikzlibrary{shapes.multipart, positioning, arrows.meta, calc}
+\usepackage[margin=0.3in]{geometry}
 
 \begin{document}
 \begin{figure}[htbp]
 \centering
-\vspace{1cm}
 \resizebox{\textwidth}{!}{
 \begin{tikzpicture}[
-    >=Latex,
+    >=Latex, thick,
     object/.style={
         draw, rectangle split, rectangle split parts=2,
-        minimum width=4cm, align=center, fill=white, thick, font=\small
-    }
+        minimum width=3.5cm, align=center, fill=white, thick, font=\scriptsize
+    },
+    smallobj/.style={
+        draw, rectangle split, rectangle split parts=2,
+        minimum width=2.8cm, align=center, fill=white, thick, font=\scriptsize
+    },
+    uibox/.style={draw, rectangle, rounded corners, minimum width=2.5cm, minimum height=0.8cm, fill=white, thick, font=\small},
+    dbbox/.style={draw, rectangle, minimum width=2.5cm, minimum height=0.8cm, fill=white, thick, font=\small\bfseries},
+    store/.style={draw, rectangle, minimum width=2.5cm, minimum height=0.6cm, fill=white, thick, font=\scriptsize\bfseries}
 ]
 
-% Title
-\node[font=\LARGE\bfseries, align=center] at (1.5, 4.5) {UML Object Diagram - Social Help and Donation System};
+% =========================================================
+% LAYER 1: User Interface (Top)
+% =========================================================
+\node[uibox] (UI) at (0, 0) {User Interface};
+\node[uibox] (CallNote) at (5, 0) {Call to Controller};
 
-% -------------------------
-% Object Instances Definition
-% -------------------------
+\draw[->, thick] (UI.east) -- (CallNote.west);
 
-% 1. Donation (Center)
-\node[object] (donation1) at (0, 0) {
-    \underline{\textbf{donation1 : Donation}}
+% =========================================================
+% LAYER 2: Main Service Object (Below UI)
+% =========================================================
+\node[object] (Service) at (2.5, -3.5) {
+    \underline{\textbf{service : DonationService}}
     \nodepart{second}
     \normalfont
     \begin{tabular}{@{}l@{}}
-    DonationId = 101 \\
-    ReceiptNumber = "DON-2026-0042" \\
-    DonationType = "Food" \\
-    Amount\_Quantity = 25.0 \\
-    Status = "Approved" \\
-    PickupDate = "2026-04-22 11:00 AM"
+    \textbf{Methods} \\
+    \hline
+    +GetDonations(donorId, orgId) \\
+    +CreateDonation(type, qty, desc) \\
+    +GetOrganisations(status) \\
+    +GetRequirements(orgId) \\
+    +UpdateDonationStatus(id, status) \\
+    +SchedulePickup(donationId, date) \\
+    +SendChatMessage(donId, msg) \\
+    +getDonation\_count \\
+    +getOrganisation\_count \\
+    +getRequirement\_count
     \end{tabular}
 };
 
-% 2. Donor (Left)
-\node[object] (donor1) at (-7.5, 0) {
-    \underline{\textbf{donor1 : Donor}}
+% =========================================================
+% LAYER 2 SIDE: Interface/Service Object (Left)
+% =========================================================
+\node[object] (IService) at (-4.5, -3) {
+    \underline{\textbf{<<Interface>>}}
     \nodepart{second}
     \normalfont
     \begin{tabular}{@{}l@{}}
-    DonorId = 5 \\
-    Name = "Rahul Sharma" \\
-    Email = "rahul@example.com" \\
-    Phone = "9876543210" \\
-    Address = "MG Road, Pune"
+    \textbf{IService} \\
+    \hline
+    +GetDonations() \\
+    +GetOrganisations() \\
+    +GetRequirements() \\
+    +GetChatData() \\
+    ...()
     \end{tabular}
 };
 
-% 3. Organisation (Right)
-\node[object] (org1) at (7.5, 0) {
-    \underline{\textbf{org1 : Organisation}}
+\draw[->, dashed, thick] (IService.east) -- (Service.west);
+
+% =========================================================
+% CONNECTORS: UI to Service
+% =========================================================
+\draw[->, thick] (UI.south) -- (2.5, -0.5) -- (Service.north);
+
+% =========================================================
+% LAYER 3: DB Layer (Central Hub)
+% =========================================================
+\node[dbbox] (DB) at (2.5, -8) {db : ApplicationDbContext};
+
+\draw[->, thick] (Service.south) -- (DB.north)
+    node[midway, left, font=\scriptsize] {Requested output List<>};
+\draw[->, thick] (DB.north east) -- (Service.south east)
+    node[midway, right, font=\scriptsize] {Call for methods in DbContext};
+
+% =========================================================
+% LAYER 3 SIDE: Connection Object (Left)
+% =========================================================
+\node[smallobj] (Con) at (-4.5, -8) {
+    \underline{\textbf{con : Connection}}
     \nodepart{second}
     \normalfont
     \begin{tabular}{@{}l@{}}
-    OrgId = 12 \\
-    Name = "HelpHands Trust" \\
-    Email = "info@helphands.org" \\
-    RegNumber = "NGO-MH-1042" \\
-    Status = "Approved"
+    \textbf{Methods} \\
+    \hline
+    getConnection
     \end{tabular}
 };
 
-% 4. Requirement (Bottom Center)
-\node[object] (req1) at (0, -6.5) {
-    \underline{\textbf{req1 : Requirement}}
+\draw[<-, thick] (Con.east) -- (DB.west)
+    node[midway, below, font=\scriptsize] {Getting the Connection String};
+
+% =========================================================
+% LAYER 3 SIDE: ListData Object (Right)
+% =========================================================
+\node[smallobj] (Lst) at (9.5, -8) {
+    \underline{\textbf{lst : ViewModels}}
     \nodepart{second}
     \normalfont
     \begin{tabular}{@{}l@{}}
-    ReqId = 30 \\
-    ItemType = "Food" \\
-    QuantityNeeded = 50 \\
-    Status = "Partially Fulfilled" \\
-    Description = "Rice bags for flood relief"
+    \textbf{Methods} \\
+    \hline
+    getDonationVM \\
+    getOrgListVM \\
+    getDashboardVM
     \end{tabular}
 };
 
-% 5. ChatMessage (Bottom Right)
-\node[object] (chat1) at (7.5, -6.5) {
-    \underline{\textbf{chat1 : ChatMessage}}
+\draw[<-, thick] (Lst.west) -- (DB.east)
+    node[midway, below, font=\scriptsize] {Checking DbNull by data type};
+
+% =========================================================
+% LAYER 4: Data Entity Objects (Bottom Row)
+% =========================================================
+\node[smallobj] (ObjAdmin) at (-5, -12) {
+    \underline{\textbf{a : Admin}}
     \nodepart{second}
     \normalfont
     \begin{tabular}{@{}l@{}}
-    ChatId = 88 \\
-    Message = "Pickup confirmed for tomorrow" \\
-    SenderRole = "Organisation" \\
-    Timestamp = "2026-04-21 03:30 PM"
+    \textbf{Methods} \\
+    \hline
+    getAdmin\_sql \\
+    update\_Admin
     \end{tabular}
 };
 
-% -------------------------
-% Path Connections (Specific Instance Links)
-% No multiplicities in Object Diagrams!
-% -------------------------
+\node[smallobj] (ObjDonor) at (-2, -12) {
+    \underline{\textbf{d : Donor}}
+    \nodepart{second}
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    \textbf{Methods} \\
+    \hline
+    getDonor\_sql \\
+    update\_Donor
+    \end{tabular}
+};
 
-% donor1 -> donation1
-\draw[->, thick] (donor1.east) -- (donation1.west) 
-    node[midway, above, font=\small] {Makes};
+\node[smallobj] (ObjOrg) at (1, -12) {
+    \underline{\textbf{o : Organisation}}
+    \nodepart{second}
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    \textbf{Methods} \\
+    \hline
+    getOrg\_sql \\
+    update\_Organisation
+    \end{tabular}
+};
 
-% donation1 -> org1
-\draw[->, thick] (donation1.east) -- (org1.west) 
-    node[midway, above, font=\small] {Receives};
+\node[smallobj] (ObjDon) at (4, -12) {
+    \underline{\textbf{dn : Donation}}
+    \nodepart{second}
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    \textbf{Methods} \\
+    \hline
+    Donation\_count \\
+    getDonation\_sql \\
+    update\_Donation
+    \end{tabular}
+};
 
-% donation1 -> req1 (Vertical, Fulfills)
-\draw[->, thick] (donation1.south) -- (req1.north) 
-    node[midway, left=0.1cm, font=\small] {Fulfills};
+\node[smallobj] (ObjReq) at (7, -12) {
+    \underline{\textbf{r : Requirement}}
+    \nodepart{second}
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    \textbf{Methods} \\
+    \hline
+    getCount \\
+    getRequirement\_sql \\
+    GetReqData
+    \end{tabular}
+};
 
-% chat1 -> req1
-\draw[->, thick] (chat1.west) -- (req1.east) 
-    node[midway, above=0.05cm, font=\small] {Discusses};
+% =========================================================
+% LAYER 4 SIDE: Controller Objects (Right Side)
+% =========================================================
+\node[object] (AdCtrl) at (12, -5) {
+    \underline{\textbf{ac : AdminController}}
+    \nodepart{second}
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    \textbf{Methods} \\
+    \hline
+    ManageOrganisations() \\
+    ManageDonors() \\
+    GetDashboardTotals() \\
+    ApproveOrganisation() \\
+    GetReportData()
+    \end{tabular}
+};
 
-% org1 -> chat1 (No Arrow Head)
-\draw[-, thick] (org1.south) -- (chat1.north) 
-    node[midway, right=0.1cm, font=\small] {Sends};
+\node[object] (DonCtrl) at (12, -11) {
+    \underline{\textbf{dc : DonorController}}
+    \nodepart{second}
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    \textbf{Methods} \\
+    \hline
+    GetDonorDonations(int32 DonorId) \\
+    MakeDonation(int32 \\
+    \hspace{0.5cm}DonorId, string Type) \\
+    TrackDonations(int32 DonorId)
+    \end{tabular}
+};
+
+\draw[->, thick] (AdCtrl.west) -| (DB.north east);
+\draw[->, thick] (DonCtrl.west) -| (DB.south east);
+
+% =========================================================
+% CONNECTORS: DB to Data Objects
+% =========================================================
+\draw[->, thick] (DB.south) -- (2.5, -10) -- (-5, -10) -- (ObjAdmin.north);
+\draw[->, thick] (2.5, -10) -- (-2, -10) -- (ObjDonor.north);
+\draw[->, thick] (2.5, -10) -- (1, -10) -- (ObjOrg.north);
+\draw[->, thick] (2.5, -10) -- (ObjDon.north);
+\draw[->, thick] (2.5, -10) -- (7, -10) -- (ObjReq.north);
+
+% =========================================================
+% LAYER 5: Database Stores (Bottom)
+% =========================================================
+\node[store] (StoreAdmin) at (-3.5, -15) {AdminProfiles.dbml};
+\node[store] (StoreDonor) at (1, -15) {DonorOrgClasses.dbml};
+\node[store] (StoreDon) at (5.5, -15) {Donation.dbml};
+
+\draw[->, thick] (ObjAdmin.south) |- (StoreAdmin.north);
+\draw[->, thick] (ObjDonor.south) |- (StoreDonor.north);
+\draw[->, thick] (ObjOrg.south) |- (StoreDonor.north);
+\draw[->, thick] (ObjDon.south) |- (StoreDon.north);
+\draw[->, thick] (ObjReq.south) |- (StoreDon.north);
+
+% =========================================================
+% PDF Generator Object (Bottom Right)
+% =========================================================
+\node[smallobj] (PDF) at (9, -14.5) {
+    \underline{\textbf{pdf : ReportGenerator}}
+    \nodepart{second}
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    \textbf{Methods} \\
+    \hline
+    getPdf()
+    \end{tabular}
+};
+
+\draw[->, thick] (ObjReq.south east) |- (PDF.west);
 
 \end{tikzpicture}
 }
