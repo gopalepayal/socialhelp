@@ -44,23 +44,25 @@
 % -------------------------
 % Activation Bars
 \filldraw[fill=white, draw=black] (-0.2, -6) rectangle (0.2, -18);
-\filldraw[fill=white, draw=black] (15.8, -6.5) rectangle (16.2, -14);
-\filldraw[fill=white, draw=black] (23.8, -7.5) rectangle (24.2, -13);
+\filldraw[fill=white, draw=black] (23.8, -6.5) rectangle (24.2, -14);
+\filldraw[fill=white, draw=black] (15.8, -7.5) rectangle (16.2, -13);
 
-% Arrows calling Donation and Org methods
-\draw[->] (0.2, -6.5) -- (15.8, -6.5) node[midway, above, fill=white] {ViewDonation(DonationId)};
-\draw[->] (16.2, -7.5) -- (23.8, -7.5) node[midway, above] {ReceiveDonation()};
+% Dashboard calls Organisation
+\draw[->] (0.2, -6.5) -- (23.8, -6.5) node[midway, above, fill=white] {ReviewPendingDonations()};
+
+% Organisation interacts with Donation
+\draw[->] (23.8, -7.5) -- (16.2, -7.5) node[midway, above] {AcceptDonation(DonationId)};
 
 % Org Loops executing their specific methods
-\draw[->] (24.2, -8.2) .. controls (25.5, -8.2) and (25.5, -9.0) .. (24.2, -9.0) node[midway, right] {CreateRequirement(Items)};
-\draw[->] (24.2, -10.0) .. controls (25.5, -10.0) and (25.5, -10.8) .. (24.2, -10.8) node[midway, right] {SchedulePickup()};
+\draw[->] (24.2, -8.2) .. controls (25.5, -8.2) and (25.5, -9.0) .. (24.2, -9.0) node[midway, right] {SchedulePickup()};
+\draw[->] (24.2, -10.0) .. controls (25.5, -10.0) and (25.5, -10.8) .. (24.2, -10.8) node[midway, right] {NotifyDonor(Time)};
 
 % Updating Donation from Org
 \draw[->] (23.8, -12) -- (16.2, -12) node[midway, above] {UpdateStatus("Approved")};
-\draw[<-, dashed] (23.8, -13) -- (16.2, -13) node[midway, above] {Acknowledge};
+\draw[<-, dashed] (23.8, -13) -- (16.2, -13) node[midway, above] {Acknowledge Data Update};
 
 % Return to UI
-\draw[<-, dashed] (0.2, -13.5) -- (15.8, -13.5) node[midway, above, fill=white] {Status Reflected Internally};
+\draw[<-, dashed] (0.2, -13.5) -- (23.8, -13.5) node[midway, above, fill=white] {Status Reflected Internally};
 
 % -------------------------
 % Phase 3: Track Status Flow
@@ -71,12 +73,12 @@
 
 % Arrows calling Donor and Donation methods
 \draw[->] (0.2, -15.5) -- (7.8, -15.5) node[midway, above] {TrackDonations()};
-\draw[->] (8.2, -16) -- (15.8, -16) node[midway, above] {GetDetails()};
+\draw[->] (8.2, -16) -- (15.8, -16) node[midway, above] {GetDonationStatus()};
 \draw[<-, dashed] (8.2, -17) -- (15.8, -17) node[midway, above] {Return Analytics \& Status Data};
 \draw[<-, dashed] (0.2, -17.5) -- (7.8, -17.5) node[midway, above] {Display Donation Details to Donor};
 
 \end{tikzpicture}
 }
-\caption{Sequence Diagram strictly mirroring Class Diagram objects and methods for the Social Help System}
+\caption{Sequence Diagram strictly mirroring true flow sequence for the Social Help System}
 \end{figure}
 \end{document}
