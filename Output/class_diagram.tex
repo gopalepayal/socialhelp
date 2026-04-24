@@ -1,169 +1,182 @@
 \documentclass{article}
 \usepackage{tikz}
-\usetikzlibrary{shapes.multipart, positioning, arrows.meta, fit}
-\usepackage[margin=0.5in]{geometry}
+\usetikzlibrary{shapes.multipart, positioning, arrows.meta}
 
 \begin{document}
 \begin{figure}[htbp]
 \centering
+\vspace{1cm}
 \resizebox{\textwidth}{!}{
 \begin{tikzpicture}[
     >=Latex,
     class/.style={
         draw, rectangle split, rectangle split parts=3,
-        minimum width=4cm, align=left, fill=blue!5, thick, font=\footnotesize
+        minimum width=4cm, align=center, fill=white, thick, font=\small
     }
 ]
 
-% ==========================================
-% CORE ENTITIES (No Inheritance - Parallel Tables)
-% ==========================================
+% Title
+\node[font=\LARGE\bfseries, align=center] at (0, 5) {UML Class Diagram - Social Help and Donation System};
 
-% 1. Admin
-\node[class] (Admin) at (0, 8) {
-    \textbf{Admin}
-    \nodepart{second}
-    - Id : int \\
-    - Name : string \\
-    - Email : string \\
-    - PasswordHash : string \\
-    - ResetToken : string? \\
-    - ResetTokenExpiry : DateTime?
-    \nodepart{third}
-    + Login() : bool \\
-    + HashPassword() : string \\
-    + ManageSystem() : void
-};
+% -------------------------
+% Class Nodes Definition
+% -------------------------
 
-% 2. Donor
-\node[class] (Donor) at (-6, 3) {
-    \textbf{Donor}
-    \nodepart{second}
-    - Id : int \\
-    - Name : string \\
-    - Email : string \\
-    - PasswordHash : string \\
-    - Phone : string? \\
-    - Address : string? \\
-    - CreatedAt : DateTime
-    \nodepart{third}
-    + MakeDonation() : void \\
-    + TrackDonations() : List<Donation>
-};
-
-% 3. Organisation
-\node[class] (Org) at (6, 3) {
-    \textbf{Organisation}
-    \nodepart{second}
-    - Id : int \\
-    - Name : string \\
-    - Email : string \\
-    - Phone : string? \\
-    - OrgType : Enum \\
-    - Status : Enum \\
-    - RegNumber : string \\
-    - ImagePath : string?
-    \nodepart{third}
-    + CreateRequirement() : void \\
-    + ReceiveDonation() : void \\
-    + UpdateStatus() : void
-};
-
-% 4. Donation
-\node[class] (Donation) at (0, -3) {
+% 1. Donation (Center)
+\node[class] (Donation) at (0, 0) {
     \textbf{Donation}
     \nodepart{second}
-    - Id : int \\
-    - ReceiptNumber : string \\
-    - DonorId : int \\
-    - OrganisationId : int \\
-    - DonationType : Enum \\
-    - Amount : decimal? \\
-    - Quantity : int \\
-    - Status : Enum \\
-    - PickupDate : DateTime?
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    - Id: int \\
+    - ReceiptNumber: string \\
+    - DonorId: int \\
+    - OrganisationId: int \\
+    - DonationType: DonationType \\
+    - Amount: decimal? \\
+    - Quantity: int \\
+    - Description: string? \\
+    - Status: DonationStatus \\
+    - IsPickupRequested: bool \\
+    - PickupDate: DateTime? \\
+    - PickupAddress: string? \\
+    - CreatedAt: DateTime
+    \end{tabular}
     \nodepart{third}
-    + UpdateStatus() : void \\
-    + SchedulePickup() : void
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    + UpdateStatus(): void \\
+    + SchedulePickup(): void \\
+    + GetDetails(): string
+    \end{tabular}
 };
 
-% 5. Requirement
-\node[class] (Requirement) at (10, -3) {
+% 2. Donor (Left)
+\node[class] (Donor) at (-8, 0) {
+    \textbf{Donor}
+    \nodepart{second}
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    - Id: int \\
+    - Name: string \\
+    - Email: string \\
+    - PasswordHash: string \\
+    - Phone: string? \\
+    - Address: string? \\
+    - CreatedAt: DateTime
+    \end{tabular}
+    \nodepart{third}
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    + MakeDonation(): void \\
+    + TrackDonation(): string \\
+    + UpdateProfile(): void
+    \end{tabular}
+};
+
+% 3. Organisation (Right)
+\node[class] (Organisation) at (8, 0) {
+    \textbf{Organisation}
+    \nodepart{second}
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    - Id: int \\
+    - Name: string \\
+    - Email: string \\
+    - PasswordHash: string \\
+    - Phone: string? \\
+    - Address: string? \\
+    - OrgType: OrgType \\
+    - RegistrationNumber: string \\
+    - Status: OrgStatus \\
+    - CreatedAt: DateTime
+    \end{tabular}
+    \nodepart{third}
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    + AcceptDonation(): void \\
+    + PostRequirement(): void \\
+    + SchedulePickup(): void
+    \end{tabular}
+};
+
+% 4. Requirement (Bottom Right)
+\node[class] (Requirement) at (8, -8) {
     \textbf{Requirement}
     \nodepart{second}
-    - Id : int \\
-    - OrganisationId : int \\
-    - ItemType : Enum \\
-    - QuantityNeeded : int \\
-    - Status : Enum \\
-    - Description : string?
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    - Id: int \\
+    - OrganisationId: int \\
+    - ItemType: DonationType \\
+    - Description: string? \\
+    - QuantityNeeded: int \\
+    - Status: RequirementStatus \\
+    - CreatedAt: DateTime
+    \end{tabular}
     \nodepart{third}
-    + UpdateRequirement() : void
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    + UpdateStatus(): void \\
+    + GetRequirements(): List
+    \end{tabular}
 };
 
-% 6. ChatMessage
-\node[class] (Chat) at (-6, -6) {
+% 5. ChatMessage (Bottom Center)
+\node[class] (ChatMessage) at (0, -8) {
     \textbf{ChatMessage}
     \nodepart{second}
-    - Id : int \\
-    - DonationId : int \\
-    - SenderId : string \\
-    - SenderRole : string \\
-    - Message : string \\
-    - Timestamp : DateTime
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    - Id: int \\
+    - DonationId: int \\
+    - SenderId: string \\
+    - SenderRole: string \\
+    - Message: string \\
+    - Timestamp: DateTime
+    \end{tabular}
     \nodepart{third}
-    + SendMessage() : void
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    + SendMessage(): void \\
+    + GetMessages(): List
+    \end{tabular}
 };
 
-% 7. OrgVerification
-\node[class] (Verification) at (10, 8) {
-    \textbf{OrganizationVerification}
-    \nodepart{second}
-    - Id : int \\
-    - OrganisationId : int \\
-    - CertificatePath : string? \\
-    - IdProofPath : string? \\
-    - AdminRemarks : string?
-    \nodepart{third}
-    + ReviewDocuments() : void
-};
+% -------------------------
+% Path Connections & Multiplicities
+% -------------------------
 
-% ==========================================
-% RELATIONSHIPS (Navigation Properties)
-% ==========================================
+% Donor -> Donation (1 to *)
+\draw[->, thick] (Donor.east) -- (Donation.west)
+    node[pos=0.08, above, font=\small\bfseries] {1}
+    node[midway, above, font=\small] {Makes}
+    node[pos=0.92, above, font=\small\bfseries] {*};
 
-% Donor 1 -- * Donation
-\draw[->, thick] (Donor) -- (Donation.north west) 
-    node[pos=0.1, right] {1} 
-    node[midway, sloped, above] {has} 
-    node[pos=0.9, left] {*};
+% Donation -> Organisation (* to 1)
+\draw[->, thick] (Donation.east) -- (Organisation.west)
+    node[pos=0.08, above, font=\small\bfseries] {*}
+    node[midway, above, font=\small] {Receives}
+    node[pos=0.92, above, font=\small\bfseries] {1};
 
-% Organisation 1 -- * Donation
-\draw[->, thick] (Org) -- (Donation.north east) 
-    node[pos=0.1, left] {1} 
-    node[midway, sloped, above] {receives} 
-    node[pos=0.9, right] {*};
+% Donation -> ChatMessage (1 to *)
+\draw[->, thick] (Donation.south) -- (ChatMessage.north)
+    node[pos=0.08, left=0.1cm, font=\small\bfseries] {1}
+    node[midway, left=0.1cm, font=\small] {Has}
+    node[pos=0.92, left=0.1cm, font=\small\bfseries] {*};
 
-% Organisation 1 -- * Requirement
-\draw[->, thick] (Org) -- (Requirement.north) 
-    node[pos=0.1, left] {1} 
-    node[midway, right] {posts} 
-    node[pos=0.9, left] {*};
+% Organisation -> Requirement (1 to *)
+\draw[->, thick] (Organisation.south) -- (Requirement.north)
+    node[pos=0.08, right=0.1cm, font=\small\bfseries] {1}
+    node[midway, right=0.1cm, font=\small] {Posts}
+    node[pos=0.92, right=0.1cm, font=\small\bfseries] {*};
 
-% Organisation 1 -- 1 Verification
-\draw[->, thick] (Org) -- (Verification.south) 
-    node[pos=0.1, left] {1} 
-    node[midway, right] {submits} 
-    node[pos=0.9, left] {1};
-
-% Donation 1 -- * ChatMessage
-\draw[->, thick] (Donation.south west) -- (Chat.north east) 
-    node[pos=0.1, below] {1} 
-    node[midway, sloped, above] {facilitates} 
-    node[pos=0.9, left] {*};
+% ChatMessage -> Requirement (linking via Organisation context)
+\draw[-, thick] (ChatMessage.east) -- (Requirement.west)
+    node[midway, above=0.05cm, font=\small] {Discusses};
 
 \end{tikzpicture}
 }
-\caption{UML Class Diagram: Social Help and Donation System (Strict Model Alignment)}
+\caption{UML Class Diagram for Social Help and Donation System}
 \end{figure}
 \end{document}
