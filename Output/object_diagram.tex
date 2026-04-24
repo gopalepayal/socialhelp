@@ -16,7 +16,7 @@
 ]
 
 % Title
-\node[font=\LARGE\bfseries, align=center] at (0, 5) {UML Object Diagram - Social Help and Donation System};
+\node[font=\LARGE\bfseries, align=center] at (1.5, 4.5) {UML Object Diagram - Social Help and Donation System};
 
 % -------------------------
 % Object Instances Definition
@@ -79,19 +79,7 @@
     \end{tabular}
 };
 
-% 5. Admin (Top Center)
-\node[object] (admin1) at (0, 6.5) {
-    \underline{\textbf{admin1 : Admin}}
-    \nodepart{second}
-    \normalfont
-    \begin{tabular}{@{}l@{}}
-    AdminId = 1 \\
-    Name = "System Admin" \\
-    Email = "admin@socialhelp.com"
-    \end{tabular}
-};
-
-% 6. ChatMessage (Bottom Right)
+% 5. ChatMessage (Bottom Right)
 \node[object] (chat1) at (7.5, -6.5) {
     \underline{\textbf{chat1 : ChatMessage}}
     \nodepart{second}
@@ -113,21 +101,21 @@
 \draw[->, thick] (donor1.east) -- (donation1.west) 
     node[midway, above, font=\small] {Makes};
 
-% org1 -> donation1
-\draw[->, thick] (org1.west) -- (donation1.east) 
+% donation1 -> org1
+\draw[->, thick] (donation1.east) -- (org1.west) 
     node[midway, above, font=\small] {Receives};
 
-% org1 -> req1
-\draw[->, thick] (org1.south) -- (req1.east) 
-    node[midway, right=0.1cm, font=\small] {Posts};
-
-% donation1 -> req1
+% donation1 -> req1 (Vertical, Fulfills)
 \draw[->, thick] (donation1.south) -- (req1.north) 
     node[midway, left=0.1cm, font=\small] {Fulfills};
 
-% donation1 -> chat1
-\draw[-, thick] (donation1.south east) -- (chat1.north west) 
-    node[midway, above=0.1cm, font=\small, sloped] {Facilitates};
+% chat1 -> req1
+\draw[->, thick] (chat1.west) -- (req1.east) 
+    node[midway, above=0.05cm, font=\small] {Discusses};
+
+% org1 -> chat1 (No Arrow Head)
+\draw[-, thick] (org1.south) -- (chat1.north) 
+    node[midway, right=0.1cm, font=\small] {Sends};
 
 \end{tikzpicture}
 }
