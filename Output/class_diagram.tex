@@ -167,11 +167,11 @@
 % Path Connections & Multiplicities
 % -------------------------
 
-% Admin -> Donation (Manages) - orthogonal path from bottom-left to center
-\draw[->, thick] (Admin.north) -- (-8, -1) -- (Donation.west)
-    node[pos=0.1, left=0.1cm, font=\small\bfseries] {1}
-    node[pos=0.6, above, font=\small] {Manages}
-    node[pos=0.95, above, font=\small\bfseries] {*};
+% Admin -> Donation (Manages) - routed through y=-6 gap to avoid overlap with Donor->Donation line
+\draw[->, thick] (Admin.north) -- (-8, -6) -- (0, -6) -- (Donation.south)
+    node[pos=0.05, right=0.1cm, font=\small\bfseries] {1}
+    node[pos=0.55, above, font=\small] {Manages}
+    node[pos=0.95, right=0.1cm, font=\small\bfseries] {*};
 
 % Donor -> Donation (1 to *)
 \draw[->, thick] (Donor.east) -- (Donation.west)
