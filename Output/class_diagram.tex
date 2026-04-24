@@ -16,14 +16,14 @@
 ]
 
 % Title
-\node[font=\LARGE\bfseries, align=center] at (0, 6.5) {UML Class Diagram - Social Help and Donation System};
+\node[font=\LARGE\bfseries, align=center] at (0, 5.5) {UML Class Diagram - Social Help and Donation System};
 
 % -------------------------
 % Class Nodes Definition
 % -------------------------
 
-% 1. Admin (Top Center)
-\node[class] (Admin) at (0, 4.5) {
+% 1. Admin (Bottom Left - standalone with Manages link to Donation)
+\node[class] (Admin) at (-8, -9) {
     \textbf{Admin}
     \nodepart{second}
     \normalfont
@@ -167,11 +167,11 @@
 % Path Connections & Multiplicities
 % -------------------------
 
-% Admin -> Donation (Manages)
-\draw[->, thick] (Admin.south) -- (Donation.north)
-    node[pos=0.1, right=0.1cm, font=\small\bfseries] {1}
-    node[midway, right=0.1cm, font=\small] {Manages}
-    node[pos=0.9, right=0.1cm, font=\small\bfseries] {*};
+% Admin -> Donation (Manages) - orthogonal path from bottom-left to center
+\draw[->, thick] (Admin.north) -- (-8, -1) -- (Donation.west)
+    node[pos=0.1, left=0.1cm, font=\small\bfseries] {1}
+    node[pos=0.6, above, font=\small] {Manages}
+    node[pos=0.95, above, font=\small\bfseries] {*};
 
 % Donor -> Donation (1 to *)
 \draw[->, thick] (Donor.east) -- (Donation.west)
