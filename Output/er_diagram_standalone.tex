@@ -1,0 +1,68 @@
+\documentclass[border=15pt, tikz]{standalone}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc}
+
+\begin{document}
+\begin{tikzpicture}[
+    font=\sffamily,
+    entity/.style={
+        rectangle, draw=black, thick, fill=white, 
+        minimum width=3cm, minimum height=1cm, align=center
+    },
+    relationship/.style={
+        diamond, draw=black, thick, fill=white, 
+        aspect=1.5, align=center, inner sep=1pt
+    },
+    line/.style={draw=black, thick}
+]
+
+% Center / Core Entities
+\node[entity] (donation) at (0, 0) {Donation};
+\node[entity] (admin) at (0, 6) {Admin};
+\node[entity] (donor) at (-7, 0) {Donor};
+\node[entity] (org) at (7, 0) {Organisation};
+\node[entity] (message) at (0, -6) {ChatMessage};
+
+% Top Right / Verification Side
+\node[entity] (verif) at (7, 6) {Verification};
+\node[entity] (vtype) at (7, 10) {DocumentType};
+\node[entity] (report) at (13, 6) {SystemReport};
+
+% Top Left / Profile Side
+\node[entity] (doc) at (-7, 6) {UserDocument};
+\node[entity] (query) at (-13, 0) {OrgQuery};
+\node[entity] (super) at (-13, 6) {SuperAdmin};
+
+% Bottom Right / Requirements Side
+\node[entity] (req) at (7, -6) {Requirement};
+\node[entity] (pickup) at (3.5, -6) {PickupSchedule};
+
+% Relationships (Halfway points)
+\node[relationship] (adm_don)  at ($(admin)!0.5!(donation)$) {Manages};
+\node[relationship] (don_don)  at ($(donor)!0.5!(donation)$) {Owns};
+\node[relationship] (org_don)  at ($(org)!0.5!(donation)$) {Receives};
+\node[relationship] (don_msg)  at ($(donation)!0.5!(message)$) {Has};
+\node[relationship] (adm_verif) at ($(verif)!0.5!(admin)$) {Reviews};
+\node[relationship] (org_verif) at ($(org)!0.5!(verif)$) {Submits};
+\node[relationship] (verif_type) at ($(verif)!0.5!(vtype)$) {Has Type};
+\node[relationship] (adm_rep)   at ($(admin)!0.5!(report)$) {Generates};
+\node[relationship] (don_doc)   at ($(donor)!0.5!(doc)$) {Uploads};
+\node[relationship] (org_query) at ($(org)!0.5!(query)$) {Sends};
+\node[relationship] (org_req)   at ($(org)!0.5!(req)$) {Posts};
+\node[relationship] (don_pick)  at ($(donation)!0.5!(pickup)$) {Schedules};
+
+% Lines
+\draw[line] (admin)    -- node[above] {1} (adm_verif) -- node[above] {N} (verif);
+\draw[line] (org)      -- node[right] {1} (org_verif) -- node[right] {1} (verif);
+\draw[line] (verif)    -- node[right] {N} (verif_type) -- node[right] {1} (vtype);
+\draw[line] (admin)    -- node[above] {1} (adm_rep)   -- node[above] {N} (report);
+\draw[line] (admin)    -- node[right] {1} (adm_don)   -- node[right] {N} (donation);
+\draw[line] (donor)    -- node[above] {1} (don_don)   -- node[above] {N} (donation);
+\draw[line] (org)      -- node[above] {1} (org_don)   -- node[above] {N} (donation);
+\draw[line] (donation) -- node[right] {1} (don_msg)   -- node[right] {N} (message);
+\draw[line] (donor)    -- node[left] {1} (don_doc)    -- node[left] {N} (doc);
+\draw[line] (org)      -- node[above] {1} (org_query) -- node[above] {N} (query);
+\draw[line] (org)      -- node[left] {1} (org_req)   -- node[left] {N} (req);
+\draw[line] (donation) -- node[above left] {1} (don_pick) -- node[above left] {1} (pickup);
+
+\end{tikzpicture}
+\end{document}
