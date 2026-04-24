@@ -1,0 +1,60 @@
+\documentclass{article}
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows.meta, positioning, calc}
+
+\begin{document}
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tikzpicture}[
+    >=Latex,
+    entity/.style={draw, rectangle, minimum width=3cm, minimum height=1.5cm, align=center, font=\small\bfseries, fill=white, thick},
+    process/.style={draw, circle, minimum width=4cm, align=center, font=\small\bfseries, fill=white, thick},
+    flow/.style={->, thick, font=\footnotesize}
+]
+
+% -------------------------
+% 1. Central Process (System)
+% -------------------------
+\node[process] (System) at (0,0) {0.0\\Social Help and\\Donation System};
+
+% -------------------------
+% 2. External Entities
+% -------------------------
+\node[entity] (Donor) at (-8, 0) {Donor};
+\node[entity] (Org) at (8, 0) {Organisation\\(NGO)};
+\node[entity] (Admin) at (0, 7) {System Admin};
+
+% -------------------------
+% 3. Data Flows
+% -------------------------
+
+% Donor Flows
+\draw[flow] ($(Donor.east)+(0,0.4)$) -- ($(System.west)+(0,0.4)$) 
+    node[midway, above] {Donation Requests,\\Pickup Requests};
+\draw[flow] ($(System.west)+(0,-0.4)$) -- ($(Donor.east)+(0,-0.4)$) 
+    node[midway, below] {Receipts, Status Updates,\\Chat Messages};
+
+% Organisation Flows
+\draw[flow] ($(Org.west)+(0,0.4)$) -- ($(System.east)+(0,0.4)$) 
+    node[midway, above] {Requirement Posts,\\Pickup Confirmations};
+\draw[flow] ($(System.east)+(0,-0.4)$) -- ($(Org.west)+(0,-0.4)$) 
+    node[midway, below] {Donation Notifications,\\Donor Details};
+
+% Admin Flows
+\draw[flow] ($(Admin.south)+(-0.4,0)$) -- ($(System.north)+(-0.4,0)$) 
+    node[midway, left] {Approval Actions,\\User Moderation};
+\draw[flow] ($(System.north)+(0.4,0)$) -- ($(Admin.south)+(0.4,0)$) 
+    node[midway, right] {Analytics Reports,\\System Logs};
+
+% External Data Stores Note
+\node[draw, dashed, rectangle, inner sep=0.3cm] (DBNote) at (0, -6) {PostgreSQL Database};
+\draw[<->, dashed] (System.south) -- (DBNote.north) node[midway, right] {Persistent Storage};
+
+\end{tikzpicture}
+}
+\caption{DFD Level 0 (Context Diagram) for Social Help and Donation Management System}
+\end{figure}
+
+\end{document}
