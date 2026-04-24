@@ -1,0 +1,111 @@
+\documentclass{article}
+\usepackage{tikz}
+\usetikzlibrary{shapes, shapes.symbols, shapes.misc, positioning, calc, arrows.meta}
+
+\begin{document}
+\begin{figure}[htbp]
+\centering
+\vspace{1cm}
+% Standard scaling to prevent Overleaf compiling issues while matching page widths perfectly
+\begin{tikzpicture}[>=stealth, font=\small, thick, scale=0.8, transform shape]
+
+% -------------------------
+% Custom Node Styles
+% -------------------------
+\tikzset{
+    act/.style={draw, rounded rectangle, minimum height=0.7cm, fill=white, align=center, thick},
+    note/.style={draw, shape=note, fill=white, align=left, font=\scriptsize, inner sep=0.2cm},
+    sync/.style={draw, fill=black, rectangle, minimum height=0.15cm, inner sep=0},
+    init/.style={fill=black, circle, minimum size=0.4cm, inner sep=0},
+    finalouter/.style={draw, circle, minimum size=0.5cm, inner sep=0, thick},
+    finalinner/.style={fill=black, circle, minimum size=0.25cm, inner sep=0}
+}
+
+% -------------------------
+% 1. Core Workflow Nodes
+% -------------------------
+\node[init] (Start) at (-2.5, 0) {};
+
+\node[act] (UI) at (0, 0) {SocialHelp Web UI};
+\node[act] (Auth) at (4.5, 0) {Role Authentication};
+\node[act] (GenEvent) at (10, 0) {Generating request as event};
+
+\node[act] (Exec) at (10, -2.5) {Executing MVC Controller};
+\node[act] (Deliver) at (10, -5) {Delivering call to EF Core Logic};
+
+% -------------------------
+% 2. Synchronization Bars
+% -------------------------
+\node[sync, minimum width=15cm] (Fork) at (6, -7) {};
+\node[sync, minimum width=15cm] (Join) at (6, -12) {};
+
+% -------------------------
+% 3. Parallel Execution Tasks mapped to Social Help Entities
+% -------------------------
+\node[act] (Task1) at (-1.5, -8.5) {Fetching Donor\\Profile Data};
+\node[act] (Task2) at (1.5, -10.5) {Fetching Donation\\Status Data};
+\node[act] (Task3) at (4.5, -8.5) {Calculating Pending\\Requirements\\(Organisation)};
+\node[act] (Task4) at (7.5, -10.5) {Counting Active\\Organisations};
+\node[act] (Task5) at (10.5, -8.5) {Fetching Recent\\Chat Messages};
+\node[act] (Task6) at (13.5, -10.5) {Aggregating\\Dashboard Stats};
+
+% -------------------------
+% 4. Convergence & End
+% -------------------------
+\node[act] (GenRep) at (6, -14) {Rendering Dashboard with data and charts};
+
+\node[finalouter] (EndO) at (6, -16) {};
+\node[finalinner] (EndI) at (6, -16) {};
+
+% -------------------------
+% 5. Primary Arrows
+% -------------------------
+\draw[->] (Start) -- (UI);
+\draw[->] (UI) -- (Auth);
+\draw[->] (Auth) -- (GenEvent);
+
+\draw[->] (GenEvent) -- (Exec);
+\draw[->] (Exec) -- (Deliver);
+\draw[->] (Deliver) -- (Fork);
+
+% Spiderweb from Fork to parallel tasks
+\draw[->] (Fork) -- (Task1.north);
+\draw[->] (Fork) -- (Task2.north);
+\draw[->] (Fork) -- (Task3.north);
+\draw[->] (Fork) -- (Task4.north);
+\draw[->] (Fork) -- (Task5.north);
+\draw[->] (Fork) -- (Task6.north);
+
+% Spiderweb from tasks converging to Join
+\draw[->] (Task1.south) -- (Join);
+\draw[->] (Task2.south) -- (Join);
+\draw[->] (Task3.south) -- (Join);
+\draw[->] (Task4.south) -- (Join);
+\draw[->] (Task5.south) -- (Join);
+\draw[->] (Task6.south) -- (Join);
+
+\draw[->] (Join) -- (GenRep);
+\draw[->] (GenRep) -- (EndO);
+
+% -------------------------
+% 6. Documentation Notes (Floating Paper Elements)
+% -------------------------
+\node[note] (N1) at (-1, 1.5) {Login to Portal};
+\draw[-] (N1) -- (-1.25, 0);
+
+\node[note] (N2) at (1.5, 1.5) {Admin/Donor/Organisation\\request on UI};
+\draw[-] (N2) -- (UI.north);
+
+\node[note] (N3) at (5.5, -1.5) {Calling MVC Controller\\for that event};
+\draw[-] (N3) -- (Exec.north west);
+
+\node[note] (N4) at (11.5, -6) {Calling to EF Core business\\logic querying PostgreSQL};
+\draw[-] (N4) -- (Fork.north east);
+
+\node[note] (N5) at (11.5, -13) {Output in the form of\\dashboard data, donation\\stats, and system reports};
+\draw[-] (N5) -- (GenRep.north east);
+
+\end{tikzpicture}
+\caption{State Diagram mapping analytical requests natively over EF Core framework for Social Help System}
+\end{figure}
+\end{document}
