@@ -16,14 +16,35 @@
 ]
 
 % Title
-\node[font=\LARGE\bfseries, align=center] at (0, 5) {UML Class Diagram - Social Help and Donation System};
+\node[font=\LARGE\bfseries, align=center] at (0, 6.5) {UML Class Diagram - Social Help and Donation System};
 
 % -------------------------
 % Class Nodes Definition
 % -------------------------
 
-% 1. Donation (Center)
-\node[class] (Donation) at (0, 0) {
+% 1. Admin (Top Center)
+\node[class] (Admin) at (0, 4.5) {
+    \textbf{Admin}
+    \nodepart{second}
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    - Id: int \\
+    - Name: string \\
+    - Email: string \\
+    - PasswordHash: string \\
+    - CreatedAt: DateTime
+    \end{tabular}
+    \nodepart{third}
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    + ApproveOrganisation(): void \\
+    + ManageDonors(): void \\
+    + ViewDashboard(): void
+    \end{tabular}
+};
+
+% 2. Donation (Center)
+\node[class] (Donation) at (0, -1) {
     \textbf{Donation}
     \nodepart{second}
     \normalfont
@@ -51,8 +72,8 @@
     \end{tabular}
 };
 
-% 2. Donor (Left)
-\node[class] (Donor) at (-8, 0) {
+% 3. Donor (Left)
+\node[class] (Donor) at (-8, -1) {
     \textbf{Donor}
     \nodepart{second}
     \normalfont
@@ -74,8 +95,8 @@
     \end{tabular}
 };
 
-% 3. Organisation (Right)
-\node[class] (Organisation) at (8, 0) {
+% 4. Organisation (Right)
+\node[class] (Organisation) at (8, -1) {
     \textbf{Organisation}
     \nodepart{second}
     \normalfont
@@ -85,7 +106,6 @@
     - Email: string \\
     - PasswordHash: string \\
     - Phone: string? \\
-    - Address: string? \\
     - OrgType: OrgType \\
     - RegistrationNumber: string \\
     - Status: OrgStatus \\
@@ -100,8 +120,29 @@
     \end{tabular}
 };
 
-% 4. Requirement (Bottom Right)
-\node[class] (Requirement) at (8, -8) {
+% 5. ChatMessage (Bottom Center)
+\node[class] (ChatMessage) at (0, -9) {
+    \textbf{ChatMessage}
+    \nodepart{second}
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    - Id: int \\
+    - DonationId: int \\
+    - SenderId: string \\
+    - SenderRole: string \\
+    - Message: string \\
+    - Timestamp: DateTime
+    \end{tabular}
+    \nodepart{third}
+    \normalfont
+    \begin{tabular}{@{}l@{}}
+    + SendMessage(): void \\
+    + GetMessages(): List
+    \end{tabular}
+};
+
+% 6. Requirement (Bottom Right)
+\node[class] (Requirement) at (8, -9) {
     \textbf{Requirement}
     \nodepart{second}
     \normalfont
@@ -122,30 +163,15 @@
     \end{tabular}
 };
 
-% 5. ChatMessage (Bottom Center)
-\node[class] (ChatMessage) at (0, -8) {
-    \textbf{ChatMessage}
-    \nodepart{second}
-    \normalfont
-    \begin{tabular}{@{}l@{}}
-    - Id: int \\
-    - DonationId: int \\
-    - SenderId: string \\
-    - SenderRole: string \\
-    - Message: string \\
-    - Timestamp: DateTime
-    \end{tabular}
-    \nodepart{third}
-    \normalfont
-    \begin{tabular}{@{}l@{}}
-    + SendMessage(): void \\
-    + GetMessages(): List
-    \end{tabular}
-};
-
 % -------------------------
 % Path Connections & Multiplicities
 % -------------------------
+
+% Admin -> Donation (Manages)
+\draw[->, thick] (Admin.south) -- (Donation.north)
+    node[pos=0.1, right=0.1cm, font=\small\bfseries] {1}
+    node[midway, right=0.1cm, font=\small] {Manages}
+    node[pos=0.9, right=0.1cm, font=\small\bfseries] {*};
 
 % Donor -> Donation (1 to *)
 \draw[->, thick] (Donor.east) -- (Donation.west)
@@ -156,7 +182,7 @@
 % Donation -> Organisation (* to 1)
 \draw[->, thick] (Donation.east) -- (Organisation.west)
     node[pos=0.08, above, font=\small\bfseries] {*}
-    node[midway, above, font=\small] {Receives}
+    node[midway, above, font=\small] {Received By}
     node[pos=0.92, above, font=\small\bfseries] {1};
 
 % Donation -> ChatMessage (1 to *)
@@ -170,10 +196,6 @@
     node[pos=0.08, right=0.1cm, font=\small\bfseries] {1}
     node[midway, right=0.1cm, font=\small] {Posts}
     node[pos=0.92, right=0.1cm, font=\small\bfseries] {*};
-
-% ChatMessage -> Requirement (linking via Organisation context)
-\draw[-, thick] (ChatMessage.east) -- (Requirement.west)
-    node[midway, above=0.05cm, font=\small] {Discusses};
 
 \end{tikzpicture}
 }
