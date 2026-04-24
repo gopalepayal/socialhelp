@@ -38,7 +38,7 @@
 % -------------------------
 % 3. Explanatory Note Blocks
 % -------------------------
-\node[note, text width=2.5cm] (N1) at (5.5, -1.5) {Razor Pages UI or Client Action};
+\node[note, text width=2.5cm] (N1) at (5.5, -1.5) {ASP.NET Core UI\\Client Action};
 \draw[thin] (N1.west) -- (Step1.east);
 
 \node[note, text width=2.5cm] (N2) at (5.5, -5.5) {Entity Framework\\Core Context Save};
@@ -47,14 +47,14 @@
 % -------------------------
 % 4. Parallel Process Branches (Perfectly orthogonal aligned)
 % -------------------------
-\node[act] (T1) at (-4, -9.5) {Notify NGO\\of Request};
+\node[act] (T1) at (-4, -9.5) {Notify Organisation\\Dashboard};
 \node[act] (T2) at (0, -9.5) {Update Admin\\Audit Logs};
-\node[act] (T3) at (4, -9.5) {Email Donor\\Confirmation};
+\node[act] (T3) at (4, -9.5) {Update Donor\\History Record};
 
 % -------------------------
 % 5. Resolution & Terminal Nodes
 % -------------------------
-\node[act] (Step4) at (0, -13.5) {NGO Approves \& Schedules Pickup};
+\node[act] (Step4) at (0, -13.5) {Organisation Approves \& Schedules Pickup};
 \node[act] (Step5) at (0, -15.5) {Mark Donation as Completed};
 
 \node[finalouter] (EndO) at (0, -17.5) {};
