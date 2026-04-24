@@ -1,0 +1,117 @@
+\documentclass[border=20pt, tikz]{standalone}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc, backgrounds}
+
+\begin{document}
+\begin{tikzpicture}[
+    font=\sffamily\small,
+    entity/.style={
+        rectangle, draw=black, thick, 
+        fill=gray!20, % Mimics the gradient/fill in screenshot
+        minimum width=3.5cm, minimum height=0.8cm, align=center
+    },
+    attribute/.style={
+        ellipse, draw=black, thin, 
+        fill=gray!5, 
+        minimum width=2cm, minimum height=0.6cm, align=center, font=\footnotesize
+    },
+    relationship/.style={
+        diamond, draw=black, thick, 
+        fill=white, 
+        aspect=1.8, align=center, inner sep=1pt
+    },
+    isa/.style={
+        draw, regular polygon, regular polygon sides=3, 
+        minimum size=1.2cm, fill=white, thick, align=center, inner sep=0pt
+    },
+    line/.style={draw=black, thick}
+]
+
+% -------------------------
+% 1. TOP SECTION: User Base & Admin
+% -------------------------
+\node[entity] (User) at (0, 8) {SocialHelp\_User};
+\node[attribute] (U1) at (-2.5, 9.5) {Id};
+\node[attribute] (U2) at (0, 10) {Name};
+\node[attribute] (U3) at (2.5, 9.5) {Email};
+\draw (User) -- (U1); \draw (User) -- (U2); \draw (User) -- (U3);
+
+\node[isa] (UserISA) at (0, 6) {IS A};
+\draw[line] (User) -- (UserISA);
+
+% Specializations
+\node[entity] (Admin) at (0, 4) {Admin\_Core};
+\node[entity] (Donor) at (-6, 4) {Donor\_Profile};
+\node[entity] (Org) at (6, 4) {Org\_Account};
+
+\draw[line] (UserISA) -- (Admin);
+\draw[line] (UserISA) -- (-6, 6) -- (Donor);
+\draw[line] (UserISA) -- (6, 6) -- (Org);
+
+% Attributes for Donor/Org
+\node[attribute] (D1) at (-8.5, 5) {Phone};
+\node[attribute] (D2) at (-8.5, 3) {Address};
+\draw (Donor) -- (D1); \draw (Donor) -- (D2);
+
+\node[attribute] (O1) at (8.5, 5) {RegNumber};
+\node[attribute] (O2) at (8.5, 3) {Status};
+\draw (Org) -- (O1); \draw (Org) -- (O2);
+
+% -------------------------
+% 2. CENTER SECTION: Donations (Grouped)
+% -------------------------
+\begin{scope}[on background layer]
+    \node[draw, dashed, rectangle, inner sep=0.8cm, fit=(Donor) (Org) (Admin)] (PartyBox) {};
+\end{scope}
+
+\node[relationship] (HasA) at (0, 1) {HAS A};
+\draw[line] (PartyBox.south) -- (HasA);
+
+\node[entity] (Donation) at (0, -2) {Social\_Donation};
+\draw[line] (HasA) -- (Donation);
+
+% Donation Attributes
+\node[attribute] (Do1) at (-3.5, -3) {ReceiptNo};
+\node[attribute] (Do2) at (-4.5, -1.5) {Type};
+\node[attribute] (Do3) at (3.5, -3) {Status};
+\node[attribute] (Do4) at (4.5, -1.5) {Amount};
+\draw (Donation) -- (Do1); \draw (Donation) -- (Do2); \draw (Donation) -- (Do3); \draw (Donation) -- (Do4);
+
+% -------------------------
+% 3. BOTTOM SECTION: Transactions & Requirements
+% -------------------------
+\node[isa] (DonISA) at (0, -4.5) {IS A};
+\draw[line] (Donation) -- (DonISA);
+
+\node[entity] (Transaction) at (0, -7) {Donation\_Tranx};
+\draw[line] (DonISA) -- (Transaction);
+
+% Transaction Attributes
+\node[attribute] (T1) at (-3, -8.5) {Tranx ID};
+\node[attribute] (T2) at (0, -9) {Timestamp};
+\node[attribute] (T3) at (3, -8.5) {PaymentKey};
+\draw (Transaction) -- (T1); \draw (Transaction) -- (T2); \draw (Transaction) -- (T3);
+
+% Right Side: Requirements & Stats
+\node[relationship] (RelReq) at (6, -2) {HAS};
+\draw[line] (Org) -- (RelReq);
+
+\node[entity] (Requirement) at (6, -5) {Social\_Requirement};
+\draw[line] (RelReq) -- (Requirement);
+
+\node[attribute] (R1) at (9, -4.5) {Item};
+\node[attribute] (R2) at (9, -5.5) {Quantity};
+\draw (Requirement) -- (R1); \draw (Requirement) -- (R2);
+
+% Left Side: Messages
+\node[relationship] (RelMsg) at (-6, -2) {HAS};
+\draw[line] (Donation) -- (RelMsg);
+
+\node[entity] (Message) at (-6, -5) {Chat\_Message};
+\draw[line] (RelMsg) -- (Message);
+
+\node[attribute] (M1) at (-9, -4.5) {Sender};
+\node[attribute] (M2) at (-9, -5.5) {Text};
+\draw (Message) -- (M1); \draw (Message) -- (M2);
+
+\end{tikzpicture}
+\end{document}
