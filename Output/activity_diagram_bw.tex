@@ -6,13 +6,13 @@
 \begin{figure}[htbp]
 \centering
 \vspace{0.5cm}
-\begin{tikzpicture}[>=stealth, font=\small, thick, scale=0.8, transform shape]
+\begin{tikzpicture}[>=stealth, font=\small, thick, scale=0.85, transform shape]
 
 % -------------------------
 % Node Formatting Definitions
 % -------------------------
 \tikzset{
-    act/.style={draw, rounded rectangle, minimum height=0.7cm, fill=white, align=center, thick},
+    act/.style={draw, rounded rectangle, minimum width=3cm, minimum height=0.7cm, fill=white, align=center, thick},
     note/.style={draw, shape=note, fill=white, align=left, font=\scriptsize, inner sep=0.2cm},
     sync/.style={draw, fill=black, rectangle, minimum height=0.15cm, inner sep=0},
     init/.style={fill=black, circle, minimum size=0.4cm, inner sep=0},
@@ -25,76 +25,66 @@
 % -------------------------
 \node[init] (Start) at (0, 0) {};
 
-\node[act] (UI) at (0, -1.5) {SocialHelp Web UI};
-\node[act] (WCF) at (0, -3.5) {Call to Admin/NGO Dashboard Controller};
-\node[act] (Deliver) at (0, -5.5) {Deliver call to EF Core Repository logic};
+\node[act] (Step1) at (0, -1.5) {Donor Submits Donation Form};
+\node[act] (Step2) at (0, -3.5) {System Validates Input Data};
+\node[act] (Step3) at (0, -5.5) {Save to Database (Status: Pending)};
 
 % -------------------------
 % 2. Synchronization Bars
 % -------------------------
-\node[sync, minimum width=14cm] (Fork) at (0, -7.5) {};
-\node[sync, minimum width=14cm] (Join) at (0, -12.5) {};
+\node[sync, minimum width=11cm] (Fork) at (0, -7.5) {};
+\node[sync, minimum width=11cm] (Join) at (0, -11.5) {};
 
 % -------------------------
 % 3. Explanatory Note Blocks
 % -------------------------
-\node[note] (N1) at (4, -2.5) {Generate dashboard\\view request};
-\draw[thin] (N1.west) -- (0, -2.5);
+\node[note, text width=2.5cm] (N1) at (5.5, -1.5) {Razor Pages UI or Client Action};
+\draw[thin] (N1.west) -- (Step1.east);
 
-\node[note] (N2) at (4, -4.5) {Execute controller logic\\for Admin/NGO};
-\draw[thin] (N2.west) -- (0, -4.5);
-
-\node[note] (N3) at (4, -6.5) {Call to specific Entity\\Framework queries};
-\draw[thin] (N3.west) -- (0, -6.5);
+\node[note, text width=2.5cm] (N2) at (5.5, -5.5) {Entity Framework\\Core Context Save};
+\draw[thin] (N2.west) -- (Step3.east);
 
 % -------------------------
-% 4. Parallel Process Branches (V-Staggered to prevent cluster overlap)
+% 4. Parallel Process Branches (Perfectly orthogonal aligned)
 % -------------------------
-\node[act] (T1) at (-5.5, -10.5) {Fetch Total\\Donation Data};
-\node[act] (T2) at (-3.3, -9) {Fetch NGO\\Verification Data};
-\node[act] (T3) at (-1.1, -10.5) {Calculate Pending\\Requirements};
-\node[act] (T4) at (1.1, -9) {Count Active\\Donors \& NGOs};
-\node[act] (T5) at (3.3, -10.5) {Fetch Recent\\Chat Messages};
-\node[act] (T6) at (5.5, -9) {Aggregate Dashboard\\Statistics};
+\node[act] (T1) at (-4, -9.5) {Notify NGO\\of Request};
+\node[act] (T2) at (0, -9.5) {Update Admin\\Audit Logs};
+\node[act] (T3) at (4, -9.5) {Email Donor\\Confirmation};
 
 % -------------------------
-% 5. Reporting Terminal Nodes
+% 5. Resolution & Terminal Nodes
 % -------------------------
-\node[act] (Generate) at (0, -14.5) {Assemble View Models and Render Dashboard};
+\node[act] (Step4) at (0, -13.5) {NGO Approves \& Schedules Pickup};
+\node[act] (Step5) at (0, -15.5) {Mark Donation as Completed};
 
-\node[finalouter] (EndO) at (0, -16) {};
-\node[finalinner] (EndI) at (0, -16) {};
+\node[finalouter] (EndO) at (0, -17.5) {};
+\node[finalinner] (EndI) at (0, -17.5) {};
 
 % -------------------------
 % 6. Path Renderings
 % -------------------------
 % Main Vertical drops
-\draw[->] (Start) -- (UI);
-\draw[->] (UI) -- (WCF);
-\draw[->] (WCF) -- (Deliver);
-\draw[->] (Deliver) -- (Fork);
+\draw[->] (Start) -- (Step1);
+\draw[->] (Step1) -- (Step2);
+\draw[->] (Step2) -- (Step3);
+\draw[->] (Step3) -- (Fork);
 
-% Fan Out from Fork
-\draw[->] (Fork) -- (T1.north);
-\draw[->] (Fork) -- (T2.north);
-\draw[->] (Fork) -- (T3.north);
-\draw[->] (Fork) -- (T4.north);
-\draw[->] (Fork) -- (T5.north);
-\draw[->] (Fork) -- (T6.north);
+% Orthogonal Fan Out from Fork
+\draw[->] (Fork.south -| T1.north) -- (T1.north);
+\draw[->] (Fork.south) -- (T2.north);
+\draw[->] (Fork.south -| T3.north) -- (T3.north);
 
-% Converge into Join
-\draw[->] (T1.south) -- (Join);
-\draw[->] (T2.south) -- (Join);
-\draw[->] (T3.south) -- (Join);
-\draw[->] (T4.south) -- (Join);
-\draw[->] (T5.south) -- (Join);
-\draw[->] (T6.south) -- (Join);
+% Orthogonal Converge into Join
+\draw[->] (T1.south) -- (Join.north -| T1.south);
+\draw[->] (T2.south) -- (Join.north);
+\draw[->] (T3.south) -- (Join.north -| T3.south);
 
 % Exit Vertical drops
-\draw[->] (Join) -- (Generate);
-\draw[->] (Generate) -- (EndO);
+\draw[->] (Join) -- (Step4);
+\draw[->] (Step4) -- (Step5);
+\draw[->] (Step5) -- (EndO);
 
 \end{tikzpicture}
-\caption{Activity Diagram illustrating strictly vertical parallel execution reporting flows for Social Help System}
+\caption{Activity Diagram tracking perfectly linear sequence flow and orthogonal parallel execution branches for the Social Help System}
 \end{figure}
 \end{document}
