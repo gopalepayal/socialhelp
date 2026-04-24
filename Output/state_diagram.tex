@@ -6,7 +6,6 @@
 \begin{figure}[htbp]
 \centering
 \vspace{1cm}
-% Standard scaling to prevent Overleaf compiling issues while matching page widths perfectly
 \begin{tikzpicture}[>=stealth, font=\small, thick, scale=0.8, transform shape]
 
 % -------------------------
@@ -22,7 +21,7 @@
 }
 
 % -------------------------
-% 1. Core Workflow Nodes
+% 1. Core Workflow Nodes (Horizontal then Vertical)
 % -------------------------
 \node[init] (Start) at (-2.5, 0) {};
 
@@ -34,78 +33,84 @@
 \node[act] (Deliver) at (10, -5) {Delivering call to EF Core Logic};
 
 % -------------------------
-% 2. Synchronization Bars
-% -------------------------
-\node[sync, minimum width=15cm] (Fork) at (6, -7) {};
-\node[sync, minimum width=15cm] (Join) at (6, -12) {};
-
-% -------------------------
-% 3. Parallel Execution Tasks mapped to Social Help Entities
-% -------------------------
-\node[act] (Task1) at (-1.5, -8.5) {Fetching Donor\\Profile Data};
-\node[act] (Task2) at (1.5, -10.5) {Fetching Donation\\Status Data};
-\node[act] (Task3) at (4.5, -8.5) {Calculating Pending\\Requirements\\(Organisation)};
-\node[act] (Task4) at (7.5, -10.5) {Counting Active\\Organisations};
-\node[act] (Task5) at (10.5, -8.5) {Fetching Recent\\Chat Messages};
-\node[act] (Task6) at (13.5, -10.5) {Aggregating\\Dashboard Stats};
-
-% -------------------------
-% 4. Convergence & End
-% -------------------------
-\node[act] (GenRep) at (6, -14) {Rendering Dashboard with data and charts};
-
-\node[finalouter] (EndO) at (6, -16) {};
-\node[finalinner] (EndI) at (6, -16) {};
-
-% -------------------------
-% 5. Primary Arrows
+% 2. Primary Arrows (Top section - clean L-shaped flow)
 % -------------------------
 \draw[->] (Start) -- (UI);
 \draw[->] (UI) -- (Auth);
 \draw[->] (Auth) -- (GenEvent);
-
 \draw[->] (GenEvent) -- (Exec);
 \draw[->] (Exec) -- (Deliver);
-\draw[->] (Deliver) -- (Fork);
 
-% Spiderweb from Fork to parallel tasks
-\draw[->] (Fork) -- (Task1.north);
-\draw[->] (Fork) -- (Task2.north);
-\draw[->] (Fork) -- (Task3.north);
-\draw[->] (Fork) -- (Task4.north);
-\draw[->] (Fork) -- (Task5.north);
-\draw[->] (Fork) -- (Task6.north);
+% -------------------------
+% 3. Fork Bar
+% -------------------------
+\node[sync, minimum width=13cm] (Fork) at (5, -7) {};
 
-% Spiderweb from tasks converging to Join
-\draw[->] (Task1.south) -- (Join);
-\draw[->] (Task2.south) -- (Join);
-\draw[->] (Task3.south) -- (Join);
-\draw[->] (Task4.south) -- (Join);
-\draw[->] (Task5.south) -- (Join);
-\draw[->] (Task6.south) -- (Join);
+% Connect Deliver to Fork center via orthogonal L-path
+\draw[->, thick] (Deliver.south) -- (10, -6.5) -- (5, -6.5) -- (Fork.north);
+
+% -------------------------
+% 4. Parallel Tasks (ALL at same Y = -9, evenly spaced)
+% -------------------------
+\node[act] (Task1) at (-1, -9) {Fetching Donor\\Profile Data};
+\node[act] (Task2) at (2, -9) {Fetching Donation\\Status Data};
+\node[act] (Task3) at (5, -9) {Calculating Pending\\Requirements};
+\node[act] (Task4) at (8, -9) {Counting Active\\Organisations};
+\node[act] (Task5) at (11, -9) {Fetching Recent\\Chat Messages};
+
+% -------------------------
+% 5. Join Bar
+% -------------------------
+\node[sync, minimum width=13cm] (Join) at (5, -11) {};
+
+% -------------------------
+% 6. Fork to Tasks (Straight vertical drops)
+% -------------------------
+\draw[->] (Fork.south -| Task1.north) -- (Task1.north);
+\draw[->] (Fork.south -| Task2.north) -- (Task2.north);
+\draw[->] (Fork.south) -- (Task3.north);
+\draw[->] (Fork.south -| Task4.north) -- (Task4.north);
+\draw[->] (Fork.south -| Task5.north) -- (Task5.north);
+
+% -------------------------
+% 7. Tasks to Join (Straight vertical drops)
+% -------------------------
+\draw[->] (Task1.south) -- (Join.north -| Task1.south);
+\draw[->] (Task2.south) -- (Join.north -| Task2.south);
+\draw[->] (Task3.south) -- (Join.north);
+\draw[->] (Task4.south) -- (Join.north -| Task4.south);
+\draw[->] (Task5.south) -- (Join.north -| Task5.south);
+
+% -------------------------
+% 8. Convergence & End
+% -------------------------
+\node[act] (GenRep) at (5, -13) {Rendering Dashboard with data and charts};
+
+\node[finalouter] (EndO) at (5, -15) {};
+\node[finalinner] (EndI) at (5, -15) {};
 
 \draw[->] (Join) -- (GenRep);
 \draw[->] (GenRep) -- (EndO);
 
 % -------------------------
-% 6. Documentation Notes (Floating Paper Elements)
+% 9. Documentation Notes (Floating Paper Elements)
 % -------------------------
 \node[note] (N1) at (-1, 1.5) {Login to Portal};
 \draw[-] (N1) -- (-1.25, 0);
 
-\node[note] (N2) at (1.5, 1.5) {Admin/Donor/Organisation\\request on UI};
-\draw[-] (N2) -- (UI.north);
+\node[note] (N2) at (2, 1.5) {Admin/Donor/Organisation\\request on UI};
+\draw[-] (N2) -- (UI.north east);
 
-\node[note] (N3) at (5.5, -1.5) {Calling MVC Controller\\for that event};
+\node[note] (N3) at (5, -1.5) {Calling MVC Controller\\for that event};
 \draw[-] (N3) -- (Exec.north west);
 
-\node[note] (N4) at (11.5, -6) {Calling to EF Core business\\logic querying PostgreSQL};
-\draw[-] (N4) -- (Fork.north east);
+\node[note] (N4) at (12.5, -5.5) {Calling to EF Core business\\logic querying PostgreSQL};
+\draw[-] (N4.south west) -- (10, -6.5);
 
-\node[note] (N5) at (11.5, -13) {Output in the form of\\dashboard data, donation\\stats, and system reports};
-\draw[-] (N5) -- (GenRep.north east);
+\node[note] (N5) at (10, -12.5) {Output in the form of\\dashboard data, donation\\stats, and system reports};
+\draw[-] (N5.west) -- (GenRep.east);
 
 \end{tikzpicture}
-\caption{State Diagram mapping analytical requests natively over EF Core framework for Social Help System}
+\caption{State Diagram mapping analytical requests over EF Core framework for Social Help System}
 \end{figure}
 \end{document}
